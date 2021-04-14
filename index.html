@@ -1,1 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
 
+<head>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;1,300;1,700&display=swap');
+
+        body {
+            font-family: 'Lato', arial;
+            font-size: 14px;
+            font-weight: 400;
+        }
+
+        h2 {
+            font-weight: 300;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Entrepreneurship Activity in the United States</h1>
+
+    <div id="all_svgs">
+        <svg id="chart1" height="500" width="800"></svg>
+        <div id="chart2_svgs"></div>
+        <svg id="chart2a" height="500" width="800"></svg>
+        <svg id="chart2b" height="500" width="800"></svg>
+        <svg id="chart2c" height="200" width="300"></svg>
+        <svg id="chart2d" height="200" width="300"></svg>
+    </div>
+    </div>
+
+    <script>
+        const request_data = async () => {
+        //load datasets
+        const business_characteristics = await d3.json("cscb.json");
+        const business_owner_characteristics = await d3.json("cscbo.json");
+
+        console.log(business_characteristics);
+        console.log(business_owner_characteristics);
+
+        test_array = []
+        business_owner_characteristics.forEach((d,i) => {
+            if (d['17'] != null) {
+                test_array.push(d);
+            };
+        })
+
+        console.log(test_array);
+        };
+        request_data();
+    </script>
+
+    <h2>[Chart 1 Title - United States]</h2>
+
+
+    <h2>[Chart 2 Title - State Name]</h2>
+
+
+
+</body>
+
+</html>
