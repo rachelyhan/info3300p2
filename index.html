@@ -3,6 +3,7 @@
 
 <head>
     <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://d3js.org/topojson.v3.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;1,300;1,700&display=swap');
 
@@ -12,52 +13,180 @@
             font-weight: 400;
         }
 
+        #pick_county {
+            font-family: 'Lato', arial;
+            font-size: 18px;
+            font-weight: 300;
+        }
+
+        label {
+            font-size: 18px;
+            font-weight: 300;
+        }
+
         h2 {
             font-weight: 300;
+        }
+
+        .state {
+            fill: #ddd;
+        }
+
+        /* .selected_counties {
+            fill: #ddd;
+        } */
+
+        .outline {
+            stroke: #fff;
+            stroke-width: 1px;
+            fill: none;
         }
     </style>
 </head>
 
 <body>
-    <h1>Entrepreneurship Activity in the United States</h1>
+    <h1>How well-employed is your county?</h1>
+
+    <label for="pick_county">Pick your home county: </label>
+    <select name="pick_county" id="pick_county">
+        <!-- need to dynamically populate dropdown with JS -->
+        <option value="test">Test</option>
+    </select>
 
     <div id="all_svgs">
-        <svg id="chart1" height="500" width="800"></svg>
-        <div id="chart2_svgs"></div>
-        <svg id="chart2a" height="500" width="800"></svg>
+        <svg id="state" height="600" width="1000"></svg>
+        <svg id="us_map" height="600" width="1000"></svg>
         <svg id="chart2b" height="500" width="800"></svg>
         <svg id="chart2c" height="200" width="300"></svg>
         <svg id="chart2d" height="200" width="300"></svg>
     </div>
-    </div>
 
     <script>
-        const request_data = async () => {
-        //load datasets
-        const business_characteristics = await d3.json("cscb.json");
-        const business_owner_characteristics = await d3.json("cscbo.json");
+        //state map
+        const state_svg = d3.select("#state");
+        const state_width = state_svg.attr("width");
+        const state_height = state_svg.attr("height");
+        // const state_mapWidth = state_width;
+        // const state_mapHeight = state_height;
 
-        console.log(business_characteristics);
-        console.log(business_owner_characteristics);
+        //us map
+        const us_svg = d3.select("#us_map");
+        const us_width = us_svg.attr("width");
+        const us_height = us_svg.attr("height");
+        // const us_mapWidth = us_width;
+        // const us_mapHeight = us_height;
 
-        test_array = []
-        business_owner_characteristics.forEach((d,i) => {
-            if (d['17'] != null) {
-                test_array.push(d);
-            };
-        })
+        const request_data = async function () {
+            //load us map json
+            const us = await d3.json("counties-10m.json");
 
-        console.log(test_array);
+            var us_projection = d3.geoAlbersUsa().scale(1300).translate([487.5, 305]);
+            var us_path = d3.geoPath().projection(us_projection);
+
+            var state_projection = d3.geoAlbersUsa().scale(1).translate([0, 0]);
+            var state_path = d3.geoPath().projection(state_projection);
+
+
+            var nation = topojson.feature(us, us.objects.nation);
+            var counties = topojson.feature(us, us.objects.counties);
+            var states = topojson.feature(us, us.objects.states)
+            var statesMesh = topojson.mesh(us, us.objects.states);
+            var countiesMesh = topojson.mesh(us, us.objects.counties);
+
+            // console.log(us);
+            // console.log(nation);
+            // console.log(states);
+            console.log(counties);
+
+            // console.log(statesMesh);
+            // console.log(countiesMesh);
+
+            //user_input_county_id needs to be made interactive based on user selection
+            user_input_county_id = "04015";
+            user_input_state_id = user_input_county_id.substring(0, 2);
+
+            selected_state = states.features.filter(function (d) {
+                return d.id === user_input_state_id;
+            });
+
+            selected_counties = counties.features.filter(function (d) {
+                return d.id.substring(0, 2) === user_input_state_id;
+            });
+
+            console.log(selected_counties);
+
+            //source for centering state map: https://bl.ocks.org/gregdevs/a73f8a16f129757c037e72ecdebdd8f2
+            var state_bounds = state_path.bounds(selected_state[0]);
+            var state_x_difference = state_bounds[1][0] - state_bounds[0][0];
+            var state_y_difference = state_bounds[1][1] - state_bounds[0][1];
+            var state_x_sum = state_bounds[1][0] + state_bounds[0][0];
+            var state_y_sum = state_bounds[1][1] + state_bounds[0][1];
+
+            var state_scale = 0.95 / Math.max(state_x_difference / state_width, state_y_difference / state_height);
+            var state_translate = [(state_width - state_scale * state_x_sum) / 2, (state_height - state_scale * state_y_sum) / 2];
+
+            state_projection.scale(state_scale)
+                .translate(state_translate);
+
+
+            var employment = await d3.csv("employment_data.csv", d3.autoType);
+            var education = await d3.csv("education_data.csv", d3.autoType);
+
+            const colorsArray = ["#B5375D", "#DBADA6", "#DEDEDE", "#A1D5ED", "#26C7CB"];
+            // const colorsArray = ["#aaabbc","#02182b","#8b8982","#6c91c2","#c3c9e9"];
+            // const colorsArray = ["#f5f9e9","#02182b","#c2c1a5","#6b9ac4","#7692ff"];
+            // const colorsArray = ["#df2935", "#28262c","#fff","#f9f5ff","#14248a"];
+            // const colorsArray = ["#88c8e7", "#66b8e1","#448da", "#2896cc","#227daa"];
+            // const colorsArray = ["#07C8F9","#09A6F3","#0A85ED","#0C63E7","#0D41E1"];
+            
+            // does it matter if we use quantize vs quantile?
+            const colorScale = d3.scaleQuantize()
+                .domain([0, 1])
+                .range(colorsArray);
+
+    counties.features.forEach((county,i) => {
+        employment.forEach((d,i) => {
+            employment_rate = d['Employed'];
+            if (Number(county.id) === d['FIPS_code']) {
+                county.properties["employment_rate"] = employment_rate;
+            }
+        });
+    });
+
+    //need to correct two undefined values
+    // counties.features.forEach((county,i) => {
+    //     console.log(county.properties['employment_rate']);
+    //     console.log(county.properties['name'])
+    // });
+
+            // console.log(employment);
+            // console.log(education);
+
+            //draw state map
+            state_svg.selectAll("path.selected_counties").data(selected_counties)
+                .join("path")
+                .attr("class", "selected_counties")
+                .attr("d", state_path)
+                .attr("fill", d => colorScale(Number(d.properties.employment_rate)));
+
+            // state_svg.append("path").datum
+            state_svg.append("path").datum(countiesMesh)
+                .attr("class", "outline")
+                .attr("d", state_path);
+
+            //draw us map
+                      us_svg.selectAll("path.counties").data(counties.features)
+                .join("path")
+                .attr("class", "counties")
+                .attr("d", us_path)
+                .attr("fill", d => colorScale(Number(d.properties.employment_rate)));
+
+            us_svg.append("path").datum(statesMesh)
+                .attr("class", "outline")
+                .attr("d", us_path);
         };
         request_data();
     </script>
-
-    <h2>[Chart 1 Title - United States]</h2>
-
-
-    <h2>[Chart 2 Title - State Name]</h2>
-
-
 
 </body>
 
