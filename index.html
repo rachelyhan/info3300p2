@@ -59,7 +59,10 @@
         <svg id="chart2b" height="500" width="800"></svg>
         <svg id="chart2c" height="200" width="300"></svg>
         <svg id="chart2d" height="200" width="300"></svg>
+        <svg id="usmap2" height="610" width="975" style="background: #fff; margin-top:50px"></svg>
     </div>
+
+    <button onclick="literacyFilter()">Literacy Filter</button>
 
     <script>
         //state map
@@ -75,6 +78,12 @@
         const us_height = us_svg.attr("height");
         // const us_mapWidth = us_width;
         // const us_mapHeight = us_height;
+
+        // US Map 2 (Rachel)
+        const us2 = d3.select("#usmap2");
+        const us2width = us2.attr("width");
+        const us2height = us2.attr("height");
+        const us2map = us2.append("g");
 
         const request_data = async function () {
             //load us map json
@@ -138,26 +147,26 @@
             // const colorsArray = ["#df2935", "#28262c","#fff","#f9f5ff","#14248a"];
             // const colorsArray = ["#88c8e7", "#66b8e1","#448da", "#2896cc","#227daa"];
             // const colorsArray = ["#07C8F9","#09A6F3","#0A85ED","#0C63E7","#0D41E1"];
-            
+
             // does it matter if we use quantize vs quantile?
             const colorScale = d3.scaleQuantize()
                 .domain([0, 1])
                 .range(colorsArray);
 
-    counties.features.forEach((county,i) => {
-        employment.forEach((d,i) => {
-            employment_rate = d['Employed'];
-            if (Number(county.id) === d['FIPS_code']) {
-                county.properties["employment_rate"] = employment_rate;
-            }
-        });
-    });
+            counties.features.forEach((county, i) => {
+                employment.forEach((d, i) => {
+                    employment_rate = d['Employed'];
+                    if (Number(county.id) === d['FIPS_code']) {
+                        county.properties["employment_rate"] = employment_rate;
+                    }
+                });
+            });
 
-    //need to correct two undefined values
-    // counties.features.forEach((county,i) => {
-    //     console.log(county.properties['employment_rate']);
-    //     console.log(county.properties['name'])
-    // });
+            //need to correct two undefined values
+            // counties.features.forEach((county,i) => {
+            //     console.log(county.properties['employment_rate']);
+            //     console.log(county.properties['name'])
+            // });
 
             // console.log(employment);
             // console.log(education);
@@ -175,7 +184,7 @@
                 .attr("d", state_path);
 
             //draw us map
-                      us_svg.selectAll("path.counties").data(counties.features)
+            us_svg.selectAll("path.counties").data(counties.features)
                 .join("path")
                 .attr("class", "counties")
                 .attr("d", us_path)
@@ -184,9 +193,62 @@
             us_svg.append("path").datum(statesMesh)
                 .attr("class", "outline")
                 .attr("d", us_path);
+
+
+
+            /// PART 2: US MAP WITH COUNTIES WITH UNEMPLOYMENT RATE (Rachel)
+
+            // Filtering by literacy average score (Lit_A)
+            counties.features.forEach((county, i) => {
+                employment.forEach((d, i) => {
+                    literacy = d['Lit_A'];
+                    if (Number(county.id) === d['FIPS_code']) {
+                        county.properties["literacy"] = literacy;
+                    }
+                });
+            });
+            console.log(counties);
+
+            function literacyFilter() {
+                console.log("testing");
+                us2map.selectAll("path.counties").data(counties.features)
+                    .join("path")
+                    .attr("class", "counties")
+                    .attr("d", us_path)
+                    .attr("fill", d => colorScale(Number(d.properties.literacy)));
+            }
+
+
+            // draw map
+            us2map.selectAll("path.nation").data(nation.features)
+                .join("path")
+                .attr("class", "nation")
+                .attr("d", us_path);
+
+            us2map.append("path").datum(statesMesh)
+                .attr("class", "outline")
+                .attr("d", us_path);
+
+            us2map.selectAll("path.nation").data(nation.features)
+                .join("path")
+                .attr("class", "nation")
+                .attr("d", us_path);
+
+            us2map.selectAll("path.counties").data(counties.features)
+                .join("path")
+                .attr("class", "counties")
+                .attr("d", us_path)
+                .attr("fill", d => colorScale(Number(d.properties.employment_rate)));
+
+            us2map.append("path").datum(statesMesh)
+                .attr("class", "outline")
+                .attr("d", us_path);
+
+
         };
         request_data();
     </script>
+
 
 </body>
 
