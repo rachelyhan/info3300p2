@@ -62,7 +62,7 @@
         <svg id="usmap2" height="610" width="975" style="background: #fff; margin-top:50px"></svg>
     </div>
 
-    <button onclick="literacyFilter()">Literacy Filter</button>
+    <div id="buttonLiteracy"></div>
 
     <script>
         //state map
@@ -209,6 +209,9 @@
             });
             console.log(counties);
 
+
+            d3.select("buttonLiteracy").append("button");
+
             function literacyFilter() {
                 console.log("testing");
                 us2map.selectAll("path.counties").data(counties.features)
@@ -217,7 +220,6 @@
                     .attr("d", us_path)
                     .attr("fill", d => colorScale(Number(d.properties.literacy)));
             }
-
 
             // draw map
             us2map.selectAll("path.nation").data(nation.features)
@@ -247,6 +249,8 @@
 
         };
         request_data();
+
+
     </script>
 
 
