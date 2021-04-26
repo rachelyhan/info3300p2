@@ -59,7 +59,6 @@
         <svg id="chart2b" height="500" width="800"></svg>
         <svg id="chart2c" height="200" width="300"></svg>
         <svg id="chart2d" height="200" width="300"></svg>
-        <svg id="usmap2" height="610" width="975" style="background: #fff; margin-top:50px"></svg>
     </div>
 
     <div id="buttonLiteracy"></div>
@@ -221,30 +220,90 @@
                     .attr("fill", d => colorScale(Number(d.properties.literacy)));
             }
 
-            // draw map
-            us2map.selectAll("path.nation").data(nation.features)
-                .join("path")
-                .attr("class", "nation")
-                .attr("d", us_path);
 
-            us2map.append("path").datum(statesMesh)
-                .attr("class", "outline")
-                .attr("d", us_path);
 
-            us2map.selectAll("path.nation").data(nation.features)
-                .join("path")
-                .attr("class", "nation")
-                .attr("d", us_path);
+            var filters = {};
+            var match = topojson.feature(us, us.objects.counties);
 
-            us2map.selectAll("path.counties").data(counties.features)
-                .join("path")
-                .attr("class", "counties")
-                .attr("d", us_path)
-                .attr("fill", d => colorScale(Number(d.properties.employment_rate)));
+            function matchCounties(matches) {
+                console.log("matching", matches)
+                console.log(filters)
+                matches = matches.filter(pointPassesFilters)
+                // data.forEach( d => { d.position = projection([d.Longitude, d.Latitude]);});
+                console.log(matches)
+            }
 
-            us2map.append("path").datum(statesMesh)
-                .attr("class", "outline")
-                .attr("d", us_path);
+            function makeSlider(container, label, attribute, sliderWidth, sliderHeight) {
+
+                let values = employment.map(d => d[attribute] * 100);
+
+                let minMax = d3.extent(values);
+                let xScale = d3.scaleLinear().domain(minMax).range([10, sliderWidth - 10]); // padding here for ease
+                let xAxis = d3.axisBottom(xScale).tickFormat(d3.format(".2"));
+
+                let wrapper = container.append("div").attr("class", "control");
+                wrapper.append("div").text(label);
+                let canvas = wrapper.append("svg").attr("width", sliderWidth)
+                    .attr("height", sliderHeight + 20)
+                    .attr("attribute", attribute);
+                let areaLayer = canvas.append("g");
+                canvas.append("g").attr("transform", `translate(0,${sliderHeight})`)
+                    .call(xAxis);
+
+                let numBins = 10;
+                let histoGen = d3.histogram().domain(minMax)
+                    .thresholds(numBins);
+                let counts = histoGen(values);
+
+                // To make the line chart smoother, we add a dummy value at the start of the array using unshift
+                counts.unshift({
+                    x0: 0,
+                    x1: counts[0].x0,
+                    length: counts[0].length
+                });
+
+                let yScale = d3.scaleLinear().domain(d3.extent(counts, d => d.length))
+                    .range([sliderHeight, 4]);
+
+                let area = d3.area().x(d => xScale(d.x1))
+                    .y0(yScale(0))
+                    .y1(d => yScale(d.length))
+                    .curve(d3.curveNatural);
+                areaLayer.append("path").datum(counts)
+                    .attr("class", "area")
+                    .attr("d", area);
+
+                let filterFunc = d => true;
+                filters[attribute] = filterFunc;
+
+                // Allow the user to select regions of the slider
+                var brush = d3.brushX().extent([[10, 0],
+                [sliderWidth - 10, sliderHeight]])
+                    .on("brush end", brushMoved);
+
+                function brushMoved(event) {
+                    console.log(d3.event.type, d3.event.selection);
+                    // Everything but clicking on brush area
+                    if (event.selection !== null) {
+                        let start = xScale.invert(event.selection[0]);
+                        let end = xScale.invert(event.selection[1]);
+                        let filterFunc = d => d[attribute] >= start && d[attribute] <= end;
+                        filters[attribute] = filterFunc;
+                        matchCounties(match)
+                    }
+                    // Clicking on brush area to empty it out
+                    else {
+                        let filterFunc = d => true;
+                        filters[attribute] = filterFunc;
+                        matchCounties(match)
+                    }
+                }
+                canvas.append("g").attr("class", "brush").call(brush);
+            }
+
+            makeSlider(d3.select("#multiple"), "Employment Rate", "Employed", 500, 20)
+            makeSlider(d3.select("#multiple"), "Unemployment Rate", "Unemployed", 500, 20)
+            makeSlider(d3.select("#multiple"), "Poverty", "Poverty_100", 500, 20)
 
 
         };
