@@ -47,6 +47,14 @@
             stroke-width: 1px;
             fill: none;
         }
+
+        .visualization_1 {
+            display: flex;
+        }
+
+        .viz_1_map {
+            flex: 1;
+        }
     </style>
 </head>
 
@@ -73,13 +81,21 @@
     <input type="text" id="zip_code_input" placeholder="Type your zipcode here" minlength="5" maxlength="5"> -->
 
     <div id="all_svgs">
-        <svg id="user_state" height="600" width="1000"></svg>
-        <svg id="state_max" height="600" width="1000"></svg>
-        <svg id="state_min" height="600" width="1000"></svg>
+        <div class="visualization_1">
+            <div class="viz_1_map element_1">
+                <svg id="state_min" height="400" width="600"></svg>
+            </div>
+            <div class="viz_1_map element_2">
+                <svg id="user_state" height="400" width="600"></svg>
+            </div>
+            <div class="viz_1_map element_3">
+                <svg id="state_max" height="400" width="600"></svg>
+            </div>
+        </div>
         <svg id="us_map" height="600" width="1000"></svg>
-        <svg id="chart2b" height="500" width="800"></svg>
+        <!-- <svg id="chart2b" height="500" width="800"></svg>
         <svg id="chart2c" height="200" width="300"></svg>
-        <svg id="chart2d" height="200" width="300"></svg>
+        <svg id="chart2d" height="200" width="300"></svg> -->
     </div>
 
     <div id="buttonLiteracy"></div>
@@ -187,7 +203,7 @@
                     .append('option')
                     .text(d => { return d; })
                     .attr("value", d => { return d; })
-                    // .remove();
+                // .remove();
                 // .exit()
                 // .remove();
 
@@ -211,14 +227,16 @@
             };
 
             //user_input_county_id needs to be made interactive based on user selection
-            function make_state_map(user_input_county_id, svg_id) {
+            function make_state_map(county_id, svg_id) {
+                console.log("in make state map")
+                console.log(county_id);
                 const state_svg = d3.select(svg_id);
                 const state_width = state_svg.attr("width");
                 const state_height = state_svg.attr("height");
                 // const state_mapWidth = state_width;
                 // const state_mapHeight = state_height;
 
-                user_input_county_id_string = user_input_county_id.toString();
+                user_input_county_id_string = county_id.toString();
                 user_input_state_id = user_input_county_id_string.substring(0, 2);
 
                 selected_state = states.features.filter(function (d) {
@@ -249,7 +267,7 @@
                     .domain([0, 1])
                     .range(colorsArray);
 
-                console.log(state_path);
+                // console.log(state_path);
                 // weird state_path error with california
                 //draw state map
                 state_svg.selectAll("path.selected_counties").data(selected_counties)
@@ -275,6 +293,9 @@
                     .selectAll('county_options')
                     .remove();
             });
+            // BUG: only one svg shows up at a time, not all 3???
+            // make_state_map(42053, "#state_min");
+            // make_state_map(46117, "#state_max");
 
             //draw us map
             // us_svg.selectAll("path.counties").data(counties.features)
