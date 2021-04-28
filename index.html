@@ -25,6 +25,12 @@
             font-weight: 300;
         }
 
+        #reset_button {
+            font-family: 'Lato', arial;
+            font-size: 16px;
+            font-weight: 300;
+        }
+
         label {
             font-size: 16px;
             font-weight: 300;
@@ -55,6 +61,12 @@
         .viz_1_map {
             flex: 1;
         }
+
+        .mouseover_outline {
+    stroke: black;
+    stroke-width: 1px;
+    fill: none;
+  }
     </style>
 </head>
 
@@ -178,15 +190,10 @@
             // update county dropdown based on state selection
             d3.select("#pick_state_input").on("change", function (d) {
                 var selected_state_input = d3.select(this).property("value");
-                console.log(selected_state_input);
-                // d3.select("#pick_county_input")
-                // .selectAll('county_options')
-                //     .remove();
                 update_county_dropdown(selected_state_input);
             });
 
             function update_county_dropdown(user_state_input) {
-                console.log(user_state_input);
                 var user_counties = [];
                 counties.features.forEach((county, i) => {
                     if (county.properties.state === user_state_input) {
@@ -194,24 +201,22 @@
                     };
                     user_counties.sort();
                 });
-                console.log(user_counties);
+
+                d3.selectAll('.county_options')
+                    .remove();
 
                 d3.select("#pick_county_input")
                     .selectAll('county_options')
                     .data(user_counties)
                     .enter()
-                    .append('option')
+                    .append('option').attr("class", 'county_options')
                     .text(d => { return d; })
                     .attr("value", d => { return d; })
-                // .remove();
-                // .exit()
-                // .remove();
 
-                // check if you need a reset button to clear all the options because right now the old county gets added to the list of new counties
                 d3.select("#pick_county_input").on("change", function (d) {
                     var selected_county_input = d3.select(this).property("value");
                     user_county_id_input = find_county_id(user_state_input, selected_county_input);
-                    console.log(user_county_id_input);
+                    // console.log(user_county_id_input);
                     make_state_map(user_county_id_input, "#user_state");
                 });
             };
@@ -228,8 +233,9 @@
 
             //user_input_county_id needs to be made interactive based on user selection
             function make_state_map(county_id, svg_id) {
-                console.log("in make state map")
-                console.log(county_id);
+                // console.log("in make state map")
+                // console.log(county_id);
+                // console.log(svg_id);
                 const state_svg = d3.select(svg_id);
                 const state_width = state_svg.attr("width");
                 const state_height = state_svg.attr("height");
@@ -267,6 +273,14 @@
                     .domain([0, 1])
                     .range(colorsArray);
 
+                // outline for selected state
+                let momesh = state_svg.append("path")
+                     .attr("class","mouseover_outline")
+                     .attr("d", "");
+
+                var mo = topojson.mesh(us, us.objects.counties, function(a, b) { return a.id === county_id || b.id === county_id; });
+                momesh.datum(mo).attr("d", state_path)
+
                 // console.log(state_path);
                 // weird state_path error with california
                 //draw state map
@@ -287,10 +301,12 @@
                 console.log("in reset");
                 d3.select("#pick_state_input")
                     .selectAll('state_options')
+                    .exit()
                     .remove();
 
                 d3.select("#pick_county_input")
                     .selectAll('county_options')
+                    .exit()
                     .remove();
             });
             // BUG: only one svg shows up at a time, not all 3???
