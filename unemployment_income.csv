@@ -1,13 +1,13 @@
 fips_txt,Stabr,area_name,Attribute,Value
-0,US,United States,Civilian_labor_force_2000,142601667
-0,US,United States,Employed_2000,136904680
-0,US,United States,Unemployed_2000,5696987
-0,US,United States,Unemployment_rate_2000,3.995035346
-0,US,United States,Civilian_labor_force_2019,163100055
-0,US,United States,Employed_2019,157115247
-0,US,United States,Unemployed_2019,5984808
-0,US,United States,Unemployment_rate_2019,3.66940894
-0,US,United States,Median_Household_Income_2019,65712
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
 1000,AL,Alabama,Civilian_labor_force_2000,2133223
 1000,AL,Alabama,Employed_2000,2035594
 1000,AL,Alabama,Unemployed_2000,97629

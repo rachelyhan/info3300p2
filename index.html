@@ -4,70 +4,8 @@
 <head>
     <script src="https://d3js.org/d3.v6.min.js"></script>
     <script src="https://d3js.org/topojson.v3.min.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;1,300;1,700&display=swap');
-
-        body {
-            font-family: 'Lato', arial;
-            font-size: 14px;
-            font-weight: 400;
-        }
-
-        #pick_county_input {
-            font-family: 'Lato', arial;
-            font-size: 16px;
-            font-weight: 300;
-        }
-
-        #pick_state_input {
-            font-family: 'Lato', arial;
-            font-size: 16px;
-            font-weight: 300;
-        }
-
-        #reset_button {
-            font-family: 'Lato', arial;
-            font-size: 16px;
-            font-weight: 300;
-        }
-
-        label {
-            font-size: 16px;
-            font-weight: 300;
-        }
-
-        h2 {
-            font-weight: 300;
-        }
-
-        .state {
-            fill: #ddd;
-        }
-
-        /* .selected_counties {
-            fill: #ddd;
-        } */
-
-        .outline {
-            stroke: #fff;
-            stroke-width: 1px;
-            fill: none;
-        }
-
-        .visualization_1 {
-            display: flex;
-        }
-
-        .viz_1_map {
-            flex: 1;
-        }
-
-        .mouseover_outline {
-    stroke: black;
-    stroke-width: 1px;
-    fill: none;
-  }
-    </style>
+    <script src="/tooltip.js"></script>
+    <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
@@ -89,9 +27,6 @@
         <button type="button" id="reset_button">Reset</button>
     </div>
 
-    <!-- <label for="zip_code_input">Select your zip code: </label>
-    <input type="text" id="zip_code_input" placeholder="Type your zipcode here" minlength="5" maxlength="5"> -->
-
     <div id="all_svgs">
         <div class="visualization_1">
             <div class="viz_1_map element_1">
@@ -108,9 +43,16 @@
         <!-- <svg id="chart2b" height="500" width="800"></svg>
         <svg id="chart2c" height="200" width="300"></svg>
         <svg id="chart2d" height="200" width="300"></svg> -->
+        <div id="v3">
+            <svg id="v3_c1" height="400" width="600"></svg>
+            <svg id="v3_c2" height="400" width="600"></svg>
+        </div>
+        <div class="miniGraphs">
+            <svg id="hs_graph" height="500" width="800"></svg>
+            <svg id="employment_graph" height="500" width="800"></svg>
+        </div>
     </div>
 
-    <div id="buttonLiteracy"></div>
 
     <script>
         // PART 1: COUNTY VISUALIZATION (SHRUTI)
@@ -122,12 +64,6 @@
         const us_height = us_svg.attr("height");
         // const us_mapWidth = us_width;
         // const us_mapHeight = us_height;
-
-        // US Map 2 (Rachel)
-        // const us2 = d3.select("#usmap2");
-        // const us2width = us2.attr("width");
-        // const us2height = us2.attr("height");
-        // const us2map = us2.append("g");
 
         const request_data = async function () {
             //load us map json
@@ -145,30 +81,49 @@
             var statesMesh = topojson.mesh(us, us.objects.states);
             var countiesMesh = topojson.mesh(us, us.objects.counties);
 
-            // datasets
+            // import datasets and populate new json
             var zip_codes = await d3.csv("fipscode_zipcode.csv", d3.autoType);
             var employment = await d3.csv("employment_data.csv", d3.autoType);
-            var education = await d3.csv("education_data.csv", d3.autoType);
+            var education = await d3.csv("education.csv", d3.autoType);
+            var income = await d3.csv("unemployment_income.csv", d3.autoType);
 
-            // populating variables for counties
+            data = {}
+            nameToFIPS = {}
+
             counties.features.forEach((county, i) => {
-                employment.forEach((d, i) => {
-                    employment_rate = d['Employed'];
-                    state = d['State'].trim();
-                    county_name = d['County'];
-                    if (Number(county.id) === d['FIPS_code']) {
-                        county.properties["employment_rate"] = employment_rate;
-                        county.properties["state"] = state;
-                        county.properties["county_name"] = county_name;
-                    }
-                });
+                data[Number(county.id)] = {};
+            })
+
+            employment.forEach((d, i) => {
+                const id = d['FIPS_code'].toString()
+                data[id]["employment_rate"] = d['Employed'];
+                data[id]["state"] = d['State'].trim();
+                data[id]["county_name"] = d['County'];
+                data[id]["literacy"] = d["Lit_P3"];
             });
 
-            // var all_zipcodes = []
-            // zip_codes.forEach((county, i) => {
-            //     county_zipcode = county.ZIP;
-            //     all_zipcodes.push(county_zipcode);
-            // });
+            education.forEach((d, i) => {
+                const id = d['FIPS Code'];
+                if (id in data) {
+                    data[id]["high_school"] = d['Percent of adults with a high school diploma only, 2015-19'] + d["Percent of adults completing some college or associate's degree, 2015-19"] + d["Percent of adults with a bachelor's degree or higher, 2015-19"];
+                    data[id]["college"] = d["Percent of adults with a bachelor's degree or higher, 2015-19"];
+                }
+            });
+
+            income.forEach((d, i) => {
+                const id = d['fips_txt']
+                if (id in data && ["Attribute" === "Median_Household_Income_2019"]) {
+                    data[id]["income"] = d["Value"]
+                }
+            });
+
+            // color scale constants
+            var all_employment_values = [];
+            employment.forEach((d, i) => {
+                all_employment_values.push(d['Employed'])
+            });
+
+            const colorsArray = ["#B5375D", "#DBADA6", "#DEDEDE", "#A1D5ED", "#26C7CB"];
 
             // array of all states to dropdown
             var all_states = [];
@@ -195,9 +150,11 @@
 
             function update_county_dropdown(user_state_input) {
                 var user_counties = [];
-                counties.features.forEach((county, i) => {
-                    if (county.properties.state === user_state_input) {
-                        user_counties.push(county.properties.county_name);
+                Object.keys(data).forEach((county) => {
+                    // console.log(user_state_input)
+                    // console.log(data[county])
+                    if (data[county]['state'] === user_state_input) {
+                        user_counties.push(data[county]['county_name']);
                     };
                     user_counties.sort();
                 });
@@ -216,7 +173,6 @@
                 d3.select("#pick_county_input").on("change", function (d) {
                     var selected_county_input = d3.select(this).property("value");
                     user_county_id_input = find_county_id(user_state_input, selected_county_input);
-                    // console.log(user_county_id_input);
                     make_state_map(user_county_id_input, "#user_state");
                 });
             };
@@ -233,9 +189,9 @@
 
             //user_input_county_id needs to be made interactive based on user selection
             function make_state_map(county_id, svg_id) {
-                // console.log("in make state map")
-                // console.log(county_id);
-                // console.log(svg_id);
+                var state_projection = d3.geoAlbersUsa().scale(1).translate([0, 0]);
+                var state_path = d3.geoPath().projection(state_projection);
+
                 const state_svg = d3.select(svg_id);
                 const state_width = state_svg.attr("width");
                 const state_height = state_svg.attr("height");
@@ -266,29 +222,28 @@
                 state_projection.scale(state_scale)
                     .translate(state_translate);
 
-                const colorsArray = ["#B5375D", "#DBADA6", "#DEDEDE", "#A1D5ED", "#26C7CB"];
-
-                // does it matter if we use quantize vs quantile?
-                const colorScale = d3.scaleQuantize()
-                    .domain([0, 1])
+                const colorScale = d3.scaleQuantile()
+                    .domain(all_employment_values)
                     .range(colorsArray);
 
                 // outline for selected state
                 let momesh = state_svg.append("path")
-                     .attr("class","mouseover_outline")
-                     .attr("d", "");
+                    .attr("class", "mouseover_outline")
+                    .attr("d", "");
 
-                var mo = topojson.mesh(us, us.objects.counties, function(a, b) { return a.id === county_id || b.id === county_id; });
+                var mo = topojson.mesh(us, us.objects.counties, function (a, b) { return a.id === county_id || b.id === county_id; });
                 momesh.datum(mo).attr("d", state_path)
 
-                // console.log(state_path);
+                state_svg.selectAll("path.selected_counties")
+                    .remove();
+
                 // weird state_path error with california
                 //draw state map
                 state_svg.selectAll("path.selected_counties").data(selected_counties)
                     .join("path")
                     .attr("class", "selected_counties")
                     .attr("d", state_path)
-                    .attr("fill", d => colorScale(Number(d.properties.employment_rate)));
+                    .attr("fill", d => colorScale(Number(data[Number(d.id)]["employment_rate"])));
 
                 // state_svg.append("path").datum
                 state_svg.append("path").datum(countiesMesh)
@@ -309,29 +264,24 @@
                     .exit()
                     .remove();
             });
-            // BUG: only one svg shows up at a time, not all 3???
-            // make_state_map(42053, "#state_min");
-            // make_state_map(46117, "#state_max");
 
-            const colorsArray = ["#B5375D", "#DBADA6", "#DEDEDE", "#A1D5ED", "#26C7CB"];
+            make_state_map(42053, "#state_min");
+            make_state_map(46117, "#state_max");
 
-                // does it matter if we use quantize vs quantile?
-                const colorScale = d3.scaleQuantize()
-                    .domain([0, 1])
-                    .range(colorsArray);
+            const colorScale = d3.scaleQuantile()
+                .domain(all_employment_values)
+                .range(colorsArray);
 
             //draw us map
             us_svg.selectAll("path.counties").data(counties.features)
                 .join("path")
                 .attr("class", "counties")
                 .attr("d", us_path)
-                .attr("fill", d => colorScale(Number(d.properties.employment_rate)));
+                .attr("fill", d => colorScale(Number(data[Number(d.id)]["employment_rate"])));
 
             us_svg.append("path").datum(statesMesh)
                 .attr("class", "outline")
                 .attr("d", us_path);
-
-
 
             // PART 2: US MAP WITH COUNTIES WITH UNEMPLOYMENT RATE (Rachel)
 
@@ -443,13 +393,227 @@
             // makeSlider(d3.select("#multiple"), "Unemployment Rate", "Unemployed", 500, 20)
             // makeSlider(d3.select("#multiple"), "Poverty", "Poverty_100", 500, 20)
 
+            //PART 3: COMPARE COUNTIES (CRYSTAL)
+            var compare1 = 36010
+            var compare2 = 12002
+            make_state_map(compare1, "#v3_c1");
+            make_state_map(compare2, "#v3_c2");
+
+            add_tooltip("#v3_c1", us, state_path, counties)
+            // add_tooltip("#us_map", us, state_path)
+
+            // HS EDUCATION MINI GRAPH
+            const svg = d3.select("svg#hs_graph");
+            const width = svg.attr("width");
+            const height = svg.attr("height");
+            const margin = { "top": 40, "right": 10, "bottom": 50, "left": 60 };
+            const chartWidth = width - margin.left - margin.right;
+            const chartHeight = height - margin.top - margin.bottom
+
+
+            let annotations = svg.append("g").attr("id", "annotations");
+            let chartArea = svg.append("g").attr("id", "points")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            const hsScale = d3.scaleLinear().domain([0, 100]).range([chartHeight, 0])
+            let leftAxis = d3.axisLeft(hsScale).tickFormat(d3.format(''));
+            let leftGridlines = d3.axisLeft(hsScale)
+                .tickSize(-chartWidth - 10)
+                .tickFormat("")
+
+            annotations.append("g")
+                .attr("class", "y axis")
+                .style("font", "11px Montserrat")
+                .attr("transform", `translate(${margin.left - 10},${margin.top})`)
+                .call(leftAxis)
+            annotations.append("g")
+                .attr("class", "y gridlines")
+                .attr("transform", `translate(${margin.left - 10},${margin.top})`)
+                .call(leftGridlines);
+
+            const xaxisScale = d3.scalePoint()
+                .domain(["less than HS education", "only HS education", "more than HS education"])
+                .range([30, chartWidth - 70]);
+
+            let bottomAxis = d3.axisBottom(xaxisScale)
+            let bottomAxisG = annotations.append("g")
+                .style("font", "14px Montserrat")
+                .attr("class", "x axis")
+                .attr("transform", `translate(${margin.left},${chartHeight + margin.top + 10})`)
+                .call(bottomAxis);
+
+            //chart title
+            svg.append("text")
+                .attr("x", width / 2)
+                .attr("y", 20)
+                .style("text-anchor", "middle")
+                .style("font-weight", 600)
+                .style("font-size", "16px")
+                .text("Education Graph");
+
+            //x axis labels
+            svg.append("text")
+                .attr("x", width / 2)
+                .attr("y", height)
+                .style("text-anchor", "middle")
+                .style("font-weight", 600);
+
+            //y axis label
+            svg.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 0)
+                .attr("x", 0 - (height / 2))
+                .attr("dy", "1em")
+                .style("text-anchor", "middle")
+                .style("font-weight", 600)
+                .text("Percentage");
+
+            //rectangle for less than HS education
+            chartArea.append("line")
+                .attr("x1", xaxisScale("less than HS education"))
+                .attr("x2", xaxisScale("less than HS education"))
+                .attr("y1", hsScale[0])
+                .attr("y2", hsScale(education["XXXXXX"]["Percent of adults with less than a high school diploma, 2015-19"]))
+                .style("stroke", "blue")
+                .style("stroke-width", 40);
+
+            //rectangle for only HS education
+            chartArea.append("line")
+                .attr("x1", xaxisScale("only HS education"))
+                .attr("x2", xaxisScale("only HS education"))
+                .attr("y1", hsScale[0])
+                .attr("y2", hsScale(education["XXXXXX"]["Percent of adults with a high school diploma only, 2015-19"]))
+                .style("stroke", "blue")
+                .style("stroke-width", 40);
+
+            //rectangle for more than HS education
+            chartArea.append("line")
+                .attr("x1", xaxisScale("more than HS education"))
+                .attr("x2", xaxisScale("more than HS education"))
+                .attr("y1", hsScale[0])
+                .attr("y2", hsScale(education["XXXXXX"]["Percent of adults with a bachelor's degree or higher, 2015-19"]))
+                .style("stroke", "blue")
+                .style("stroke-width", 40);
+
+
+
+
+            // EMPLOYMENT SECTOR BAR CHART MINI GRAPH
+            const svg2 = d3.select("svg#employment_graph");
+            const width2 = svg2.attr("width");
+            const height2 = svg2.attr("height");
+            const margin2 = { "top": 40, "right": 10, "bottom": 50, "left": 60 };
+            const chartWidth2 = width2 - margin2.left - margin2.right;
+            const chartHeight2 = height2 - margin2.top - margin2.bottom
+
+
+            let annotations2 = svg2.append("g").attr("id", "annotations");
+            let chartArea2 = svg2.append("g").attr("id", "points")
+                .attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
+
+            const employmentScale = d3.scaleLinear().domain([0, 100]).range([chartHeight2, 0])
+            let leftAxis2 = d3.axisLeft(employmentScale).tickFormat(d3.format(''));
+            let leftGridlines2 = d3.axisLeft(employmentScale)
+                .tickSize(-chartWidth2 - 10)
+                .tickFormat("")
+
+            annotations2.append("g")
+                .attr("class", "y axis")
+                .style("font", "11px Montserrat")
+                .attr("transform", `translate(${margin2.left - 10},${margin2.top})`)
+                .call(leftAxis2)
+            annotations2.append("g")
+                .attr("class", "y gridlines")
+                .attr("transform", `translate(${margin2.left - 10},${margin2.top})`)
+                .call(leftGridlines2);
+
+            const xaxisScale2 = d3.scalePoint()
+                .domain(["Management", "Service", "Sales", "Military", "Production"])
+                .range([30, chartWidth2 - 70]);
+
+            let bottomAxis2 = d3.axisBottom(xaxisScale2)
+            let bottomAxisG2 = annotations2.append("g")
+                .style("font", "14px Montserrat")
+                .attr("class", "x axis")
+                .attr("transform", `translate(${margin2.left},${chartHeight2 + margin2.top + 10})`)
+                .call(bottomAxis2);
+
+            //chart title
+            svg2.append("text")
+                .attr("x", width2 / 2)
+                .attr("y", 20)
+                .style("text-anchor", "middle")
+                .style("font-weight", 600)
+                .style("font-size", "16px")
+                .text("Employment Graph");
+
+            //x axis labels
+            svg2.append("text")
+                .attr("x", width2 / 2)
+                .attr("y", height2)
+                .style("text-anchor", "middle")
+                .style("font-weight", 600);
+
+            //y axis label
+            svg2.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 0)
+                .attr("x", 0 - (height2 / 2))
+                .attr("dy", "1em")
+                .style("text-anchor", "middle")
+                .style("font-weight", 600)
+                .text("Percentage");
+
+            //rectangle for Management
+            chartArea2.append("line")
+                .attr("x1", xaxisScale2("Management"))
+                .attr("x2", xaxisScale2("Management"))
+                .attr("y1", employmentScale[0])
+                .attr("y2", employmentScale(employment["XXXXXX"]["OCC_Manage"]))
+                .style("stroke", "blue")
+                .style("stroke-width", 40);
+
+            //rectangle for Service
+            chartArea2.append("line")
+                .attr("x1", xaxisScale2("Service"))
+                .attr("x2", xaxisScale2("Service"))
+                .attr("y1", employmentScale[0])
+                .attr("y2", employmentScale(employment["XXXXXX"]["OCC_Service"]))
+                .style("stroke", "blue")
+                .style("stroke-width", 40);
+
+            //rectangle for Sales
+            chartArea2.append("line")
+                .attr("x1", xaxisScale2("Sales"))
+                .attr("x2", xaxisScale2("Sales"))
+                .attr("y1", employmentScale[0])
+                .attr("y2", employmentScale(employment["XXXXXX"]["OCC_Sales"]))
+                .style("stroke", "blue")
+                .style("stroke-width", 40);
+
+            //rectangle for Military
+            chartArea2.append("line")
+                .attr("x1", xaxisScale2("Military"))
+                .attr("x2", xaxisScale2("Military"))
+                .attr("y1", employmentScale[0])
+                .attr("y2", employmentScale(employment["XXXXXX"]["OCC_Military"]))
+                .style("stroke", "blue")
+                .style("stroke-width", 40);
+
+
+            //rectangle for Production
+            chartArea2.append("line")
+                .attr("x1", xaxisScale2("Production"))
+                .attr("x2", xaxisScale2("Production"))
+                .attr("y1", employmentScale[0])
+                .attr("y2", employmentScale(employment["XXXXXX"]["OCC_Prod"]))
+                .style("stroke", "blue")
+                .style("stroke-width", 40);
 
         };
         request_data();
 
-
     </script>
-
 
 </body>
 
