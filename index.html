@@ -110,7 +110,15 @@
         <svg id="chart2d" height="200" width="300"></svg> -->
     </div>
 
-    <div id="buttonLiteracy"></div>
+    <div id="Filtering">
+
+        <p>Filter by Literacy</p>
+        <button type="button" id="literacy_button0">Minimum value</button>
+        <button type="button" id="literacy_button1">25th percentile</button>
+        <button type="button" id="literacy_button2">50th percentile</button>
+        <button type="button" id="literacy_button3">75th percentile</button>
+        <button type="button" id="literacy_button4">Maximum value</button>
+    </div>
 
     <script>
         // PART 1: COUNTY VISUALIZATION (SHRUTI)
@@ -123,11 +131,6 @@
         // const us_mapWidth = us_width;
         // const us_mapHeight = us_height;
 
-        // US Map 2 (Rachel)
-        // const us2 = d3.select("#usmap2");
-        // const us2width = us2.attr("width");
-        // const us2height = us2.attr("height");
-        // const us2map = us2.append("g");
 
         const request_data = async function () {
             //load us map json
@@ -148,7 +151,7 @@
             // datasets
             var zip_codes = await d3.csv("fipscode_zipcode.csv", d3.autoType);
             var employment = await d3.csv("employment_data.csv", d3.autoType);
-            var education = await d3.csv("education_data.csv", d3.autoType);
+            var education = await d3.csv("education.csv", d3.autoType);
 
             // populating variables for counties
             counties.features.forEach((county, i) => {
@@ -156,10 +159,12 @@
                     employment_rate = d['Employed'];
                     state = d['State'].trim();
                     county_name = d['County'];
+                    literacy = d['Lit_A'];
                     if (Number(county.id) === d['FIPS_code']) {
                         county.properties["employment_rate"] = employment_rate;
                         county.properties["state"] = state;
                         county.properties["county_name"] = county_name;
+                        county.properties["literacy"] = literacy;
                     }
                 });
             });
@@ -337,28 +342,37 @@
 
             // PART 2: US MAP WITH COUNTIES WITH UNEMPLOYMENT RATE (Rachel)
 
-            // Filtering by literacy average score (Lit_A)
-            // counties.features.forEach((county, i) => {
-            //     employment.forEach((d, i) => {
-            //         literacy = d['Lit_A'];
-            //         if (Number(county.id) === d['FIPS_code']) {
-            //             county.properties["literacy"] = literacy;
-            //         }
-            //     });
-            // });
-            // console.log(counties);
+            console.log(counties);
 
+            // const literacyExtent = d3.extent(counties, d => d.properties.literacy);
+            // console.log(literacyExtent);
 
-            // d3.select("buttonLiteracy").append("button");
+            const colorsArray2 = ["white", "red"];
 
-            // function literacyFilter() {
-            //     console.log("testing");
-            //     us2map.selectAll("path.counties").data(counties.features)
-            //         .join("path")
-            //         .attr("class", "counties")
-            //         .attr("d", us_path)
-            //         .attr("fill", d => colorScale(Number(d.properties.literacy)));
-            // }
+            // does it matter if we use quantize vs quantile?
+            const colorScale2 = d3.scaleQuantize()
+                .domain([0, 1])
+                .range(colorsArray2);
+
+            newList = []
+            function color(x) {
+                if (x === 189.3) {
+                    newList.push(1)
+                }
+                else {
+                    newList.push(0)
+                }
+            };
+
+            d3.select("#literacy_button0").on("click", function (d) {
+                console.log("success");
+                us_svg.selectAll("path.counties").data(counties.features)
+                    .join("path")
+                    .attr("class", "counties")
+                    .attr("d", us_path)
+                    .attr("fill", d => colorScale2(color(d.properties.literacy)));
+            });
+
 
 
 
