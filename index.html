@@ -314,19 +314,19 @@
             // make_state_map(46117, "#state_max");
 
             //draw us map
-            // us_svg.selectAll("path.counties").data(counties.features)
-            //     .join("path")
-            //     .attr("class", "counties")
-            //     .attr("d", us_path)
-            //     .attr("fill", d => colorScale(Number(d.properties.employment_rate)));
+            us_svg.selectAll("path.counties").data(counties.features)
+                .join("path")
+                .attr("class", "counties")
+                .attr("d", us_path)
+                .attr("fill", d => colorScale(Number(d.properties.employment_rate)));
 
-            // us_svg.append("path").datum(statesMesh)
-            //     .attr("class", "outline")
-            //     .attr("d", us_path);
+            us_svg.append("path").datum(statesMesh)
+                .attr("class", "outline")
+                .attr("d", us_path);
 
 
 
-            /// PART 2: US MAP WITH COUNTIES WITH UNEMPLOYMENT RATE (Rachel)
+            // PART 2: US MAP WITH COUNTIES WITH UNEMPLOYMENT RATE (Rachel)
 
             // Filtering by literacy average score (Lit_A)
             // counties.features.forEach((county, i) => {
