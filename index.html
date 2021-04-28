@@ -111,6 +111,9 @@
                 if (id in data) {
                     data[id]["high_school"] = d['Percent of adults with a high school diploma only, 2015-19'] + d["Percent of adults completing some college or associate's degree, 2015-19"] + d["Percent of adults with a bachelor's degree or higher, 2015-19"];
                     data[id]["college"] = d["Percent of adults with a bachelor's degree or higher, 2015-19"];
+                    data[id]["Percent of adults with less than a high school diploma, 2015-19"] = d["Percent of adults with less than a high school diploma, 2015-19"]
+                    data[id]["Percent of adults with a high school diploma only, 2015-19"] = d["Percent of adults with a high school diploma only, 2015-19"]
+                    data[id]["Percent of adults with a bachelor's degree or higher, 2015-19"] = d["Percent of adults with a high school diploma only, 2015-19"]
                 }
             });
 
@@ -120,6 +123,8 @@
                     data[id]["income"] = d["Value"]
                 }
             });
+
+            console.log(data)
 
             // color scale constants
             var all_employment_values = [];
@@ -253,6 +258,8 @@
                 state_svg.append("path").datum(countiesMesh)
                     .attr("class", "outline")
                     .attr("d", state_path);
+
+                add_tooltip("#v3_c1", us, state_path, counties)
             };
 
             // reset button for dropdowns
@@ -407,13 +414,11 @@
             // makeSlider(d3.select("#multiple"), "Poverty", "Poverty_100", 500, 20)
 
             //PART 3: COMPARE COUNTIES (CRYSTAL)
-            var compare1 = 36010
-            var compare2 = 12002
+            var compare1 = 2016
+            var compare2 = 36081
             make_state_map(compare1, "#v3_c1");
             make_state_map(compare2, "#v3_c2");
 
-            add_tooltip("#v3_c1", us, state_path, counties)
-            // add_tooltip("#us_map", us, state_path)
 
             // HS EDUCATION MINI GRAPH
             const svg = d3.select("svg#hs_graph");
@@ -481,12 +486,16 @@
                 .style("font-weight", 600)
                 .text("Percentage");
 
+            console.log(data[Number(compare1)]);
+            // console.log(typeof (compare1))
+            // console.log(data[2188])
+
             //rectangle for less than HS education
             chartArea.append("line")
                 .attr("x1", xaxisScale("less than HS education"))
                 .attr("x2", xaxisScale("less than HS education"))
                 .attr("y1", hsScale[0])
-                .attr("y2", hsScale(education["XXXXXX"]["Percent of adults with less than a high school diploma, 2015-19"]))
+                .attr("y2", hsScale(data[Number(compare1)]["Percent of adults with less than a high school diploma, 2015-19"]))
                 .style("stroke", "blue")
                 .style("stroke-width", 40);
 
@@ -495,7 +504,7 @@
                 .attr("x1", xaxisScale("only HS education"))
                 .attr("x2", xaxisScale("only HS education"))
                 .attr("y1", hsScale[0])
-                .attr("y2", hsScale(education["XXXXXX"]["Percent of adults with a high school diploma only, 2015-19"]))
+                .attr("y2", hsScale(data[compare1]["Percent of adults with a high school diploma only, 2015-19"]))
                 .style("stroke", "blue")
                 .style("stroke-width", 40);
 
@@ -504,7 +513,7 @@
                 .attr("x1", xaxisScale("more than HS education"))
                 .attr("x2", xaxisScale("more than HS education"))
                 .attr("y1", hsScale[0])
-                .attr("y2", hsScale(education["XXXXXX"]["Percent of adults with a bachelor's degree or higher, 2015-19"]))
+                .attr("y2", hsScale(data[compare1]["Percent of adults with a bachelor's degree or higher, 2015-19"]))
                 .style("stroke", "blue")
                 .style("stroke-width", 40);
 
@@ -582,7 +591,7 @@
                 .attr("x1", xaxisScale2("Management"))
                 .attr("x2", xaxisScale2("Management"))
                 .attr("y1", employmentScale[0])
-                .attr("y2", employmentScale(employment["XXXXXX"]["OCC_Manage"]))
+                .attr("y2", employmentScale(employment[compare1]["OCC_Manage"]))
                 .style("stroke", "blue")
                 .style("stroke-width", 40);
 
@@ -591,7 +600,7 @@
                 .attr("x1", xaxisScale2("Service"))
                 .attr("x2", xaxisScale2("Service"))
                 .attr("y1", employmentScale[0])
-                .attr("y2", employmentScale(employment["XXXXXX"]["OCC_Service"]))
+                .attr("y2", employmentScale(employment[compare1]["OCC_Service"]))
                 .style("stroke", "blue")
                 .style("stroke-width", 40);
 
@@ -600,7 +609,7 @@
                 .attr("x1", xaxisScale2("Sales"))
                 .attr("x2", xaxisScale2("Sales"))
                 .attr("y1", employmentScale[0])
-                .attr("y2", employmentScale(employment["XXXXXX"]["OCC_Sales"]))
+                .attr("y2", employmentScale(employment[compare1]["OCC_Sales"]))
                 .style("stroke", "blue")
                 .style("stroke-width", 40);
 
@@ -609,7 +618,7 @@
                 .attr("x1", xaxisScale2("Military"))
                 .attr("x2", xaxisScale2("Military"))
                 .attr("y1", employmentScale[0])
-                .attr("y2", employmentScale(employment["XXXXXX"]["OCC_Military"]))
+                .attr("y2", employmentScale(employment[compare1]["OCC_Military"]))
                 .style("stroke", "blue")
                 .style("stroke-width", 40);
 
@@ -619,7 +628,7 @@
                 .attr("x1", xaxisScale2("Production"))
                 .attr("x2", xaxisScale2("Production"))
                 .attr("y1", employmentScale[0])
-                .attr("y2", employmentScale(employment["XXXXXX"]["OCC_Prod"]))
+                .attr("y2", employmentScale(employment[compare1]["OCC_Prod"]))
                 .style("stroke", "blue")
                 .style("stroke-width", 40);
 
