@@ -16,12 +16,10 @@
         <select name="pick_state_input" id="pick_state_input">
             <option value="" disabled selected>Select your state</option>
         </select>
-        <!-- <br> -->
 
         <label for="pick_county_input">Select your home county: </label>
         <select name="pick_county_input" id="pick_county_input">
-            <!-- need to dynamically populate dropdown with JS -->
-            <option value="" disabled selected>Select your county</option>
+            <option value="" selected>Select your county</option>
         </select>
 
         <button type="button" id="reset_button">Reset</button>
@@ -30,13 +28,13 @@
     <div id="all_svgs">
         <div class="visualization_1">
             <div class="viz_1_map element_1">
-                <svg id="state_min" height="400" width="600"></svg>
+                <svg id="state_min" height="200" width="300"></svg>
             </div>
             <div class="viz_1_map element_2">
                 <svg id="user_state" height="400" width="600"></svg>
             </div>
             <div class="viz_1_map element_3">
-                <svg id="state_max" height="400" width="600"></svg>
+                <svg id="state_max" height="200" width="300"></svg>
             </div>
         </div>
         <svg id="us_map" height="600" width="1000"></svg>
@@ -53,6 +51,15 @@
         </div>
     </div>
 
+    <div id="Filtering">
+
+        <p>Filter by Literacy</p>
+        <button type="button" id="literacy_button0">Minimum value</button>
+        <button type="button" id="literacy_button1">25th percentile</button>
+        <button type="button" id="literacy_button2">50th percentile</button>
+        <button type="button" id="literacy_button3">75th percentile</button>
+        <button type="button" id="literacy_button4">Maximum value</button>
+    </div>
 
     <script>
         // PART 1: COUNTY VISUALIZATION (SHRUTI)
@@ -71,9 +78,6 @@
 
             var us_projection = d3.geoAlbersUsa().scale(1300).translate([487.5, 305]);
             var us_path = d3.geoPath().projection(us_projection);
-
-            var state_projection = d3.geoAlbersUsa().scale(1).translate([0, 0]);
-            var state_path = d3.geoPath().projection(state_projection);
 
             var nation = topojson.feature(us, us.objects.nation);
             var counties = topojson.feature(us, us.objects.counties);
@@ -187,7 +191,6 @@
                 return selected_county_id;
             };
 
-            //user_input_county_id needs to be made interactive based on user selection
             function make_state_map(county_id, svg_id) {
                 var state_projection = d3.geoAlbersUsa().scale(1).translate([0, 0]);
                 var state_path = d3.geoPath().projection(state_projection);
@@ -237,6 +240,7 @@
                 state_svg.selectAll("path.selected_counties")
                     .remove();
 
+                // console.log(state_path);
                 // weird state_path error with california
                 //draw state map
                 state_svg.selectAll("path.selected_counties").data(selected_counties)
@@ -285,28 +289,37 @@
 
             // PART 2: US MAP WITH COUNTIES WITH UNEMPLOYMENT RATE (Rachel)
 
-            // Filtering by literacy average score (Lit_A)
-            // counties.features.forEach((county, i) => {
-            //     employment.forEach((d, i) => {
-            //         literacy = d['Lit_A'];
-            //         if (Number(county.id) === d['FIPS_code']) {
-            //             county.properties["literacy"] = literacy;
-            //         }
-            //     });
-            // });
-            // console.log(counties);
+            console.log(counties);
 
+            // const literacyExtent = d3.extent(counties, d => d.properties.literacy);
+            // console.log(literacyExtent);
 
-            // d3.select("buttonLiteracy").append("button");
+            const colorsArray2 = ["white", "red"];
 
-            // function literacyFilter() {
-            //     console.log("testing");
-            //     us2map.selectAll("path.counties").data(counties.features)
-            //         .join("path")
-            //         .attr("class", "counties")
-            //         .attr("d", us_path)
-            //         .attr("fill", d => colorScale(Number(d.properties.literacy)));
-            // }
+            // does it matter if we use quantize vs quantile?
+            const colorScale2 = d3.scaleQuantize()
+                .domain([0, 1])
+                .range(colorsArray2);
+
+            newList = []
+            function color(x) {
+                if (x === 189.3) {
+                    newList.push(1)
+                }
+                else {
+                    newList.push(0)
+                }
+            };
+
+            d3.select("#literacy_button0").on("click", function (d) {
+                console.log("success");
+                us_svg.selectAll("path.counties").data(counties.features)
+                    .join("path")
+                    .attr("class", "counties")
+                    .attr("d", us_path)
+                    .attr("fill", d => colorScale2(color(d.properties.literacy)));
+            });
+
 
 
 
