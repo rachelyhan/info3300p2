@@ -313,6 +313,13 @@
             // make_state_map(42053, "#state_min");
             // make_state_map(46117, "#state_max");
 
+            const colorsArray = ["#B5375D", "#DBADA6", "#DEDEDE", "#A1D5ED", "#26C7CB"];
+
+                // does it matter if we use quantize vs quantile?
+                const colorScale = d3.scaleQuantize()
+                    .domain([0, 1])
+                    .range(colorsArray);
+
             //draw us map
             us_svg.selectAll("path.counties").data(counties.features)
                 .join("path")
