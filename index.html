@@ -127,8 +127,6 @@
             var income = await d3.csv("unemployment_income.csv", d3.autoType);
 
             data = {}
-            nameToFIPS = {}
-
             counties.features.forEach((county, i) => {
                 data[Number(county.id)] = {};
             })
@@ -224,20 +222,28 @@
                 d3.select("#pick_county_input").on("change", function (d) {
                     var selected_county_input = d3.select(this).property("value");
                     user_county_id_input = find_county_id(user_state_input, selected_county_input);
+                    make_state_map(42053, "#state_min");
+                    make_state_map(46117, "#state_max");
                     make_state_map(user_county_id_input, "#user_state");
 
                     //VISUALIZATION 2: US MAP + FILTERS
-                    drawUS(counties, us_path, statesMesh, Object.keys(data));
+                    // drawUS(counties, us_path, statesMesh, Object.keys(data));
 
                     const sliderWidth = 400
                     const sliderHeight = 20
-                    makeSlider(d3.select("#filters"), "Employment Rate", "employment_rate", sliderHeight, sliderWidth, counties, us_path, statesMesh, selected_county_input, data)
-                    makeSlider(d3.select("#filters"), "Median Household Income", "income", sliderHeight, sliderWidth, counties, us_path, statesMesh, selected_county_input, data)
-                    makeSlider(d3.select("#filters"), "Adult Literacy", "literacy", sliderHeight, sliderWidth, counties, us_path, statesMesh, selected_county_input, data)
-                    makeSlider(d3.select("#filters"), "Completed High School", "high_school", sliderHeight, sliderWidth, counties, us_path, statesMesh, selected_county_input, data)
-                    makeSlider(d3.select("#filters"), "Completed College", "college", sliderHeight, sliderWidth, counties, us_path, statesMesh, selected_county_input, data)
+                    makeSlider(d3.select("#filters"), "Employment Rate", "employment_rate", sliderHeight, sliderWidth, counties, us_path, statesMesh, user_county_id_input, data)
+                    makeSlider(d3.select("#filters"), "Median Household Income", "income", sliderHeight, sliderWidth, counties, us_path, statesMesh, user_county_id_input, data)
+                    makeSlider(d3.select("#filters"), "Adult Literacy", "literacy", sliderHeight, sliderWidth, counties, us_path, statesMesh, user_county_id_input, data)
+                    makeSlider(d3.select("#filters"), "Completed High School", "high_school", sliderHeight, sliderWidth, counties, us_path, statesMesh, user_county_id_input, data)
+                    makeSlider(d3.select("#filters"), "Completed College", "college", sliderHeight, sliderWidth, counties, us_path, statesMesh, user_county_id_input, data)
 
-                    d3.select("#viz2").style("visibility", "visible");
+                    selectedCounties = matchCounties()
+                    console.log(selectedCounties)
+                    console.log(getFilters())
+                    drawUS(counties, us_path, statesMesh, matchCounties())
+
+                    //TODO: make text appear and disappear
+                    //d3.select("#viz2").style("visibility", "visible");
                 });
             };
 
@@ -317,13 +323,17 @@
                     .attr("class", "outline")
                     .attr("d", state_path);
 
+                // selected_counties.forEach((d, i) => {
+                //     data[Number(d.id)]["state_path"] = state_path
+                // })
                 add_tooltip(svg_id, state_path, data)
-                //};
-                // add state label
-                console.log(data[county_id]["state_abbreviation"]);
+                // console.log(data[Number(county_id)]["state_path"])
 
-                state_svg.selectAll("text")
-                    .remove();
+                // add state label
+                // console.log(data[county_id]["state_abbreviation"]);
+
+                // state_svg.selectAll("text")
+                //     .remove();
 
                 state_svg.append("text")
                     .attr("x", state_width / 2)
@@ -334,7 +344,6 @@
                     .style("margin-bottom", "10px")
                     .text(data[county_id]["county_name"] + ", " + data[county_id]["state_abbreviation"]);
 
-                add_tooltip("#v3_c1", us, state_path, counties)
             };
 
             // reset button for dropdowns
@@ -350,9 +359,6 @@
             //         .exit()
             //         .remove();
             // });
-
-            make_state_map(42053, "#state_min");
-            make_state_map(46117, "#state_max");
 
             function drawLegend(legend_id, legendColorScale) {
 
@@ -392,25 +398,12 @@
                 bar.append("line").attr("stroke", "white").attr("stroke-width", 3).attr("x1", barScale(legendMinMax[0])).attr("x2", barScale(legendMinMax[0])).attr("y1", 0).attr("y1", barHeight + 4);
                 bar.append("line").attr("stroke", "white").attr("stroke-width", 3).attr("x1", barScale(legendMinMax[1])).attr("x2", barScale(legendMinMax[1])).attr("y1", 0).attr("y1", barHeight + 4);
             };
-            state_svg.selectAll("text")
-                .remove();
+            // state_svg.selectAll("text")
+            //     .remove();
 
             const colorScale = d3.scaleQuantile()
                 .domain(all_employment_values)
                 .range(colorsArray);
-
-            //draw us map
-            us_svg.selectAll("path.counties").data(counties.features)
-                .join("path")
-                .attr("class", "counties")
-                .attr("d", us_path)
-                .attr("fill", d => colorScale(Number(data[Number(d.id)]["employment_rate"])));
-
-            us_svg.append("path").datum(statesMesh)
-                .attr("class", "outline")
-                .attr("d", us_path);
-
-            console.log(counties);
 
             //PART 3: COMPARE COUNTIES (CRYSTAL)
             var compare1 = 2016
@@ -761,13 +754,9 @@
                 type: 'pie',
                 data: data1,
             };
-
         };
         request_data();
-
-
     </script>
-
 </body>
 
 </html>

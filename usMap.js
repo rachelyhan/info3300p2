@@ -4,6 +4,14 @@ const colorScale2 = d3.scaleQuantize()
   .domain([0, 1])
   .range(colorsArray2);
 
+function updateUS(counties, us_path, statesMesh, match) {
+  us_svg.selectAll("path.counties").data(counties.features)
+    .join("path")
+    .attr("class", "counties")
+    .attr("d", us_path)
+    .attr("fill", d => colorScale2(Number(match.includes(d.id))));
+}
+
 function drawUS(counties, us_path, statesMesh, match) {
   us_svg.selectAll("path.counties").data(counties.features)
     .join("path")
@@ -28,8 +36,13 @@ function matchCounties() {
       match.push(county)
     }
   });
+  console.log(match)
   return match
-}
+};
+
+function getFilters() {
+  return filters
+};
 
 function makeSlider(container, label, attribute, sliderHeight, sliderWidth, counties, us_path, statesMesh, selected_county, data) {
   let values = []
@@ -49,8 +62,13 @@ function makeSlider(container, label, attribute, sliderHeight, sliderWidth, coun
   let xScale = d3.scaleLinear().domain(minMax).range([10, sliderWidth - 10]);
   let xAxis = d3.axisBottom(xScale).tickFormat(format);
 
-  const defaultSelection = [xScale(data[selected_county][attribute]) - xScale(minMax[1] * 0.1), xScale(data[selected_county][attribute]) + xScale(minMax[1] * 0.1)]
-  console.log(defaultSelection)
+  //set default brush 
+  let select_value = data[selected_county][attribute]
+  if (attribute === "college" || attribute === "high_school") {
+    select_value /= 100
+  } else if (attribute === "income") {
+    select_value *= 1000
+  }
 
   let wrapper = container.append("div").attr("class", "control");
   wrapper.append("div").text(label);
@@ -60,6 +78,10 @@ function makeSlider(container, label, attribute, sliderHeight, sliderWidth, coun
   let areaLayer = canvas.append("g");
   canvas.append("g").attr("transform", `translate(0,${sliderHeight})`)
     .call(xAxis);
+  canvas.append("rect").attr("transform", `translate(${xScale(select_value)}, 0)`)
+    .attr("width", 2)
+    .attr("height", sliderHeight)
+    .attr("fill", "red")
 
   let numBins = 15;
   let histoGen = d3.histogram().domain(minMax)
@@ -83,7 +105,15 @@ function makeSlider(container, label, attribute, sliderHeight, sliderWidth, coun
     .attr("class", "area")
     .attr("d", area);
 
+
+  const defaultSelection = [Math.max(0, select_value - minMax[1] * 0.3), Math.min(minMax[1], select_value + minMax[1] * 0.3)]
+  console.log(defaultSelection)
+
+  wrapper.append("div").text(defaultSelection[0].toString() + " - " + defaultSelection[1].toString())
+    .attr("id", "values");
+
   let filterFunc = d => true;
+  // let filterFunc = d => d[attribute] >= defaultSelection[0] && d[attribute] <= defaultSelection[1];
   filters[attribute] = filterFunc;
 
   var brush = d3.brushX().extent([[10, 0],
@@ -103,14 +133,22 @@ function makeSlider(container, label, attribute, sliderHeight, sliderWidth, coun
       }
       let filterFunc = d => d[attribute] >= start && d[attribute] <= end;
       filters[attribute] = filterFunc;
-      selectedCounties = matchCounties()
-      drawUS(counties, us_path, statesMesh, matchCounties())
+      // console.log(filters[attribute], start, end)
+
+      d3.select(this.parentNode.parentNode).select("#values").text(start.toString() + " - " + end.toString())
     }
     else {
       let filterFunc = d => true;
       filters[attribute] = filterFunc;
-      drawUS(counties, us_path, statesMesh, matchCounties())
+      d3.select(this.parentNode.parentNode).select("#values").text("No Filter")
+      // console.log(filters[attribute])
     }
+    updateUS(counties, us_path, statesMesh, matchCounties())
   }
-  canvas.append("g").attr("class", "brush").call(brush);
+  canvas.append("g").attr("class", "brush").call(brush)
+    .call(brush.move, defaultSelection);
+
+  Object.values(filters).forEach(filterFunc => {
+    console.log(filters[attribute])
+  });
 }

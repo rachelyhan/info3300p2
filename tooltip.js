@@ -6,6 +6,7 @@ function add_tooltip(element_id, state_path, data) {
   let tooltip = map.append("g")
     .attr("class", "tooltip")
     .style("visibility", "hidden")
+    .attr("id", "tooltip")
 
   tooltip.append("rect")
     .attr("fill", "black")
@@ -60,9 +61,16 @@ function add_tooltip(element_id, state_path, data) {
   d3.selectAll(".selected_counties").on("mouseout", mouseLeavesPlot);
 
   function mouseEntersPlot() {
-    tooltip.style("visibility", "visible")
+    tooltip1 = d3.select(this.parentNode).select("#tooltip")
+
+    tooltip1.style("visibility", "visible")
+
     let county = d3.select(this);
     let countyID = county.datum().id;
+
+    // console.log(countyID)
+    // console.log(data[Number(countyID)]["state_path"]);
+    console.log(county.datum())
 
     name.text(data[Number(countyID)]["county_name"] + ", " + data[Number(countyID)]["state"])
     employment.text((data[Number(countyID)]["employment_rate"] * 100).toString() + "% employed");
@@ -75,8 +83,9 @@ function add_tooltip(element_id, state_path, data) {
     let xPos = (bounds[0][0] + bounds[1][0]) / 2.0;
     let yPos = bounds[1][1];
 
+    console.log(bounds)
+
     if (yPos + tooltipHeight > d3.select(element_id).attr("height")) {
-      console.log("yes")
       yPos = 100
     }
 
@@ -90,7 +99,7 @@ function add_tooltip(element_id, state_path, data) {
   }
 
   function mouseLeavesPlot() {
-    tooltip.style("visibility", "hidden");
+    d3.select(this.parentNode).select("#tooltip").style("visibility", "hidden");
     momesh.attr("d", "");
   }
 }
