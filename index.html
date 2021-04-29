@@ -754,6 +754,15 @@
             // GENDER RATIO PIE CHART CHART MINI GRAPH
             const svg3 = d3.select("svg#gender_graph");
 
+            //chart title
+            svg3.append("text")
+                .attr("x", width2 / 2)
+                .attr("y", 20)
+                .style("text-anchor", "middle")
+                .style("font-weight", 600)
+                .style("font-size", "16px")
+                .text("Gender Graph");
+
             const data1 = {
                 datasets: [{
                     label: 'Gender Graph',
@@ -770,71 +779,6 @@
                 type: 'pie',
                 data: data1,
             };
-
-
-            // const width2 = svg2.attr("width");
-            // const height2 = svg2.attr("height");
-            // const margin2 = { "top": 40, "right": 10, "bottom": 50, "left": 60 };
-            // const chartWidth2 = width2 - margin2.left - margin2.right;
-            // const chartHeight2 = height2 - margin2.top - margin2.bottom
-
-
-            // let annotations2 = svg2.append("g").attr("id", "annotations");
-            // let chartArea2 = svg2.append("g").attr("id", "points")
-            //     .attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
-
-            // const employmentScale = d3.scaleLinear().domain([0, 100]).range([chartHeight2, 0])
-            // let leftAxis2 = d3.axisLeft(employmentScale).tickFormat(d3.format(''));
-            // let leftGridlines2 = d3.axisLeft(employmentScale)
-            //     .tickSize(-chartWidth2 - 10)
-            //     .tickFormat("")
-
-            // annotations2.append("g")
-            //     .attr("class", "y axis")
-            //     .style("font", "11px Montserrat")
-            //     .attr("transform", `translate(${margin2.left - 10},${margin2.top})`)
-            //     .call(leftAxis2)
-            // annotations2.append("g")
-            //     .attr("class", "y gridlines")
-            //     .attr("transform", `translate(${margin2.left - 10},${margin2.top})`)
-            //     .call(leftGridlines2);
-
-            // const xaxisScale2 = d3.scalePoint()
-            //     .domain(["Management", "Service", "Sales", "Military", "Production"])
-            //     .range([30, chartWidth2 - 70]);
-
-            // let bottomAxis2 = d3.axisBottom(xaxisScale2)
-            // let bottomAxisG2 = annotations2.append("g")
-            //     .style("font", "14px Montserrat")
-            //     .attr("class", "x axis")
-            //     .attr("transform", `translate(${margin2.left},${chartHeight2 + margin2.top + 10})`)
-            //     .call(bottomAxis2);
-
-            // //chart title
-            // svg2.append("text")
-            //     .attr("x", width2 / 2)
-            //     .attr("y", 20)
-            //     .style("text-anchor", "middle")
-            //     .style("font-weight", 600)
-            //     .style("font-size", "16px")
-            //     .text("Employment Graph");
-
-            // //x axis labels
-            // svg2.append("text")
-            //     .attr("x", width2 / 2)
-            //     .attr("y", height2)
-            //     .style("text-anchor", "middle")
-            //     .style("font-weight", 600);
-
-            // //y axis label
-            // svg2.append("text")
-            //     .attr("transform", "rotate(-90)")
-            //     .attr("y", 0)
-            //     .attr("x", 0 - (height2 / 2))
-            //     .attr("dy", "1em")
-            //     .style("text-anchor", "middle")
-            //     .style("font-weight", 600)
-            //     .text("Percentage");
 
         };
         request_data();
