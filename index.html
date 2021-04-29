@@ -60,19 +60,15 @@
     <div class="miniGraphs">
         <svg id="hs_graph" height="300" width="500"></svg>
         <svg id="employment_graph" height="300" width="500"></svg>
-        <svg id="gender_graph" height="400" width="400">
+        <svg id="empty space" height="300" width="300"></svg>
+        <svg id="gender_graph1" height="300" width="250"></svg>
+        <svg id="gender_graph2" height="300" width="250"></svg>
+        <svg id="ethnicity_graph1" height="300" width="250"></svg>
+        <svg id="ethnicity_graph2" height="300" width="250"></svg>
+
         </svg>
     </div>
 
-    <div id="Filtering">
-
-        <p>Filter by Literacy</p>
-        <button type="button" id="literacy_button0">Minimum value</button>
-        <button type="button" id="literacy_button1">25th percentile</button>
-        <button type="button" id="literacy_button2">50th percentile</button>
-        <button type="button" id="literacy_button3">75th percentile</button>
-        <button type="button" id="literacy_button4">Maximum value</button>
-    </div>
     <!-- <div id="all_svgs">
         <div class="visualization_1">
             <div class="viz_1_map element_1">
@@ -144,7 +140,13 @@
                 data[id]["OCC_Prod"] = 100 * d["OCC_Prod"];
                 data[id]["Male"] = 100 * d["Male"];
                 data[id]["Female"] = 100 * d["Female"];
-
+                data[id]["White"] = 100 * d["White"];
+                data[id]["Black"] = 100 * d["Black"];
+                data[id]["Hispanic"] = 100 * d["Hispanic"];
+                data[id]["Asian"] = 100 * d["Asian"];
+                data[id]["AIAN"] = 100 * d["AIAN"];
+                data[id]["NHPI"] = 100 * d["NHPI"];
+                data[id]["Other_race"] = 100 * d["Other_race"];
             });
 
             education.forEach((d, i) => {
@@ -727,33 +729,191 @@
 
 
             // GENDER RATIO PIE CHART CHART MINI GRAPH
-            const svg3 = d3.select("svg#gender_graph");
+            const svg3 = d3.select("svg#gender_graph1");
+            const svg3_part2 = d3.select("svg#gender_graph2");
+            const width3 = svg3.attr("width");
+            const height3 = svg3.attr("height");
+            const margin3 = 70;
+            const radius = Math.min(width3, height3) / 2 - margin3;
+
+            g = svg3.append("g").attr("transform", "translate(" + width3 / 2 + "," + height3 / 2 + ")");
+            g2 = svg3_part2.append("g").attr("transform", "translate(" + width3 / 2 + "," + height3 / 2 + ")");
 
             //chart title
             svg3.append("text")
-                .attr("x", width2 / 2)
+                .attr("x", width3 / 2)
                 .attr("y", 20)
                 .style("text-anchor", "middle")
                 .style("font-weight", 600)
                 .style("font-size", "16px")
                 .text("Gender Graph");
 
-            const data1 = {
-                datasets: [{
-                    label: 'Gender Graph',
-                    data: [20, 80],
-                    backgroundColor: [
-                        'blue',
-                        'red'
-                    ],
-                    hoverOffset: 4
-                }]
-            };
+            // Male label
+            svg3_part2.append("text")
+                .attr("x", width3 - 50)
+                .attr("y", 10)
+                .style("text-anchor", "middle")
+                .style("font-weight", 200)
+                .style("stroke", "blue")
+                .text("Male");
 
-            const config = {
-                type: 'pie',
-                data: data1,
-            };
+            // Female label
+            svg3_part2.append("text")
+                .attr("x", width3 - 50)
+                .attr("y", 30)
+                .style("text-anchor", "middle")
+                .style("font-weight", 200)
+                .style("stroke", "red")
+                .text("Female");
+
+            // County 1 label
+            svg3.append("text")
+                .attr("x", width3 / 2)
+                .attr("y", height3 - 20)
+                .style("text-anchor", "middle")
+                .style("font-weight", 200)
+                .text("County 1");
+
+
+            // County 2 label
+            svg3_part2.append("text")
+                .attr("x", width3 / 2)
+                .attr("y", height3 - 20)
+                .style("text-anchor", "middle")
+                .style("font-weight", 200)
+                .text("County 2");
+
+            var gender_data1 = [100 * data[compare1]["Male"], 100 * data[compare1]["Female"]];
+            var gender_data2 = [100 * data[compare2]["Male"], 100 * data[compare2]["Female"]];
+            var color3 = d3.scaleOrdinal(['blue', 'red']);
+
+            // Generate the pie
+            var pie = d3.pie();
+            var pie2 = d3.pie();
+
+            // Generate the arcs
+            var arc = d3.arc()
+                .innerRadius(0)
+                .outerRadius(radius);
+
+            var arc2 = d3.arc()
+                .innerRadius(0)
+                .outerRadius(radius);
+
+            //Generate groups
+            var arcs = g.selectAll("arc")
+                .data(pie(gender_data1))
+                .enter()
+                .append("g")
+                .attr("class", "arc")
+
+            var arcs2 = g2.selectAll("ar2")
+                .data(pie2(gender_data2))
+                .enter()
+                .append("g")
+                .attr("class", "arc2")
+
+            //Draw arc paths
+            arcs.append("path")
+                .attr("fill", function (d, i) {
+                    return color3(i);
+                })
+                .attr("d", arc);
+
+            arcs2.append("path")
+                .attr("fill", function (d, i) {
+                    return color3(i);
+                })
+                .attr("d", arc2);
+
+
+
+
+            // ETHNICITY O PIE CHART CHART MINI GRAPH
+            const svg4 = d3.select("svg#ethnicity_graph1");
+            const svg4_part2 = d3.select("svg#ethnicity_graph2");
+            const width4 = svg4.attr("width");
+            const height4 = svg4.attr("height");
+            const margin4 = 70;
+            const radius4 = Math.min(width4, height4) / 2 - margin4;
+
+            g4 = svg4.append("g").attr("transform", "translate(" + width4 / 2 + "," + height4 / 2 + ")");
+            g5 = svg4_part2.append("g").attr("transform", "translate(" + width4 / 2 + "," + height4 / 2 + ")");
+
+            //chart title
+            svg4.append("text")
+                .attr("x", width4 / 2)
+                .attr("y", 20)
+                .style("text-anchor", "middle")
+                .style("font-weight", 600)
+                .style("font-size", "16px")
+                .text("Ethnicity Graph");
+
+            // County 1 label
+            svg4.append("text")
+                .attr("x", width4 / 2)
+                .attr("y", height4 - 20)
+                .style("text-anchor", "middle")
+                .style("font-weight", 200)
+                .text("County 1");
+
+
+            // County 2 label
+            svg4_part2.append("text")
+                .attr("x", width4 / 2)
+                .attr("y", height4 - 20)
+                .style("text-anchor", "middle")
+                .style("font-weight", 200)
+                .text("County 2");
+
+            var ethnicity_data1 = [100 * data[compare1]["White"], 100 * data[compare1]["Black"],
+            100 * data[compare1]["Hispanic"], 100 * data[compare1]["Asian"],
+            100 * data[compare1]["AIAN"], 100 * data[compare1]["NHPI"],
+            100 * data[compare1]["NHPI"]];
+            var ethnicity_data2 = [100 * data[compare2]["White"], 100 * data[compare2]["Black"],
+            100 * data[compare2]["Hispanic"], 100 * data[compare2]["Asian"],
+            100 * data[compare2]["AIAN"], 100 * data[compare2]["NHPI"],
+            100 * data[compare2]["NHPI"]];
+            var color3 = d3.scaleOrdinal(['blue', 'red', 'green', 'orange', 'purple', 'yellow', 'pink']);
+
+            // Generate the pie
+            var pie4 = d3.pie();
+            var pie5 = d3.pie();
+
+            // Generate the arcs
+            var arc4 = d3.arc()
+                .innerRadius(0)
+                .outerRadius(radius);
+
+            var arc5 = d3.arc()
+                .innerRadius(0)
+                .outerRadius(radius);
+
+            //Generate groups
+            var arcs4 = g4.selectAll("arc")
+                .data(pie4(ethnicity_data1))
+                .enter()
+                .append("g")
+                .attr("class", "arc4")
+
+            var arcs5 = g5.selectAll("ar2")
+                .data(pie5(ethnicity_data2))
+                .enter()
+                .append("g")
+                .attr("class", "arc5")
+
+            //Draw arc paths
+            arcs4.append("path")
+                .attr("fill", function (d, i) {
+                    return color3(i);
+                })
+                .attr("d", arc4);
+
+            arcs5.append("path")
+                .attr("fill", function (d, i) {
+                    return color3(i);
+                })
+                .attr("d", arc5);
         };
         request_data();
     </script>
