@@ -24,7 +24,7 @@
             font-weight: 300;
         }
 
-        #user_state {
+        #viz_1_outline {
             outline: 1.5px dashed lightgrey;
         }
 
@@ -60,7 +60,15 @@
             display: flex;
         }
 
-        .viz_1_map {
+        #viz_1_map {
+            flex: 1;
+        }
+
+        .v3 {
+            display: flex;
+        }
+
+        #v3_map {
             flex: 1;
         }
 

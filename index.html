@@ -13,7 +13,7 @@
     <h1>Employment in the United States</h1>
 
     <h2>Part I: How well-employed is your county?</h2>
-    <h3>Select your county below to find out how employment rates in your county compare to other counties in the U.S.
+    <h3>Select your county below to find out how employment rates in your county compare to other counties in the US.
     </h3>
     <div id="user_state_county_inputs">
         <label for="pick_state_input">Home State: </label>
@@ -33,12 +33,17 @@
     <div class="visualization_1">
         <div class="viz_1_map element_1">
             <svg id="state_min" height="200" width="300"></svg>
+            <svg id="state_min_title" height="25" width="300"></svg>
         </div>
         <div class="viz_1_map element_2">
-            <svg id="user_state" height="400" width="600"></svg>
+            <div id="viz_1_outline">
+                <svg id="user_state" height="400" width="600"></svg>
+                <svg id="user_state_title" height="25" width="600"></svg>
+            </div>
         </div>
         <div class="viz_1_map element_3">
             <svg id="state_max" height="200" width="300"></svg>
+            <svg id="state_max_title" height="25" width="300"></svg>
         </div>
     </div>
 
@@ -47,15 +52,29 @@
             font-size: 16px; font-weight: 300;"></svg>
     </div>
 
-    <h1 id="viz2">Discover Other Counties</h1>
-    <div id="us_div" style="width: 70%; float: left;">
-        <svg id="us_map" height="800" style="width: 85%; padding-left: 10%;"></svg>
+    <h2>Part II: Discover other counties</h2>
+    <h3>Explore other counties in the US by filtering for various metrics such as income, literacy, and more.</h3>
+    <div class="viz2">
+        <div id="us_div" style="width: 70%; float: left;">
+            <svg id="us_map" height="800" style="width: 85%; padding-left: 10%;"></svg>
+        </div>
+        <div id="filters" style="height:600px; width: 20%; float:left; padding-left: 5%; padding-right: 5%;"></div>
     </div>
-    <div id="filters" style="height:600px; width: 20%; float:left; padding-left: 5%; padding-right: 5%;"></div>
 
+
+    <div class="viz3_title">
+    <h2>Part III: Compare two counties</h2>
+    <h3>Based on your exploration from Part II, compare and contrast two counties you are interested in</h3>
+</div>
     <div id="v3">
-        <svg id="v3_c1" height="400" width="600"></svg>
-        <svg id="v3_c2" height="400" width="600"></svg>
+        <div class="v3_map element_1">
+            <svg id="v3_c1" height="400" width="600"></svg>
+            <svg id="v3_c1_title" height="25" width="600"></svg>
+        </div>
+        <div class="v3_map element_2">
+            <svg id="v3_c2" height="400" width="600"></svg>
+            <svg id="v3_c2_title" height="25" width="600"></svg>
+        </div>
     </div>
     <div class="miniGraphs">
         <svg id="hs_graph" height="300" width="500"></svg>
@@ -224,9 +243,9 @@
                 d3.select("#pick_county_input").on("change", function (d) {
                     var selected_county_input = d3.select(this).property("value");
                     user_county_id_input = find_county_id(user_state_input, selected_county_input);
-                    make_state_map(42053, "#state_min");
-                    make_state_map(46117, "#state_max");
-                    make_state_map(user_county_id_input, "#user_state");
+                    make_state_map(42053, "#state_min", "#state_min_title");
+                    make_state_map(46117, "#state_max", "#state_max_title");
+                    make_state_map(user_county_id_input, "#user_state", "#user_state_title");
 
                     //VISUALIZATION 2: US MAP + FILTERS
                     // drawUS(counties, us_path, statesMesh, Object.keys(data));
@@ -259,7 +278,17 @@
                 return selected_county_id;
             };
 
-            function make_state_map(county_id, svg_id) {
+            // function find_county_id(state, county) {
+            //     selected_county_id = "";
+            //     Object.keys(data).forEach((county) => {
+            //         if (data[county]['state'] === state && data[county]['county_name'] === county ) {
+            //             selected_county_id = data[county];
+            //             console.log(data[county]);
+            //         }
+            //     });
+            // };
+
+            function make_state_map(county_id, svg_id, title_id) {
                 var state_projection = d3.geoAlbersUsa().scale(1).translate([0, 0]);
                 var state_path = d3.geoPath().projection(state_projection);
 
@@ -332,20 +361,17 @@
                 // console.log(data[Number(county_id)]["state_path"])
 
                 // add state label
-                // console.log(data[county_id]["state_abbreviation"]);
+                d3.select(title_id).selectAll("text")
+                    .remove();
 
-                // state_svg.selectAll("text")
-                //     .remove();
-
-                state_svg.append("text")
+                d3.select(title_id)
+                    .append("text")
                     .attr("x", state_width / 2)
                     .attr("y", 20)
                     .attr("text-anchor", "middle")
                     .style("font-weight", 600)
                     .style("font-size", "16px")
-                    .style("margin-bottom", "10px")
                     .text(data[county_id]["county_name"] + ", " + data[county_id]["state_abbreviation"]);
-
             };
 
             // reset button for dropdowns
@@ -410,8 +436,8 @@
             //PART 3: COMPARE COUNTIES (CRYSTAL)
             var compare1 = 2016
             var compare2 = 36081
-            make_state_map(compare1, "#v3_c1");
-            make_state_map(compare2, "#v3_c2");
+            make_state_map(compare1, "#v3_c1", "#v3_c1_title");
+            make_state_map(compare2, "#v3_c2", "#v3_c2_title");
 
 
             // HS EDUCATION MINI GRAPH
