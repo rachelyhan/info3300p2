@@ -34,7 +34,7 @@
     <div id="all_svgs">
         <div class="visualization_1">
             <div class="viz_1_map element_1">
-                <svg id="state_min" height="300" width="300" stroke="black" stroke-width="1px"></svg>
+                <svg id="state_min" height="300" width="300"></svg>
             </div>
             <div class="viz_1_map element_2">
                 <svg id="user_state" height="500" width="500"></svg>
@@ -43,7 +43,11 @@
                 <svg id="state_max" height="300" width="300"></svg>
             </div>
         </div>
-        <svg id="colorLegend" height="100" width="600" style="background: #fff; margin-top:30px"></svg>
+        <!-- margin-top:30px -->
+        <div class="colorLegend_elm1" style="text-align: center;">
+            <svg id="colorLegend" height="50" width="500" style="background: #fff; margin-top: 10px; font-family: 'Lato', arial;
+                font-size: 16px; font-weight: 300;"></svg>
+        </div>
         <svg id="us_map" height="600" width="1000"></svg>
         <!-- <svg id="chart2b" height="500" width="800"></svg>
         <svg id="chart2c" height="200" width="300"></svg>
@@ -119,9 +123,10 @@
                 if (id in data) {
                     data[id]["high_school"] = d['Percent of adults with a high school diploma only, 2015-19'] + d["Percent of adults completing some college or associate's degree, 2015-19"] + d["Percent of adults with a bachelor's degree or higher, 2015-19"];
                     data[id]["college"] = d["Percent of adults with a bachelor's degree or higher, 2015-19"];
-                    data[id]["Percent of adults with less than a high school diploma, 2015-19"] = d["Percent of adults with less than a high school diploma, 2015-19"]
-                    data[id]["Percent of adults with a high school diploma only, 2015-19"] = d["Percent of adults with a high school diploma only, 2015-19"]
-                    data[id]["Percent of adults with a bachelor's degree or higher, 2015-19"] = d["Percent of adults with a high school diploma only, 2015-19"]
+                    data[id]["Percent of adults with less than a high school diploma, 2015-19"] = d["Percent of adults with less than a high school diploma, 2015-19"];
+                    data[id]["Percent of adults with a high school diploma only, 2015-19"] = d["Percent of adults with a high school diploma only, 2015-19"];
+                    data[id]["Percent of adults with a bachelor's degree or higher, 2015-19"] = d["Percent of adults with a high school diploma only, 2015-19"];
+                    data[id]["state_abbreviation"] = d['State'];
                 }
             });
 
@@ -268,10 +273,24 @@
                     .attr("d", state_path)
                     .attr("fill", d => colorScale(Number(data[Number(d.id)]["employment_rate"])));
 
-                // state_svg.append("path").datum
                 state_svg.append("path").datum(countiesMesh)
                     .attr("class", "outline")
                     .attr("d", state_path);
+
+                // add state label
+                console.log(data[county_id]["state_abbreviation"]);
+
+                state_svg.selectAll("text")
+                    .remove();
+
+                state_svg.append("text")
+                    .attr("x", state_width / 2)
+                    .attr("y", 20)
+                    .attr("text-anchor", "middle")
+                    .style("font-weight", 600)
+                    .style("font-size", "16px")
+                    .style("margin-bottom", "10px")
+                    .text(data[county_id]["county_name"] + ", " + data[county_id]["state_abbreviation"]);
 
                 add_tooltip("#v3_c1", us, state_path, counties)
             };
@@ -302,7 +321,7 @@
                 const legendWidth = legend.attr("width");
                 const legendHeight = legend.attr("height");
                 const legendMinMax = d3.extent(legendColorScale.domain()); // way to recover the minMax from most kinds of scales
-                const barHeight = 60;
+                const barHeight = 20;
                 const stepSize = 4; // warning, not using a canvas element so lots of rect tags will be created for low stepSize, causing issues with performance
                 // Extend the minmax by 1 in either direction to expose more features
                 const pixelScale = d3.scaleLinear().domain([0, legendWidth - 40]).range([legendMinMax[0], legendMinMax[1]]); // In this case the "data" are pixels, and we get numbers to use in colorScale
