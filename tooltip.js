@@ -1,11 +1,12 @@
-function add_tooltip(element_id, us, state_path, states) {
-  let tooltipWidth = 220;
+function add_tooltip(element_id, state_path) {
+  let tooltipWidth = 300;
   let tooltipHeight = 135;
   const map = d3.select(element_id);
 
   let tooltip = map.append("g")
     .attr("class", "tooltip")
-    .attr("visibility", "hidden");
+    .style("visibility", "hidden")
+
   tooltip.append("rect")
     .attr("fill", "black")
     .attr("opacity", 0.9)
@@ -60,28 +61,30 @@ function add_tooltip(element_id, us, state_path, states) {
 
   function mouseEntersPlot() {
     tooltip.style("visibility", "visible")
-    let state = d3.select(this);
+    let county = d3.select(this);
+    let countyID = county.datum().id;
 
-    let stateID = state.datum().id;
-    var mo = topojson.mesh(us, us.objects.states, function (a, b) { return a.id === stateID || b.id === stateID; });
-    momesh.datum(mo).attr("d", state_path)
+    name.text(data[Number(countyID)]["county_name"] + ", " + data[Number(countyID)]["state"])
+    employment.text((data[Number(countyID)]["employment_rate"] * 100).toString() + "% employed");
+    income.text("Median Household Income" + data[Number(countyID)]["income"]);
+    literacy.text((data[Number(countyID)]["literacy"] * 100).toString() + "% at Level 3 literacy");
+    college.text(data[Number(countyID)]["college"] + "% have bachelor's degrees");
+    highschool.text(data[Number(countyID)]["high_school"] + "% graduated high school");
 
-    selected_state = states.features.filter(function (d) {
-      return d.id === stateID;
-    });
-
-    console.log(state_path.bounds(selected_state[0]));
-
-    name.text(data[Number(stateID)]["county_name"] + ", " + data[Number(stateID)]["state"])
-    employment.text((data[Number(stateID)]["employment_rate"] * 100).toString() + "% employed");
-    income.text("Median Household Income" + data[Number(stateID)]["income"]);
-    literacy.text((data[Number(stateID)]["literacy"] * 100).toString() + "% at Level 3 literacy");
-    college.text(data[Number(stateID)]["college"] + "% have bachelor's degrees");
-    highschool.text(data[Number(stateID)]["high_school"] + "% graduated high school");
-
-    let bounds = state_path.bounds(state.datum());   // Get the pixel boundaries of the state
+    let bounds = state_path.bounds(county.datum());   // Get the pixel boundaries of the county
     let xPos = (bounds[0][0] + bounds[1][0]) / 2.0;
     let yPos = bounds[1][1];
+
+    if (yPos + tooltipHeight > d3.select(element_id).attr("height")) {
+      console.log("yes")
+      yPos = 100
+    }
+
+    if (xPos - tooltipWidth / 2 < 0) {
+      xPos = d3.select(element_id).attr("width") - tooltipWidth / 2 - 100
+    } else if (xPos + tooltipWidth / 2 > d3.select(element_id).attr("width")) {
+      xPos = tooltipWidth
+    }
 
     tooltip.attr("transform", `translate(${xPos},${yPos})`);
   }

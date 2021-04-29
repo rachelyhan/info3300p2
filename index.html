@@ -5,7 +5,76 @@
     <script src="https://d3js.org/d3.v6.min.js"></script>
     <script src="https://d3js.org/topojson.v3.min.js"></script>
     <script src="/tooltip.js"></script>
-    <link rel="stylesheet" href="styles.css">
+    <script src="/usMap.js"></script>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;1,300;1,700&display=swap');
+
+        body {
+            font-family: 'Lato', arial;
+            font-size: 14px;
+            font-weight: 400;
+        }
+
+        #pick_county_input {
+            font-family: 'Lato', arial;
+            font-size: 16px;
+            font-weight: 300;
+        }
+
+        #pick_state_input {
+            font-family: 'Lato', arial;
+            font-size: 16px;
+            font-weight: 300;
+        }
+
+        #reset_button {
+            font-family: 'Lato', arial;
+            font-size: 16px;
+            font-weight: 300;
+        }
+
+        label {
+            font-size: 16px;
+            font-weight: 300;
+        }
+
+        h2 {
+            font-weight: 300;
+        }
+
+        #viz2 {
+            visibility: hidden;
+        }
+
+        .state {
+            fill: #ddd;
+        }
+
+        /* .selected_counties {
+    fill: #ddd;
+} */
+
+        .outline {
+            stroke: #fff;
+            stroke-width: 1px;
+            fill: none;
+        }
+
+        .visualization_1 {
+            display: flex;
+        }
+
+        .viz_1_map {
+            flex: 1;
+        }
+
+        .mouseover_outline {
+            stroke: black;
+            stroke-width: 1px;
+            fill: none;
+        }
+    </style>
 </head>
 
 <body>
@@ -25,30 +94,31 @@
         <button type="button" id="reset_button">Reset</button>
     </div>
 
-    <div id="all_svgs">
-        <div class="visualization_1">
-            <div class="viz_1_map element_1">
-                <svg id="state_min" height="200" width="300"></svg>
-            </div>
-            <div class="viz_1_map element_2">
-                <svg id="user_state" height="400" width="600"></svg>
-            </div>
-            <div class="viz_1_map element_3">
-                <svg id="state_max" height="200" width="300"></svg>
-            </div>
+    <div class="visualization_1">
+        <div class="viz_1_map element_1">
+            <svg id="state_min" height="200" width="300"></svg>
         </div>
-        <svg id="us_map" height="600" width="1000"></svg>
-        <!-- <svg id="chart2b" height="500" width="800"></svg>
-        <svg id="chart2c" height="200" width="300"></svg>
-        <svg id="chart2d" height="200" width="300"></svg> -->
-        <div id="v3">
-            <svg id="v3_c1" height="400" width="600"></svg>
-            <svg id="v3_c2" height="400" width="600"></svg>
+        <div class="viz_1_map element_2">
+            <svg id="user_state" height="400" width="600"></svg>
         </div>
-        <div class="miniGraphs">
-            <svg id="hs_graph" height="500" width="800"></svg>
-            <svg id="employment_graph" height="500" width="800"></svg>
+        <div class="viz_1_map element_3">
+            <svg id="state_max" height="200" width="300"></svg>
         </div>
+    </div>
+
+    <h1 id="viz2">Discover Other Counties</h1>
+    <div id="us_div" style="width: 70%; float: left;">
+        <svg id="us_map" height="800" style="width: 85%; padding-left: 10%;" />
+    </div>
+    <div id="filters" style="height:600px; width: 20%; float:left; padding-left: 5%; padding-right: 5%;"></div>
+
+    <div id="v3">
+        <svg id="v3_c1" height="400" width="600"></svg>
+        <svg id="v3_c2" height="400" width="600"></svg>
+    </div>
+    <div class="miniGraphs">
+        <svg id="hs_graph" height="500" width="800"></svg>
+        <svg id="employment_graph" height="500" width="800"></svg>
     </div>
 
     <div id="Filtering">
@@ -63,25 +133,19 @@
 
     <script>
         // PART 1: COUNTY VISUALIZATION (SHRUTI)
-        //state map
-
-        //us map
         const us_svg = d3.select("#us_map");
-        const us_width = us_svg.attr("width");
-        const us_height = us_svg.attr("height");
-        // const us_mapWidth = us_width;
-        // const us_mapHeight = us_height;
 
         const request_data = async function () {
             //load us map json
             const us = await d3.json("counties-10m.json");
 
-            var us_projection = d3.geoAlbersUsa().scale(1300).translate([487.5, 305]);
+            var us_projection = d3.geoAlbersUsa().scale(1500).translate([575, 400]);
             var us_path = d3.geoPath().projection(us_projection);
 
             var nation = topojson.feature(us, us.objects.nation);
-            var counties = topojson.feature(us, us.objects.counties);
             var states = topojson.feature(us, us.objects.states)
+            var counties = topojson.feature(us, us.objects.counties);
+
             var statesMesh = topojson.mesh(us, us.objects.states);
             var countiesMesh = topojson.mesh(us, us.objects.counties);
 
@@ -124,8 +188,6 @@
                 }
             });
 
-            console.log(data)
-
             // color scale constants
             var all_employment_values = [];
             employment.forEach((d, i) => {
@@ -152,16 +214,16 @@
                 .attr("value", d => { return d; })
 
             // update county dropdown based on state selection
-            d3.select("#pick_state_input").on("change", function (d) {
-                var selected_state_input = d3.select(this).property("value");
-                update_county_dropdown(selected_state_input);
-            });
+            //d3.select("#pick_state_input").on("change", function (d) {
+            //var selected_state_input = d3.select(this).property("value");
+            var selected_state_input = "New York";
+            update_county_dropdown(selected_state_input);
+            //});
+
 
             function update_county_dropdown(user_state_input) {
                 var user_counties = [];
                 Object.keys(data).forEach((county) => {
-                    // console.log(user_state_input)
-                    // console.log(data[county])
                     if (data[county]['state'] === user_state_input) {
                         user_counties.push(data[county]['county_name']);
                     };
@@ -179,11 +241,25 @@
                     .text(d => { return d; })
                     .attr("value", d => { return d; })
 
-                d3.select("#pick_county_input").on("change", function (d) {
-                    var selected_county_input = d3.select(this).property("value");
-                    user_county_id_input = find_county_id(user_state_input, selected_county_input);
-                    make_state_map(user_county_id_input, "#user_state");
-                });
+                //d3.select("#pick_county_input").on("change", function (d) {
+                //var selected_county_input = d3.select(this).property("value");
+                var selected_county_input = "Dutchess County";
+                user_county_id_input = find_county_id(selected_state_input, selected_county_input);
+                make_state_map(user_county_id_input, "#user_state");
+
+                //VISUALIZATION 2: US MAP + FILTERS
+                drawUS(counties, us_path, statesMesh, Object.keys(data));
+
+                const sliderWidth = 400
+                const sliderHeight = 20
+                makeSlider(d3.select("#filters"), "Employment Rate", "employment_rate", sliderHeight, sliderWidth, counties, us_path, statesMesh, selected_county_input, data)
+                makeSlider(d3.select("#filters"), "Median Household Income", "income", sliderHeight, sliderWidth, counties, us_path, statesMesh, selected_county_input, data)
+                makeSlider(d3.select("#filters"), "Adult Literacy", "literacy", sliderHeight, sliderWidth, counties, us_path, statesMesh, selected_county_input, data)
+                makeSlider(d3.select("#filters"), "Completed High School", "high_school", sliderHeight, sliderWidth, counties, us_path, statesMesh, selected_county_input, data)
+                makeSlider(d3.select("#filters"), "Completed College", "college", sliderHeight, sliderWidth, counties, us_path, statesMesh, selected_county_input, data)
+
+                d3.select("#viz2").style("visibility", "visible");
+                //});
             };
 
             function find_county_id(state, county) {
@@ -203,8 +279,6 @@
                 const state_svg = d3.select(svg_id);
                 const state_width = state_svg.attr("width");
                 const state_height = state_svg.attr("height");
-                // const state_mapWidth = state_width;
-                // const state_mapHeight = state_height;
 
                 user_input_county_id_string = county_id.toString();
                 user_input_state_id = user_input_county_id_string.substring(0, 2);
@@ -245,7 +319,6 @@
                 state_svg.selectAll("path.selected_counties")
                     .remove();
 
-                // console.log(state_path);
                 // weird state_path error with california
                 //draw state map
                 state_svg.selectAll("path.selected_counties").data(selected_counties)
@@ -259,7 +332,7 @@
                     .attr("class", "outline")
                     .attr("d", state_path);
 
-                add_tooltip("#v3_c1", us, state_path, counties)
+                add_tooltip(svg_id, state_path)
             };
 
             // reset button for dropdowns
@@ -279,141 +352,7 @@
             make_state_map(42053, "#state_min");
             make_state_map(46117, "#state_max");
 
-            const colorScale = d3.scaleQuantile()
-                .domain(all_employment_values)
-                .range(colorsArray);
-
-            //draw us map
-            us_svg.selectAll("path.counties").data(counties.features)
-                .join("path")
-                .attr("class", "counties")
-                .attr("d", us_path)
-                .attr("fill", d => colorScale(Number(data[Number(d.id)]["employment_rate"])));
-
-            us_svg.append("path").datum(statesMesh)
-                .attr("class", "outline")
-                .attr("d", us_path);
-
-            // PART 2: US MAP WITH COUNTIES WITH UNEMPLOYMENT RATE (Rachel)
-
-            console.log(counties);
-
-            // const literacyExtent = d3.extent(counties, d => d.properties.literacy);
-            // console.log(literacyExtent);
-
-            const colorsArray2 = ["white", "red"];
-
-            // does it matter if we use quantize vs quantile?
-            const colorScale2 = d3.scaleQuantize()
-                .domain([0, 1])
-                .range(colorsArray2);
-
-            newList = []
-            function color(x) {
-                if (x === 189.3) {
-                    newList.push(1)
-                }
-                else {
-                    newList.push(0)
-                }
-            };
-
-            d3.select("#literacy_button0").on("click", function (d) {
-                console.log("success");
-                us_svg.selectAll("path.counties").data(counties.features)
-                    .join("path")
-                    .attr("class", "counties")
-                    .attr("d", us_path)
-                    .attr("fill", d => colorScale2(color(d.properties.literacy)));
-            });
-
-
-
-
-            // var filters = {};
-            // var match = topojson.feature(us, us.objects.counties);
-
-            // function matchCounties(matches) {
-            //     console.log("matching", matches)
-            //     console.log(filters)
-            //     matches = matches.filter(pointPassesFilters)
-            //     // data.forEach( d => { d.position = projection([d.Longitude, d.Latitude]);});
-            //     console.log(matches)
-            // }
-
-            // function makeSlider(container, label, attribute, sliderWidth, sliderHeight) {
-
-            //     let values = employment.map(d => d[attribute] * 100);
-
-            //     let minMax = d3.extent(values);
-            //     let xScale = d3.scaleLinear().domain(minMax).range([10, sliderWidth - 10]); // padding here for ease
-            //     let xAxis = d3.axisBottom(xScale).tickFormat(d3.format(".2"));
-
-            //     let wrapper = container.append("div").attr("class", "control");
-            //     wrapper.append("div").text(label);
-            //     let canvas = wrapper.append("svg").attr("width", sliderWidth)
-            //         .attr("height", sliderHeight + 20)
-            //         .attr("attribute", attribute);
-            //     let areaLayer = canvas.append("g");
-            //     canvas.append("g").attr("transform", `translate(0,${sliderHeight})`)
-            //         .call(xAxis);
-
-            //     let numBins = 10;
-            //     let histoGen = d3.histogram().domain(minMax)
-            //         .thresholds(numBins);
-            //     let counts = histoGen(values);
-
-            //     // To make the line chart smoother, we add a dummy value at the start of the array using unshift
-            //     counts.unshift({
-            //         x0: 0,
-            //         x1: counts[0].x0,
-            //         length: counts[0].length
-            //     });
-
-            //     let yScale = d3.scaleLinear().domain(d3.extent(counts, d => d.length))
-            //         .range([sliderHeight, 4]);
-
-            //     let area = d3.area().x(d => xScale(d.x1))
-            //         .y0(yScale(0))
-            //         .y1(d => yScale(d.length))
-            //         .curve(d3.curveNatural);
-            //     areaLayer.append("path").datum(counts)
-            //         .attr("class", "area")
-            //         .attr("d", area);
-
-            //     let filterFunc = d => true;
-            //     filters[attribute] = filterFunc;
-
-            //     // Allow the user to select regions of the slider
-            //     var brush = d3.brushX().extent([[10, 0],
-            //     [sliderWidth - 10, sliderHeight]])
-            //         .on("brush end", brushMoved);
-
-            //     function brushMoved(event) {
-            //         console.log(d3.event.type, d3.event.selection);
-            //         // Everything but clicking on brush area
-            //         if (event.selection !== null) {
-            //             let start = xScale.invert(event.selection[0]);
-            //             let end = xScale.invert(event.selection[1]);
-            //             let filterFunc = d => d[attribute] >= start && d[attribute] <= end;
-            //             filters[attribute] = filterFunc;
-            //             matchCounties(match)
-            //         }
-            //         // Clicking on brush area to empty it out
-            //         else {
-            //             let filterFunc = d => true;
-            //             filters[attribute] = filterFunc;
-            //             matchCounties(match)
-            //         }
-            //     }
-            //     canvas.append("g").attr("class", "brush").call(brush);
-            // }
-
-            // makeSlider(d3.select("#multiple"), "Employment Rate", "Employed", 500, 20)
-            // makeSlider(d3.select("#multiple"), "Unemployment Rate", "Unemployed", 500, 20)
-            // makeSlider(d3.select("#multiple"), "Poverty", "Poverty_100", 500, 20)
-
-            //PART 3: COMPARE COUNTIES (CRYSTAL)
+            //PART 3: COMPARE COUNTIES
             var compare1 = 2016
             var compare2 = 36081
             make_state_map(compare1, "#v3_c1");
@@ -485,10 +424,6 @@
                 .style("text-anchor", "middle")
                 .style("font-weight", 600)
                 .text("Percentage");
-
-            console.log(data[Number(compare1)]);
-            // console.log(typeof (compare1))
-            // console.log(data[2188])
 
             //rectangle for less than HS education
             chartArea.append("line")
