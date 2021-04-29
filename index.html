@@ -215,7 +215,13 @@
                 // const state_mapHeight = state_height;
 
                 user_input_county_id_string = county_id.toString();
-                user_input_state_id = user_input_county_id_string.substring(0, 2);
+
+                if (user_input_county_id_string.length === 4) {
+                    user_input_state_id = "0" + user_input_county_id_string.substring(0, 1);
+                }
+                else {
+                    user_input_state_id = user_input_county_id_string.substring(0, 2);
+                }
 
                 selected_state = states.features.filter(function (d) {
                     return d.id === user_input_state_id;
@@ -255,8 +261,6 @@
                 state_svg.selectAll("path.selected_counties")
                     .remove();
 
-                // console.log(state_path);
-                // weird state_path error with california
                 //draw state map
                 state_svg.selectAll("path.selected_counties").data(selected_counties)
                     .join("path")
@@ -286,14 +290,14 @@
             //         .remove();
             // });
 
-            make_state_map(42053, "#state_min");
+            make_state_map(41025, "#state_min");
             make_state_map(46117, "#state_max");
 
             function drawLegend(legend_id, legendColorScale) {
 
                 // Bonus code here to draw an adaptive gradient legend so we can see different color scales for choropleth maps
                 //  Credit Prof. Rz if you are basing a legend on this structure, and note SERIOUS PERFORMANCE CONSIDERATIONS
-
+                // Source: Professor. Rz, INFO 3300 Spring 2021 Cornell University, Lecture 03/22
                 const legend = d3.select(legend_id);
                 const legendWidth = legend.attr("width");
                 const legendHeight = legend.attr("height");
