@@ -6,6 +6,8 @@
     <script src="https://d3js.org/topojson.v3.min.js"></script>
     <script src="/tooltip.js"></script>
     <link rel="stylesheet" href="styles.css">
+    <style>
+    </style>
 </head>
 
 <body>
@@ -46,20 +48,13 @@
             <svg id="v3_c2" height="400" width="600"></svg>
         </div>
         <div class="miniGraphs">
-            <svg id="hs_graph" height="500" width="800"></svg>
-            <svg id="employment_graph" height="500" width="800"></svg>
+            <svg id="hs_graph" height="300" width="500"></svg>
+            <svg id="employment_graph" height="300" width="500"></svg>
+            <svg id="gender_graph" height="400" width="400">
+            </svg>
         </div>
     </div>
 
-    <div id="Filtering">
-
-        <p>Filter by Literacy</p>
-        <button type="button" id="literacy_button0">Minimum value</button>
-        <button type="button" id="literacy_button1">25th percentile</button>
-        <button type="button" id="literacy_button2">50th percentile</button>
-        <button type="button" id="literacy_button3">75th percentile</button>
-        <button type="button" id="literacy_button4">Maximum value</button>
-    </div>
 
     <script>
         // PART 1: COUNTY VISUALIZATION (SHRUTI)
@@ -104,6 +99,14 @@
                 data[id]["state"] = d['State'].trim();
                 data[id]["county_name"] = d['County'];
                 data[id]["literacy"] = d["Lit_P3"];
+                data[id]["OCC_Manage"] = 100 * d["OCC_Manage"];
+                data[id]["OCC_Service"] = 100 * d["OCC_Service"];
+                data[id]["OCC_Sales"] = 100 * d["OCC_Sales"];
+                data[id]["OCC_Military"] = 100 * d["OCC_Military"];
+                data[id]["OCC_Prod"] = 100 * d["OCC_Prod"];
+                data[id]["Male"] = 100 * d["Male"];
+                data[id]["Female"] = 100 * d["Female"];
+
             });
 
             education.forEach((d, i) => {
@@ -298,37 +301,6 @@
 
             console.log(counties);
 
-            // const literacyExtent = d3.extent(counties, d => d.properties.literacy);
-            // console.log(literacyExtent);
-
-            const colorsArray2 = ["white", "red"];
-
-            // does it matter if we use quantize vs quantile?
-            const colorScale2 = d3.scaleQuantize()
-                .domain([0, 1])
-                .range(colorsArray2);
-
-            newList = []
-            function color(x) {
-                if (x === 189.3) {
-                    newList.push(1)
-                }
-                else {
-                    newList.push(0)
-                }
-            };
-
-            d3.select("#literacy_button0").on("click", function (d) {
-                console.log("success");
-                us_svg.selectAll("path.counties").data(counties.features)
-                    .join("path")
-                    .attr("class", "counties")
-                    .attr("d", us_path)
-                    .attr("fill", d => colorScale2(color(d.properties.literacy)));
-            });
-
-
-
 
             // var filters = {};
             // var match = topojson.feature(us, us.objects.counties);
@@ -451,7 +423,11 @@
 
             const xaxisScale = d3.scalePoint()
                 .domain(["less than HS education", "only HS education", "more than HS education"])
-                .range([30, chartWidth - 70]);
+                .range([20, chartWidth - 70]);
+
+            const xaxisScale2 = d3.scalePoint()
+                .domain(["less than HS education", "only HS education", "more than HS education"])
+                .range([50, chartWidth - 40]);
 
             let bottomAxis = d3.axisBottom(xaxisScale)
             let bottomAxisG = annotations.append("g")
@@ -468,6 +444,22 @@
                 .style("font-weight", 600)
                 .style("font-size", "16px")
                 .text("Education Graph");
+
+            svg.append("text")
+                .attr("x", width - 50)
+                .attr("y", 10)
+                .style("text-anchor", "middle")
+                .style("font-weight", 200)
+                .style("stroke", "blue")
+                .text("County 1");
+
+            svg.append("text")
+                .attr("x", width - 50)
+                .attr("y", 30)
+                .style("text-anchor", "middle")
+                .style("font-weight", 200)
+                .style("stroke", "red")
+                .text("County 2");
 
             //x axis labels
             svg.append("text")
@@ -494,28 +486,52 @@
             chartArea.append("line")
                 .attr("x1", xaxisScale("less than HS education"))
                 .attr("x2", xaxisScale("less than HS education"))
-                .attr("y1", hsScale[0])
-                .attr("y2", hsScale(data[Number(compare1)]["Percent of adults with less than a high school diploma, 2015-19"]))
+                .attr("y1", chartHeight)
+                .attr("y2", hsScale(data[compare1]["Percent of adults with less than a high school diploma, 2015-19"]))
                 .style("stroke", "blue")
-                .style("stroke-width", 40);
+                .style("stroke-width", 30);
+
+            chartArea.append("line")
+                .attr("x1", xaxisScale2("less than HS education"))
+                .attr("x2", xaxisScale2("less than HS education"))
+                .attr("y1", chartHeight)
+                .attr("y2", hsScale(data[compare2]["Percent of adults with less than a high school diploma, 2015-19"]))
+                .style("stroke", "red")
+                .style("stroke-width", 30);
 
             //rectangle for only HS education
             chartArea.append("line")
                 .attr("x1", xaxisScale("only HS education"))
                 .attr("x2", xaxisScale("only HS education"))
-                .attr("y1", hsScale[0])
+                .attr("y1", chartHeight)
                 .attr("y2", hsScale(data[compare1]["Percent of adults with a high school diploma only, 2015-19"]))
                 .style("stroke", "blue")
-                .style("stroke-width", 40);
+                .style("stroke-width", 30);
+
+            chartArea.append("line")
+                .attr("x1", xaxisScale2("only HS education"))
+                .attr("x2", xaxisScale2("only HS education"))
+                .attr("y1", chartHeight)
+                .attr("y2", hsScale(data[compare2]["Percent of adults with a high school diploma only, 2015-19"]))
+                .style("stroke", "red")
+                .style("stroke-width", 30);
 
             //rectangle for more than HS education
             chartArea.append("line")
                 .attr("x1", xaxisScale("more than HS education"))
                 .attr("x2", xaxisScale("more than HS education"))
-                .attr("y1", hsScale[0])
+                .attr("y1", chartHeight)
                 .attr("y2", hsScale(data[compare1]["Percent of adults with a bachelor's degree or higher, 2015-19"]))
                 .style("stroke", "blue")
-                .style("stroke-width", 40);
+                .style("stroke-width", 30);
+
+            chartArea.append("line")
+                .attr("x1", xaxisScale2("more than HS education"))
+                .attr("x2", xaxisScale2("more than HS education"))
+                .attr("y1", chartHeight)
+                .attr("y2", hsScale(data[compare2]["Percent of adults with a bachelor's degree or higher, 2015-19"]))
+                .style("stroke", "red")
+                .style("stroke-width", 30);
 
 
 
@@ -549,11 +565,14 @@
                 .attr("transform", `translate(${margin2.left - 10},${margin2.top})`)
                 .call(leftGridlines2);
 
-            const xaxisScale2 = d3.scalePoint()
+            const xaxisScale_employment = d3.scalePoint()
                 .domain(["Management", "Service", "Sales", "Military", "Production"])
-                .range([30, chartWidth2 - 70]);
+                .range([20, chartWidth2 - 70]);
+            const xaxisScale_employment2 = d3.scalePoint()
+                .domain(["Management", "Service", "Sales", "Military", "Production"])
+                .range([50, chartWidth2 - 40]);
 
-            let bottomAxis2 = d3.axisBottom(xaxisScale2)
+            let bottomAxis2 = d3.axisBottom(xaxisScale_employment)
             let bottomAxisG2 = annotations2.append("g")
                 .style("font", "14px Montserrat")
                 .attr("class", "x axis")
@@ -568,6 +587,23 @@
                 .style("font-weight", 600)
                 .style("font-size", "16px")
                 .text("Employment Graph");
+
+
+            svg2.append("text")
+                .attr("x", width2 - 50)
+                .attr("y", 10)
+                .style("text-anchor", "middle")
+                .style("font-weight", 200)
+                .style("stroke", "blue")
+                .text("County 1");
+
+            svg2.append("text")
+                .attr("x", width2 - 50)
+                .attr("y", 30)
+                .style("text-anchor", "middle")
+                .style("font-weight", 200)
+                .style("stroke", "red")
+                .text("County 2");
 
             //x axis labels
             svg2.append("text")
@@ -588,49 +624,176 @@
 
             //rectangle for Management
             chartArea2.append("line")
-                .attr("x1", xaxisScale2("Management"))
-                .attr("x2", xaxisScale2("Management"))
-                .attr("y1", employmentScale[0])
-                .attr("y2", employmentScale(employment[compare1]["OCC_Manage"]))
+                .attr("x1", xaxisScale_employment("Management"))
+                .attr("x2", xaxisScale_employment("Management"))
+                .attr("y1", chartHeight2)
+                .attr("y2", employmentScale(data[compare1]["OCC_Manage"]))
                 .style("stroke", "blue")
-                .style("stroke-width", 40);
+                .style("stroke-width", 30);
+
+            chartArea2.append("line")
+                .attr("x1", xaxisScale_employment2("Management"))
+                .attr("x2", xaxisScale_employment2("Management"))
+                .attr("y1", chartHeight2)
+                .attr("y2", employmentScale(data[compare2]["OCC_Manage"]))
+                .style("stroke", "red")
+                .style("stroke-width", 30);
 
             //rectangle for Service
             chartArea2.append("line")
-                .attr("x1", xaxisScale2("Service"))
-                .attr("x2", xaxisScale2("Service"))
-                .attr("y1", employmentScale[0])
-                .attr("y2", employmentScale(employment[compare1]["OCC_Service"]))
+                .attr("x1", xaxisScale_employment("Service"))
+                .attr("x2", xaxisScale_employment("Service"))
+                .attr("y1", chartHeight2)
+                .attr("y2", employmentScale(data[compare1]["OCC_Service"]))
                 .style("stroke", "blue")
-                .style("stroke-width", 40);
+                .style("stroke-width", 30);
+
+            chartArea2.append("line")
+                .attr("x1", xaxisScale_employment2("Service"))
+                .attr("x2", xaxisScale_employment2("Service"))
+                .attr("y1", chartHeight2)
+                .attr("y2", employmentScale(data[compare2]["OCC_Service"]))
+                .style("stroke", "red")
+                .style("stroke-width", 30);
 
             //rectangle for Sales
             chartArea2.append("line")
-                .attr("x1", xaxisScale2("Sales"))
-                .attr("x2", xaxisScale2("Sales"))
-                .attr("y1", employmentScale[0])
-                .attr("y2", employmentScale(employment[compare1]["OCC_Sales"]))
+                .attr("x1", xaxisScale_employment("Sales"))
+                .attr("x2", xaxisScale_employment("Sales"))
+                .attr("y1", chartHeight2)
+                .attr("y2", employmentScale(data[compare1]["OCC_Sales"]))
                 .style("stroke", "blue")
-                .style("stroke-width", 40);
+                .style("stroke-width", 30);
+
+            chartArea2.append("line")
+                .attr("x1", xaxisScale_employment2("Sales"))
+                .attr("x2", xaxisScale_employment2("Sales"))
+                .attr("y1", chartHeight2)
+                .attr("y2", employmentScale(data[compare2]["OCC_Sales"]))
+                .style("stroke", "red")
+                .style("stroke-width", 30);
 
             //rectangle for Military
             chartArea2.append("line")
-                .attr("x1", xaxisScale2("Military"))
-                .attr("x2", xaxisScale2("Military"))
-                .attr("y1", employmentScale[0])
-                .attr("y2", employmentScale(employment[compare1]["OCC_Military"]))
+                .attr("x1", xaxisScale_employment("Military"))
+                .attr("x2", xaxisScale_employment("Military"))
+                .attr("y1", chartHeight2)
+                .attr("y2", employmentScale(data[compare1]["OCC_Military"]))
                 .style("stroke", "blue")
-                .style("stroke-width", 40);
+                .style("stroke-width", 30);
 
+            chartArea2.append("line")
+                .attr("x1", xaxisScale_employment2("Military"))
+                .attr("x2", xaxisScale_employment2("Military"))
+                .attr("y1", chartHeight2)
+                .attr("y2", employmentScale(data[compare2]["OCC_Military"]))
+                .style("stroke", "red")
+                .style("stroke-width", 30);
 
             //rectangle for Production
             chartArea2.append("line")
-                .attr("x1", xaxisScale2("Production"))
-                .attr("x2", xaxisScale2("Production"))
-                .attr("y1", employmentScale[0])
-                .attr("y2", employmentScale(employment[compare1]["OCC_Prod"]))
+                .attr("x1", xaxisScale_employment("Production"))
+                .attr("x2", xaxisScale_employment("Production"))
+                .attr("y1", chartHeight2)
+                .attr("y2", employmentScale(data[compare1]["OCC_Prod"]))
                 .style("stroke", "blue")
-                .style("stroke-width", 40);
+                .style("stroke-width", 30);
+
+            chartArea2.append("line")
+                .attr("x1", xaxisScale_employment2("Production"))
+                .attr("x2", xaxisScale_employment2("Production"))
+                .attr("y1", chartHeight2)
+                .attr("y2", employmentScale(data[compare2]["OCC_Prod"]))
+                .style("stroke", "red")
+                .style("stroke-width", 30);
+
+
+
+
+            // GENDER RATIO PIE CHART CHART MINI GRAPH
+            const svg3 = d3.select("svg#gender_graph");
+
+            const data1 = {
+                datasets: [{
+                    label: 'Gender Graph',
+                    data: [20, 80],
+                    backgroundColor: [
+                        'blue',
+                        'red'
+                    ],
+                    hoverOffset: 4
+                }]
+            };
+
+            const config = {
+                type: 'pie',
+                data: data1,
+            };
+
+
+            // const width2 = svg2.attr("width");
+            // const height2 = svg2.attr("height");
+            // const margin2 = { "top": 40, "right": 10, "bottom": 50, "left": 60 };
+            // const chartWidth2 = width2 - margin2.left - margin2.right;
+            // const chartHeight2 = height2 - margin2.top - margin2.bottom
+
+
+            // let annotations2 = svg2.append("g").attr("id", "annotations");
+            // let chartArea2 = svg2.append("g").attr("id", "points")
+            //     .attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
+
+            // const employmentScale = d3.scaleLinear().domain([0, 100]).range([chartHeight2, 0])
+            // let leftAxis2 = d3.axisLeft(employmentScale).tickFormat(d3.format(''));
+            // let leftGridlines2 = d3.axisLeft(employmentScale)
+            //     .tickSize(-chartWidth2 - 10)
+            //     .tickFormat("")
+
+            // annotations2.append("g")
+            //     .attr("class", "y axis")
+            //     .style("font", "11px Montserrat")
+            //     .attr("transform", `translate(${margin2.left - 10},${margin2.top})`)
+            //     .call(leftAxis2)
+            // annotations2.append("g")
+            //     .attr("class", "y gridlines")
+            //     .attr("transform", `translate(${margin2.left - 10},${margin2.top})`)
+            //     .call(leftGridlines2);
+
+            // const xaxisScale2 = d3.scalePoint()
+            //     .domain(["Management", "Service", "Sales", "Military", "Production"])
+            //     .range([30, chartWidth2 - 70]);
+
+            // let bottomAxis2 = d3.axisBottom(xaxisScale2)
+            // let bottomAxisG2 = annotations2.append("g")
+            //     .style("font", "14px Montserrat")
+            //     .attr("class", "x axis")
+            //     .attr("transform", `translate(${margin2.left},${chartHeight2 + margin2.top + 10})`)
+            //     .call(bottomAxis2);
+
+            // //chart title
+            // svg2.append("text")
+            //     .attr("x", width2 / 2)
+            //     .attr("y", 20)
+            //     .style("text-anchor", "middle")
+            //     .style("font-weight", 600)
+            //     .style("font-size", "16px")
+            //     .text("Employment Graph");
+
+            // //x axis labels
+            // svg2.append("text")
+            //     .attr("x", width2 / 2)
+            //     .attr("y", height2)
+            //     .style("text-anchor", "middle")
+            //     .style("font-weight", 600);
+
+            // //y axis label
+            // svg2.append("text")
+            //     .attr("transform", "rotate(-90)")
+            //     .attr("y", 0)
+            //     .attr("x", 0 - (height2 / 2))
+            //     .attr("dy", "1em")
+            //     .style("text-anchor", "middle")
+            //     .style("font-weight", 600)
+            //     .text("Percentage");
 
         };
         request_data();
