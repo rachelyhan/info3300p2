@@ -1,4 +1,4 @@
-function add_tooltip(element_id, state_path) {
+function add_tooltip(element_id, state_path, data) {
   let tooltipWidth = 300;
   let tooltipHeight = 135;
   const map = d3.select(element_id);
