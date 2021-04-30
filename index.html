@@ -40,6 +40,7 @@
         <div class="viz_1_map element_1">
             <svg id="state_min" height="450" width="450"></svg>
             <svg id="state_min_title" height="25" width="300"></svg>
+            <svg id="state_min_metrics" height="100" width="450"></svg>
         </div>
         <div class="viz_1_map element_2">
             <div id="viz_1_outline">
@@ -188,6 +189,15 @@
                 update_county_dropdown(selected_state_input);
             });
 
+            d3.select("#state_min_metrics")
+                .append("text")
+      .attr("fill", "black")
+      .attr("text-anchor", "middle")
+      .attr("alignment-baseline", "hanging")
+      .attr("x", 20)
+      .attr("y", 0)
+      .text("test")
+
 
             function update_county_dropdown(user_state_input) {
                 var user_counties = [];
@@ -330,6 +340,19 @@
                     .style("font-weight", 600)
                     .style("font-size", "16px")
                     .text(data[county_id]["county_name"] + ", " + data[county_id]["state_abbreviation"]);
+
+
+                // add metrics
+                const attributes = ["Employment Rate: ", "Median Household Income: ", "Pop. % at Level 3 Literacy: ", "Pop. % with Bachelors' Degrees: ", "Pop. % of High School Graduates: "]
+
+                attributes.forEach((d,i) => {
+                    state_svg.append("text")
+                    .attr("x", 0.10*state_width)
+                    .attr("y", state_height - (100 - 20*i))
+                    .style("font-weight", 600)
+                    .style("font-size", "14px")
+                    .text(d);
+                })
 
                 // outline for selected state
                 let momesh = map.append("path")
