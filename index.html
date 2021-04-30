@@ -84,45 +84,13 @@
         <svg id="gender_graph2" height="300" width="250"></svg>
         <svg id="ethnicity_graph1" height="300" width="250"></svg>
         <svg id="ethnicity_graph2" height="300" width="250"></svg>
-
-        </svg>
     </div>
-
-    <!-- <div id="all_svgs">
-        <div class="visualization_1">
-            <div class="viz_1_map element_1">
-                <svg id="state_min" height="300" width="300"></svg>
-            </div>
-            <div class="viz_1_map element_2">
-                <svg id="user_state" height="500" width="500"></svg>
-            </div>
-            <div class="viz_1_map element_3">
-                <svg id="state_max" height="300" width="300"></svg>
-            </div>
-        </div>
-
-        <svg id="us_map" height="600" width="1000"></svg>
-        <svg id="chart2b" height="500" width="800"></svg>
-        <svg id="chart2c" height="200" width="300"></svg>
-        <svg id="chart2d" height="200" width="300"></svg>
-        <div id="v3">
-            <svg id="v3_c1" height="400" width="600"></svg>
-            <svg id="v3_c2" height="400" width="600"></svg>
-        </div>
-        <div class="miniGraphs">
-            <svg id="hs_graph" height="300" width="500"></svg>
-            <svg id="employment_graph" height="300" width="500"></svg>
-            <svg id="gender_graph" height="400" width="400">
-            </svg>
-        </div>
-    </div> -->
 
     <script>
         // PART 1: COUNTY VISUALIZATION (SHRUTI)
         const us_svg = d3.select("#us_map");
 
         const request_data = async function () {
-            //load us map json
             const us = await d3.json("counties-10m.json");
 
             var us_projection = d3.geoAlbersUsa().scale(1300).translate([487.5, 400]);
@@ -256,10 +224,10 @@
                     makeSlider(d3.select("#filters"), "Completed High School", "high_school", sliderHeight, sliderWidth, counties, us_path, statesMesh, user_county_id_input, data)
                     makeSlider(d3.select("#filters"), "Completed College", "college", sliderHeight, sliderWidth, counties, us_path, statesMesh, user_county_id_input, data)
 
-                    selectedCounties = matchCounties()
-                    console.log(selectedCounties)
-                    console.log(getFilters())
-                    drawUS(counties, us_path, statesMesh, matchCounties())
+                    // selectedCounties = matchCounties()
+                    // console.log(selectedCounties)
+                    // console.log(getFilters())
+                    drawUS(counties, us_path, statesMesh, data)
 
                 });
             };
@@ -273,16 +241,6 @@
                 });
                 return selected_county_id;
             };
-
-            // function find_county_id(state, county) {
-            //     selected_county_id = "";
-            //     Object.keys(data).forEach((county) => {
-            //         if (data[county]['state'] === state && data[county]['county_name'] === county ) {
-            //             selected_county_id = data[county];
-            //             console.log(data[county]);
-            //         }
-            //     });
-            // };
 
             function make_state_map(county_id, svg_id, title_id) {
                 var state_projection = d3.geoAlbersUsa().scale(1).translate([0, 0]);
@@ -425,8 +383,6 @@
                 bar.append("line").attr("stroke", "white").attr("stroke-width", 3).attr("x1", barScale(legendMinMax[0])).attr("x2", barScale(legendMinMax[0])).attr("y1", 0).attr("y1", barHeight + 4);
                 bar.append("line").attr("stroke", "white").attr("stroke-width", 3).attr("x1", barScale(legendMinMax[1])).attr("x2", barScale(legendMinMax[1])).attr("y1", 0).attr("y1", barHeight + 4);
             };
-            // state_svg.selectAll("text")
-            //     .remove();
 
             const colorScale = d3.scaleQuantile()
                 .domain(all_employment_values)

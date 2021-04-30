@@ -5,47 +5,40 @@ const colorScale2 = d3.scaleQuantize()
   .domain([0, 1])
   .range(colorsArray2);
 
-function updateUS(counties, us_path, statesMesh, match) {
+var filters = {};
+
+function getFilters() {
+  return filters
+};
+
+function matchCounties(county, data) {
+  var pass = true
+  Object.values(filters).forEach(filterFunc => {
+    pass = pass && filterFunc(data[Number(county)]);
+  });
+  return pass
+};
+
+function updateUS(counties, us_path, data) {
   us_svg.selectAll("path.counties").data(counties.features)
     .join("path")
     .attr("class", "counties")
     .attr("d", us_path)
-    .attr("fill", d => colorScale2(Number(match.includes(d.id))));
+    .attr("fill", d => colorScale2(Number(matchCounties(d.id, data))));
 }
 
-function drawUS(counties, us_path, statesMesh, match) {
+function drawUS(counties, us_path, statesMesh, data) {
   us_svg.selectAll("path.counties").data(counties.features)
     .join("path")
     .attr("class", "counties")
     .attr("d", us_path)
-    .attr("fill", d => colorScale2(Number(match.includes(d.id))));
+    .attr("fill", d => colorScale2(Number(matchCounties(d.id, data))));
   us_svg.append("path").datum(statesMesh)
     .attr("class", "outline")
     .attr("d", us_path);
 
   // usTooltip(data)
 }
-
-var filters = {};
-
-function matchCounties() {
-  match = []
-  Object.keys(data).forEach((county) => {
-    let pass = true
-    Object.values(filters).forEach(filterFunc => {
-      pass = pass && filterFunc(data[county]);
-    });
-    if (pass) {
-      match.push(county)
-    }
-  });
-  console.log(match)
-  return match
-};
-
-function getFilters() {
-  return filters
-};
 
 function makeSlider(container, label, attribute, sliderHeight, sliderWidth, counties, us_path, statesMesh, selected_county, data) {
   let values = []
@@ -146,7 +139,7 @@ function makeSlider(container, label, attribute, sliderHeight, sliderWidth, coun
       d3.select(this.parentNode.parentNode).select("#values").text("No Filter")
       // console.log(filters[attribute])
     }
-    updateUS(counties, us_path, statesMesh, matchCounties())
+    updateUS(counties, us_path, data)
   }
   canvas.append("g").attr("class", "brush").call(brush)
     .call(brush.move, defaultSelection);
