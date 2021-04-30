@@ -102,11 +102,11 @@ function makeSlider(container, label, attribute, sliderHeight, sliderWidth, coun
     .attr("d", area);
 
 
-  const defaultSelection = [Math.max(0, select_value - minMax[1] * 0.1), Math.min(minMax[1], select_value + minMax[1] * 0.1)]
+  // const defaultSelection = [Math.max(0, select_value - minMax[1] * 0.1), Math.min(minMax[1], select_value + minMax[1] * 0.1)]
   // console.log(defaultSelection)
 
-  wrapper.append("div").text(defaultSelection[0].toString() + " - " + defaultSelection[1].toString())
-    .attr("id", "values");
+  // wrapper.append("div").text(defaultSelection[0].toString() + " - " + defaultSelection[1].toString())
+  //   .attr("id", "values");
 
   let filterFunc = d => true;
   // let filterFunc = d => d[attribute] >= defaultSelection[0] && d[attribute] <= defaultSelection[1];
@@ -131,136 +131,20 @@ function makeSlider(container, label, attribute, sliderHeight, sliderWidth, coun
       filters[attribute] = filterFunc;
       // console.log(filters[attribute], start, end)
 
-      d3.select(this.parentNode.parentNode).select("#values").text(start.toString() + " - " + end.toString())
+      // d3.select(this.parentNode.parentNode).select("#values").text(start.toString() + " - " + end.toString())
     }
     else {
       let filterFunc = d => true;
       filters[attribute] = filterFunc;
-      d3.select(this.parentNode.parentNode).select("#values").text("No Filter")
+      // d3.select(this.parentNode.parentNode).select("#values").text("No Filter")
       // console.log(filters[attribute])
     }
     updateUS(counties, us_path, data)
   }
   canvas.append("g").attr("class", "brush").call(brush)
-    .call(brush.move, defaultSelection);
+  // .call(brush.move, defaultSelection);
 
   // Object.values(filters).forEach(filterFunc => {
   //   // console.log(filters[attribute])
   // });
-}
-
-function usTooltip(data) {
-
-  var state_projection = d3.geoAlbersUsa().scale(1).translate([0, 0]);
-  var state_path = d3.geoPath().projection(state_projection);
-
-  let tooltipWidth = 300;
-  let tooltipHeight = 135;
-
-  const map = d3.select("#us_map");
-
-  let tooltip2 = map.append("g")
-    .attr("class", "tooltip2")
-    .style("visibility", "hidden")
-    .attr("id", "tooltip2")
-
-  tooltip2.append("rect")
-    .attr("fill", "black")
-    .attr("opacity", 0.9)
-    .attr("x", -tooltipWidth / 2.0)
-    .attr("y", 0)
-    .attr("width", tooltipWidth)
-    .attr("height", tooltipHeight)
-
-  let name = tooltip2.append("text")
-    .attr("fill", "white")
-    .attr("text-anchor", "middle")
-    .attr("alignment-baseline", "hanging")
-    .attr("x", 0)
-    .attr("y", 10);
-  let employment = tooltip2.append("text")
-    .attr("fill", "white")
-    .attr("text-anchor", "middle")
-    .attr("alignment-baseline", "hanging")
-    .attr("x", 0)
-    .attr("y", 30);
-  let income = tooltip2.append("text")
-    .attr("fill", "white")
-    .attr("text-anchor", "middle")
-    .attr("alignment-baseline", "hanging")
-    .attr("x", 0)
-    .attr("y", 50);
-  let literacy = tooltip2.append("text")
-    .attr("fill", "white")
-    .attr("text-anchor", "middle")
-    .attr("alignment-baseline", "hanging")
-    .attr("x", 0)
-    .attr("y", 70);
-  let highschool = tooltip2.append("text")
-    .attr("fill", "white")
-    .attr("text-anchor", "middle")
-    .attr("alignment-baseline", "hanging")
-    .attr("x", 0)
-    .attr("y", 90);
-  let college = tooltip2.append("text")
-    .attr("fill", "white")
-    .attr("text-anchor", "middle")
-    .attr("alignment-baseline", "hanging")
-    .attr("x", 0)
-    .attr("y", 110);
-
-  d3.select("tooltip").selectAll("text")
-
-  let momesh = map.append("path")
-    .attr("class", "mouseover outline")
-    .attr("d", "");
-
-  d3.selectAll(".selected_counties").on("mouseenter", mouseEntersPlot);
-  d3.selectAll(".selected_counties").on("mouseout", mouseLeavesPlot);
-
-  function mouseEntersPlot() {
-    tooltip1 = d3.select(this.parentNode).select("#tooltip2")
-
-    tooltip1.style("visibility", "visible")
-
-    let county = d3.select(this);
-    let countyID = county.datum().id;
-
-    // console.log(countyID)
-    // console.log(data[Number(countyID)]["state_path"]);
-    // console.log(county.datum())
-
-    name.text(data[Number(countyID)]["county_name"] + ", " + data[Number(countyID)]["state"])
-    employment.text((data[Number(countyID)]["employment_rate"] * 100).toString() + "% employed");
-    income.text("Median Household Income" + data[Number(countyID)]["income"]);
-    literacy.text((data[Number(countyID)]["literacy"] * 100).toString() + "% at Level 3 literacy");
-    college.text(data[Number(countyID)]["college"] + "% have bachelor's degrees");
-    highschool.text(data[Number(countyID)]["high_school"] + "% graduated high school");
-
-    // var state_projection = d3.geoAlbersUsa().scale(1).translate([0, 0]);
-    // state_path = d3.geoPath().projection(state_projection);
-
-    let bounds = state_path.bounds(county.datum());   // Get the pixel boundaries of the county
-    let xPos = (bounds[0][0] + bounds[1][0]) / 2.0;
-    let yPos = bounds[1][1];
-
-    console.log(map)
-
-    if (yPos + tooltipHeight > map.attr("height")) {
-      yPos = 100
-    }
-
-    if (xPos - tooltipWidth / 2 < 0) {
-      xPos = map.attr("width") - tooltipWidth / 2 - 100
-    } else if (xPos + tooltipWidth / 2 > map.attr("width")) {
-      xPos = tooltipWidth
-    }
-
-    tooltip1.attr("transform", `translate(${xPos},${yPos})`);
-  }
-
-  function mouseLeavesPlot() {
-    d3.select(this.parentNode).select("#tooltip2").style("visibility", "hidden");
-    momesh.attr("d", "");
-  }
 }

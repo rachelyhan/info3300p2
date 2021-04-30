@@ -73,7 +73,7 @@
         }
 
         .select_outline {
-            stroke: black;
+            stroke: red;
             stroke-width: 3px;
             fill: none;
         }
