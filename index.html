@@ -32,7 +32,7 @@
 
     <div class="visualization_1">
         <div class="viz_1_map element_1">
-            <svg id="state_min" height="200" width="300"></svg>
+            <svg id="state_min" height="400" width="600"></svg>
             <svg id="state_min_title" height="25" width="300"></svg>
         </div>
         <div class="viz_1_map element_2">
@@ -42,7 +42,7 @@
             </div>
         </div>
         <div class="viz_1_map element_3">
-            <svg id="state_max" height="200" width="300"></svg>
+            <svg id="state_max" height="400" width="600"></svg>
             <svg id="state_max_title" height="25" width="300"></svg>
         </div>
     </div>
@@ -68,11 +68,11 @@
     </div>
     <div id="v3" style="display: flex">
         <div class="v3_map element_1" style="width: 50%">
-            <svg id="v3_c1" height="400" width="600"></svg>
+            <svg id="v3_c1" height="800" width="800"></svg>
             <svg id="v3_c1_title" height="25" width="600"></svg>
         </div>
         <div class="v3_map element_2" style="width: 50%">
-            <svg id="v3_c2" height="400" width="600"></svg>
+            <svg id="v3_c2" height="800" width="800"></svg>
             <svg id="v3_c2_title" height="25" width="600"></svg>
         </div>
     </div>
@@ -224,9 +224,6 @@
                     makeSlider(d3.select("#filters"), "Completed High School", "high_school", sliderHeight, sliderWidth, counties, us_path, statesMesh, user_county_id_input, data)
                     makeSlider(d3.select("#filters"), "Completed College", "college", sliderHeight, sliderWidth, counties, us_path, statesMesh, user_county_id_input, data)
 
-                    // selectedCounties = matchCounties()
-                    // console.log(selectedCounties)
-                    // console.log(getFilters())
                     drawUS(counties, us_path, statesMesh, data)
 
                 });
@@ -243,12 +240,19 @@
             };
 
             function make_state_map(county_id, svg_id, title_id) {
+                d3.select(svg_id).selectAll("*").remove();
                 var state_projection = d3.geoAlbersUsa().scale(1).translate([0, 0]);
                 var state_path = d3.geoPath().projection(state_projection);
 
                 const state_svg = d3.select(svg_id);
                 const state_width = state_svg.attr("width");
                 const state_height = state_svg.attr("height");
+
+                const margin = { top: 100, right: 100, bottom: 100, left: 100 };
+                const mapWidth = state_width - margin.left - margin.right;
+                const mapHeight = state_height - margin.top - margin.bottom;
+                const map = state_svg.append("g")
+                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
                 user_input_county_id_string = county_id.toString();
 
@@ -267,6 +271,7 @@
                     return d.id.substring(0, 2) === user_input_state_id;
                 });
 
+
                 //source for centering state map: https://bl.ocks.org/gregdevs/a73f8a16f129757c037e72ecdebdd8f2
                 var state_bounds = state_path.bounds(selected_state[0]);
                 var state_x_difference = state_bounds[1][0] - state_bounds[0][0];
@@ -274,8 +279,8 @@
                 var state_x_sum = state_bounds[1][0] + state_bounds[0][0];
                 var state_y_sum = state_bounds[1][1] + state_bounds[0][1];
 
-                var state_scale = 0.95 / Math.max(state_x_difference / state_width, state_y_difference / state_height);
-                var state_translate = [(state_width - state_scale * state_x_sum) / 2, (state_height - state_scale * state_y_sum) / 2];
+                var state_scale = 0.95 / Math.max(state_x_difference / mapWidth, state_y_difference / mapHeight);
+                var state_translate = [(mapWidth - state_scale * state_x_sum) / 2, (mapHeight - state_scale * state_y_sum) / 2];
 
                 state_projection.scale(state_scale)
                     .translate(state_translate);
@@ -286,24 +291,19 @@
 
                 drawLegend("#colorLegend", colorScale);
 
-                state_svg.selectAll("path.selected_counties")
+                map.selectAll("path.selected_counties")
                     .remove();
 
                 //draw state map
-                state_svg.selectAll("path.selected_counties").data(selected_counties)
+                map.selectAll("path.selected_counties").data(selected_counties)
                     .join("path")
                     .attr("class", "selected_counties")
                     .attr("d", state_path)
                     .attr("fill", d => colorScale(Number(data[Number(d.id)]["employment_rate"])));
 
-                state_svg.append("path").datum(countiesMesh)
+                map.append("path").datum(countiesMesh)
                     .attr("class", "outline")
                     .attr("d", state_path);
-
-                // selected_counties.forEach((d, i) => {
-                //     data[Number(d.id)]["state_path"] = state_path
-                // })
-                // console.log(data[Number(county_id)]["state_path"])
 
                 // add state label
                 d3.select(title_id).selectAll("text")
@@ -319,16 +319,19 @@
                     .text(data[county_id]["county_name"] + ", " + data[county_id]["state_abbreviation"]);
 
                 // outline for selected state
-                let momesh = state_svg.append("path")
+                let momesh = map.append("path")
                     .attr("class", "select_outline")
                     .attr("d", "");
+
+                map.append("path")
+                    .attr("class", "mouseover_outline")
+                    .attr("d", "")
+                    .attr("id", "momesh")
 
                 var mo = topojson.mesh(us, us.objects.counties, function (a, b) { return a.id === county_id.toString() || b.id === county_id.toString(); });
                 momesh.datum(mo).attr("d", state_path)
 
                 add_tooltip(svg_id, state_path, data, us)
-
-                console.log(mo)
             };
 
             // reset button for dropdowns

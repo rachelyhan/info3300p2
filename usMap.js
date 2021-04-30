@@ -102,7 +102,7 @@ function makeSlider(container, label, attribute, sliderHeight, sliderWidth, coun
     .attr("d", area);
 
 
-  const defaultSelection = [Math.max(0, select_value - minMax[1] * 0.3), Math.min(minMax[1], select_value + minMax[1] * 0.3)]
+  const defaultSelection = [Math.max(0, select_value - minMax[1] * 0.1), Math.min(minMax[1], select_value + minMax[1] * 0.1)]
   // console.log(defaultSelection)
 
   wrapper.append("div").text(defaultSelection[0].toString() + " - " + defaultSelection[1].toString())
