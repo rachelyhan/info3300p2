@@ -13,7 +13,7 @@
     <h1>Employment in the United States</h1>
 
     <h2>Part I: How well-employed is your county?</h2>
-    <h3>Select your county below to find out how employment rates in your county compare to other counties in the U.S.
+    <h3>Select your county below to find out how employment rates in your county compare to other counties in the US.
     </h3>
     <div id="user_state_county_inputs">
         <label for="pick_state_input">Home State: </label>
@@ -33,12 +33,17 @@
     <div class="visualization_1">
         <div class="viz_1_map element_1">
             <svg id="state_min" height="200" width="300"></svg>
+            <svg id="state_min_title" height="25" width="300"></svg>
         </div>
         <div class="viz_1_map element_2">
-            <svg id="user_state" height="400" width="600"></svg>
+            <div id="viz_1_outline">
+                <svg id="user_state" height="400" width="600"></svg>
+                <svg id="user_state_title" height="25" width="600"></svg>
+            </div>
         </div>
         <div class="viz_1_map element_3">
             <svg id="state_max" height="200" width="300"></svg>
+            <svg id="state_max_title" height="25" width="300"></svg>
         </div>
     </div>
 
@@ -47,32 +52,42 @@
             font-size: 16px; font-weight: 300;"></svg>
     </div>
 
-    <h1 id="viz2">Discover Other Counties</h1>
-    <div id="us_div" style="width: 70%; float: left;">
-        <svg id="us_map" height="800" style="width: 85%; padding-left: 10%;"></svg>
+    <h2>Part II: Discover other counties</h2>
+    <h3>Explore other counties in the US by filtering for various metrics such as income, literacy, and more.</h3>
+    <div class="viz2">
+        <div id="us_div" style="width: 70%; float: left;">
+            <svg id="us_map" height="800" style="width: 85%; padding-left: 10%;"></svg>
+        </div>
+        <div id="filters" style="height:600px; width: 20%; float:left; padding-left: 5%; padding-right: 5%;"></div>
     </div>
-    <div id="filters" style="height:600px; width: 20%; float:left; padding-left: 5%; padding-right: 5%;"></div>
 
+
+    <div class="viz3_title">
+        <h2>Part III: Compare two counties</h2>
+        <h3>Based on your exploration from Part II, compare and contrast two counties you are interested in</h3>
+    </div>
     <div id="v3">
-        <svg id="v3_c1" height="400" width="600"></svg>
-        <svg id="v3_c2" height="400" width="600"></svg>
+        <div class="v3_map element_1">
+            <svg id="v3_c1" height="400" width="600"></svg>
+            <svg id="v3_c1_title" height="25" width="600"></svg>
+        </div>
+        <div class="v3_map element_2">
+            <svg id="v3_c2" height="400" width="600"></svg>
+            <svg id="v3_c2_title" height="25" width="600"></svg>
+        </div>
     </div>
     <div class="miniGraphs">
         <svg id="hs_graph" height="300" width="500"></svg>
         <svg id="employment_graph" height="300" width="500"></svg>
-        <svg id="gender_graph" height="400" width="400">
+        <svg id="empty space" height="300" width="300"></svg>
+        <svg id="gender_graph1" height="300" width="250"></svg>
+        <svg id="gender_graph2" height="300" width="250"></svg>
+        <svg id="ethnicity_graph1" height="300" width="250"></svg>
+        <svg id="ethnicity_graph2" height="300" width="250"></svg>
+
         </svg>
     </div>
 
-    <div id="Filtering">
-
-        <p>Filter by Literacy</p>
-        <button type="button" id="literacy_button0">Minimum value</button>
-        <button type="button" id="literacy_button1">25th percentile</button>
-        <button type="button" id="literacy_button2">50th percentile</button>
-        <button type="button" id="literacy_button3">75th percentile</button>
-        <button type="button" id="literacy_button4">Maximum value</button>
-    </div>
     <!-- <div id="all_svgs">
         <div class="visualization_1">
             <div class="viz_1_map element_1">
@@ -144,7 +159,13 @@
                 data[id]["OCC_Prod"] = 100 * d["OCC_Prod"];
                 data[id]["Male"] = 100 * d["Male"];
                 data[id]["Female"] = 100 * d["Female"];
-
+                data[id]["White"] = 100 * d["White"];
+                data[id]["Black"] = 100 * d["Black"];
+                data[id]["Hispanic"] = 100 * d["Hispanic"];
+                data[id]["Asian"] = 100 * d["Asian"];
+                data[id]["AIAN"] = 100 * d["AIAN"];
+                data[id]["NHPI"] = 100 * d["NHPI"];
+                data[id]["Other_race"] = 100 * d["Other_race"];
             });
 
             education.forEach((d, i) => {
@@ -222,9 +243,9 @@
                 d3.select("#pick_county_input").on("change", function (d) {
                     var selected_county_input = d3.select(this).property("value");
                     user_county_id_input = find_county_id(user_state_input, selected_county_input);
-                    make_state_map(42053, "#state_min");
-                    make_state_map(46117, "#state_max");
-                    make_state_map(user_county_id_input, "#user_state");
+                    make_state_map(42053, "#state_min", "#state_min_title");
+                    make_state_map(46117, "#state_max", "#state_max_title");
+                    make_state_map(user_county_id_input, "#user_state", "#user_state_title");
 
                     //VISUALIZATION 2: US MAP + FILTERS
                     const sliderWidth = 400
@@ -253,7 +274,17 @@
                 return selected_county_id;
             };
 
-            function make_state_map(county_id, svg_id) {
+            // function find_county_id(state, county) {
+            //     selected_county_id = "";
+            //     Object.keys(data).forEach((county) => {
+            //         if (data[county]['state'] === state && data[county]['county_name'] === county ) {
+            //             selected_county_id = data[county];
+            //             console.log(data[county]);
+            //         }
+            //     });
+            // };
+
+            function make_state_map(county_id, svg_id, title_id) {
                 var state_projection = d3.geoAlbersUsa().scale(1).translate([0, 0]);
                 var state_path = d3.geoPath().projection(state_projection);
 
@@ -317,18 +348,16 @@
                 // console.log(data[Number(county_id)]["state_path"])
 
                 // add state label
-                // console.log(data[county_id]["state_abbreviation"]);
+                d3.select(title_id).selectAll("text")
+                    .remove();
 
-                // state_svg.selectAll("text")
-                //     .remove();
-
-                state_svg.append("text")
+                d3.select(title_id)
+                    .append("text")
                     .attr("x", state_width / 2)
                     .attr("y", 20)
                     .attr("text-anchor", "middle")
                     .style("font-weight", 600)
                     .style("font-size", "16px")
-                    .style("margin-bottom", "10px")
                     .text(data[county_id]["county_name"] + ", " + data[county_id]["state_abbreviation"]);
 
                 // outline for selected state
@@ -406,8 +435,8 @@
             //PART 3: COMPARE COUNTIES (CRYSTAL)
             var compare1 = 2016
             var compare2 = 36027
-            make_state_map(compare1, "#v3_c1");
-            make_state_map(compare2, "#v3_c2");
+            make_state_map(compare1, "#v3_c1", "#v3_c1_title");
+            make_state_map(compare2, "#v3_c2", "#v3_c2_title");
 
 
             // HS EDUCATION MINI GRAPH
@@ -725,33 +754,191 @@
 
 
             // GENDER RATIO PIE CHART CHART MINI GRAPH
-            const svg3 = d3.select("svg#gender_graph");
+            const svg3 = d3.select("svg#gender_graph1");
+            const svg3_part2 = d3.select("svg#gender_graph2");
+            const width3 = svg3.attr("width");
+            const height3 = svg3.attr("height");
+            const margin3 = 70;
+            const radius = Math.min(width3, height3) / 2 - margin3;
+
+            g = svg3.append("g").attr("transform", "translate(" + width3 / 2 + "," + height3 / 2 + ")");
+            g2 = svg3_part2.append("g").attr("transform", "translate(" + width3 / 2 + "," + height3 / 2 + ")");
 
             //chart title
             svg3.append("text")
-                .attr("x", width2 / 2)
+                .attr("x", width3 / 2)
                 .attr("y", 20)
                 .style("text-anchor", "middle")
                 .style("font-weight", 600)
                 .style("font-size", "16px")
                 .text("Gender Graph");
 
-            const data1 = {
-                datasets: [{
-                    label: 'Gender Graph',
-                    data: [20, 80],
-                    backgroundColor: [
-                        'blue',
-                        'red'
-                    ],
-                    hoverOffset: 4
-                }]
-            };
+            // Male label
+            svg3_part2.append("text")
+                .attr("x", width3 - 50)
+                .attr("y", 10)
+                .style("text-anchor", "middle")
+                .style("font-weight", 200)
+                .style("stroke", "blue")
+                .text("Male");
 
-            const config = {
-                type: 'pie',
-                data: data1,
-            };
+            // Female label
+            svg3_part2.append("text")
+                .attr("x", width3 - 50)
+                .attr("y", 30)
+                .style("text-anchor", "middle")
+                .style("font-weight", 200)
+                .style("stroke", "red")
+                .text("Female");
+
+            // County 1 label
+            svg3.append("text")
+                .attr("x", width3 / 2)
+                .attr("y", height3 - 20)
+                .style("text-anchor", "middle")
+                .style("font-weight", 200)
+                .text("County 1");
+
+
+            // County 2 label
+            svg3_part2.append("text")
+                .attr("x", width3 / 2)
+                .attr("y", height3 - 20)
+                .style("text-anchor", "middle")
+                .style("font-weight", 200)
+                .text("County 2");
+
+            var gender_data1 = [100 * data[compare1]["Male"], 100 * data[compare1]["Female"]];
+            var gender_data2 = [100 * data[compare2]["Male"], 100 * data[compare2]["Female"]];
+            var color3 = d3.scaleOrdinal(['blue', 'red']);
+
+            // Generate the pie
+            var pie = d3.pie();
+            var pie2 = d3.pie();
+
+            // Generate the arcs
+            var arc = d3.arc()
+                .innerRadius(0)
+                .outerRadius(radius);
+
+            var arc2 = d3.arc()
+                .innerRadius(0)
+                .outerRadius(radius);
+
+            //Generate groups
+            var arcs = g.selectAll("arc")
+                .data(pie(gender_data1))
+                .enter()
+                .append("g")
+                .attr("class", "arc")
+
+            var arcs2 = g2.selectAll("ar2")
+                .data(pie2(gender_data2))
+                .enter()
+                .append("g")
+                .attr("class", "arc2")
+
+            //Draw arc paths
+            arcs.append("path")
+                .attr("fill", function (d, i) {
+                    return color3(i);
+                })
+                .attr("d", arc);
+
+            arcs2.append("path")
+                .attr("fill", function (d, i) {
+                    return color3(i);
+                })
+                .attr("d", arc2);
+
+
+
+
+            // ETHNICITY O PIE CHART CHART MINI GRAPH
+            const svg4 = d3.select("svg#ethnicity_graph1");
+            const svg4_part2 = d3.select("svg#ethnicity_graph2");
+            const width4 = svg4.attr("width");
+            const height4 = svg4.attr("height");
+            const margin4 = 70;
+            const radius4 = Math.min(width4, height4) / 2 - margin4;
+
+            g4 = svg4.append("g").attr("transform", "translate(" + width4 / 2 + "," + height4 / 2 + ")");
+            g5 = svg4_part2.append("g").attr("transform", "translate(" + width4 / 2 + "," + height4 / 2 + ")");
+
+            //chart title
+            svg4.append("text")
+                .attr("x", width4 / 2)
+                .attr("y", 20)
+                .style("text-anchor", "middle")
+                .style("font-weight", 600)
+                .style("font-size", "16px")
+                .text("Ethnicity Graph");
+
+            // County 1 label
+            svg4.append("text")
+                .attr("x", width4 / 2)
+                .attr("y", height4 - 20)
+                .style("text-anchor", "middle")
+                .style("font-weight", 200)
+                .text("County 1");
+
+
+            // County 2 label
+            svg4_part2.append("text")
+                .attr("x", width4 / 2)
+                .attr("y", height4 - 20)
+                .style("text-anchor", "middle")
+                .style("font-weight", 200)
+                .text("County 2");
+
+            var ethnicity_data1 = [100 * data[compare1]["White"], 100 * data[compare1]["Black"],
+            100 * data[compare1]["Hispanic"], 100 * data[compare1]["Asian"],
+            100 * data[compare1]["AIAN"], 100 * data[compare1]["NHPI"],
+            100 * data[compare1]["NHPI"]];
+            var ethnicity_data2 = [100 * data[compare2]["White"], 100 * data[compare2]["Black"],
+            100 * data[compare2]["Hispanic"], 100 * data[compare2]["Asian"],
+            100 * data[compare2]["AIAN"], 100 * data[compare2]["NHPI"],
+            100 * data[compare2]["NHPI"]];
+            var color3 = d3.scaleOrdinal(['blue', 'red', 'green', 'orange', 'purple', 'yellow', 'pink']);
+
+            // Generate the pie
+            var pie4 = d3.pie();
+            var pie5 = d3.pie();
+
+            // Generate the arcs
+            var arc4 = d3.arc()
+                .innerRadius(0)
+                .outerRadius(radius);
+
+            var arc5 = d3.arc()
+                .innerRadius(0)
+                .outerRadius(radius);
+
+            //Generate groups
+            var arcs4 = g4.selectAll("arc")
+                .data(pie4(ethnicity_data1))
+                .enter()
+                .append("g")
+                .attr("class", "arc4")
+
+            var arcs5 = g5.selectAll("ar2")
+                .data(pie5(ethnicity_data2))
+                .enter()
+                .append("g")
+                .attr("class", "arc5")
+
+            //Draw arc paths
+            arcs4.append("path")
+                .attr("fill", function (d, i) {
+                    return color3(i);
+                })
+                .attr("d", arc4);
+
+            arcs5.append("path")
+                .attr("fill", function (d, i) {
+                    return color3(i);
+                })
+                .attr("d", arc5);
         };
         request_data();
     </script>
