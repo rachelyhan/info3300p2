@@ -4,9 +4,9 @@
 <head>
     <script src="https://d3js.org/d3.v6.min.js"></script>
     <script src="https://d3js.org/topojson.v3.min.js"></script>
-    <script src="/tooltip.js"></script>
-    <script src="/usMap.js"></script>
-    <link rel="stylesheet" href="/styles.css">
+    <script src="./tooltip.js"></script>
+    <script src="./usMap.js"></script>
+    <link rel="stylesheet" href="./styles.css">
 </head>
 
 <body>
@@ -110,7 +110,7 @@
             //load us map json
             const us = await d3.json("counties-10m.json");
 
-            var us_projection = d3.geoAlbersUsa().scale(1500).translate([575, 400]);
+            var us_projection = d3.geoAlbersUsa().scale(1300).translate([487.5, 400]);
             var us_path = d3.geoPath().projection(us_projection);
 
             var nation = topojson.feature(us, us.objects.nation);
@@ -227,8 +227,6 @@
                     make_state_map(user_county_id_input, "#user_state");
 
                     //VISUALIZATION 2: US MAP + FILTERS
-                    // drawUS(counties, us_path, statesMesh, Object.keys(data));
-
                     const sliderWidth = 400
                     const sliderHeight = 20
                     makeSlider(d3.select("#filters"), "Employment Rate", "employment_rate", sliderHeight, sliderWidth, counties, us_path, statesMesh, user_county_id_input, data)
@@ -242,8 +240,6 @@
                     console.log(getFilters())
                     drawUS(counties, us_path, statesMesh, matchCounties())
 
-                    //TODO: make text appear and disappear
-                    //d3.select("#viz2").style("visibility", "visible");
                 });
             };
 
@@ -301,14 +297,6 @@
 
                 drawLegend("#colorLegend", colorScale);
 
-                // outline for selected state
-                let momesh = state_svg.append("path")
-                    .attr("class", "mouseover_outline")
-                    .attr("d", "");
-
-                var mo = topojson.mesh(us, us.objects.counties, function (a, b) { return a.id === county_id || b.id === county_id; });
-                momesh.datum(mo).attr("d", state_path)
-
                 state_svg.selectAll("path.selected_counties")
                     .remove();
 
@@ -326,7 +314,6 @@
                 // selected_counties.forEach((d, i) => {
                 //     data[Number(d.id)]["state_path"] = state_path
                 // })
-                add_tooltip(svg_id, state_path, data)
                 // console.log(data[Number(county_id)]["state_path"])
 
                 // add state label
@@ -344,6 +331,17 @@
                     .style("margin-bottom", "10px")
                     .text(data[county_id]["county_name"] + ", " + data[county_id]["state_abbreviation"]);
 
+                // outline for selected state
+                let momesh = state_svg.append("path")
+                    .attr("class", "select_outline")
+                    .attr("d", "");
+
+                var mo = topojson.mesh(us, us.objects.counties, function (a, b) { return a.id === county_id.toString() || b.id === county_id.toString(); });
+                momesh.datum(mo).attr("d", state_path)
+
+                add_tooltip(svg_id, state_path, data, us)
+
+                console.log(mo)
             };
 
             // reset button for dropdowns
@@ -407,7 +405,7 @@
 
             //PART 3: COMPARE COUNTIES (CRYSTAL)
             var compare1 = 2016
-            var compare2 = 36081
+            var compare2 = 36027
             make_state_map(compare1, "#v3_c1");
             make_state_map(compare2, "#v3_c2");
 

@@ -1,4 +1,4 @@
-function add_tooltip(element_id, state_path, data) {
+function add_tooltip(element_id, state_path, data, us) {
   let tooltipWidth = 300;
   let tooltipHeight = 135;
   const map = d3.select(element_id);
@@ -54,7 +54,7 @@ function add_tooltip(element_id, state_path, data) {
     .attr("y", 110);
 
   let momesh = map.append("path")
-    .attr("class", "mouseover outline")
+    .attr("class", "mouseover_outline")
     .attr("d", "");
 
   d3.selectAll(".selected_counties").on("mouseenter", mouseEntersPlot);
@@ -68,10 +68,6 @@ function add_tooltip(element_id, state_path, data) {
     let county = d3.select(this);
     let countyID = county.datum().id;
 
-    // console.log(countyID)
-    // console.log(data[Number(countyID)]["state_path"]);
-    console.log(county.datum())
-
     name.text(data[Number(countyID)]["county_name"] + ", " + data[Number(countyID)]["state"])
     employment.text((data[Number(countyID)]["employment_rate"] * 100).toString() + "% employed");
     income.text("Median Household Income" + data[Number(countyID)]["income"]);
@@ -79,23 +75,18 @@ function add_tooltip(element_id, state_path, data) {
     college.text(data[Number(countyID)]["college"] + "% have bachelor's degrees");
     highschool.text(data[Number(countyID)]["high_school"] + "% graduated high school");
 
-    let bounds = state_path.bounds(county.datum());   // Get the pixel boundaries of the county
+    var state_projection = d3.geoAlbersUsa().scale(1).translate([0, 0]);
+    state_path = d3.geoPath().projection(state_projection);
+    let bounds = state_path.bounds(county.datum());
     let xPos = (bounds[0][0] + bounds[1][0]) / 2.0;
     let yPos = bounds[1][1];
 
-    console.log(bounds)
+    var mo = topojson.mesh(us, us.objects.counties, function (a, b) { return a.id === countyID || b.id === countyID });
+    momesh.datum(mo).attr("d", state_path)
 
-    if (yPos + tooltipHeight > d3.select(element_id).attr("height")) {
-      yPos = 100
-    }
+    console.log(mo)
 
-    if (xPos - tooltipWidth / 2 < 0) {
-      xPos = d3.select(element_id).attr("width") - tooltipWidth / 2 - 100
-    } else if (xPos + tooltipWidth / 2 > d3.select(element_id).attr("width")) {
-      xPos = tooltipWidth
-    }
-
-    tooltip.attr("transform", `translate(${xPos},${yPos})`);
+    tooltip1.attr("transform", `translate(${xPos},${yPos})`);
   }
 
   function mouseLeavesPlot() {
