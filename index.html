@@ -30,26 +30,27 @@
     </div>
     <br>
 
+    <!-- style="text-align: center; width:1550;" -->
+    <div class="colorLegend_elm1" style="margin-left: 525px;" >
+        <svg id="colorLegend" height="50" width="500" style="background: #fff; margin-right: 100px; font-family: 'Lato', arial;
+            font-size: 16px; font-weight: 300;"></svg>
+    </div>
+
     <div class="visualization_1">
         <div class="viz_1_map element_1">
-            <svg id="state_min" height="400" width="600"></svg>
+            <svg id="state_min" height="450" width="450"></svg>
             <svg id="state_min_title" height="25" width="300"></svg>
         </div>
         <div class="viz_1_map element_2">
             <div id="viz_1_outline">
-                <svg id="user_state" height="400" width="600"></svg>
+                <svg id="user_state" height="650" width="650"></svg>
                 <svg id="user_state_title" height="25" width="600"></svg>
             </div>
         </div>
         <div class="viz_1_map element_3">
-            <svg id="state_max" height="400" width="600"></svg>
+            <svg id="state_max" height="450" width="450"></svg>
             <svg id="state_max_title" height="25" width="300"></svg>
         </div>
-    </div>
-
-    <div class="colorLegend_elm1" style="text-align: center;">
-        <svg id="colorLegend" height="50" width="500" style="background: #fff; margin-top: 10px; font-family: 'Lato', arial;
-            font-size: 16px; font-weight: 300;"></svg>
     </div>
 
     <h2>Part II: Discover other counties</h2>
@@ -68,11 +69,11 @@
     </div>
     <div id="v3" style="display: flex">
         <div class="v3_map element_1" style="width: 50%">
-            <svg id="v3_c1" height="800" width="800"></svg>
+            <svg id="v3_c1" height="650" width="650"></svg>
             <svg id="v3_c1_title" height="25" width="600"></svg>
         </div>
         <div class="v3_map element_2" style="width: 50%">
-            <svg id="v3_c2" height="800" width="800"></svg>
+            <svg id="v3_c2" height="650" width="650"></svg>
             <svg id="v3_c2_title" height="25" width="600"></svg>
         </div>
     </div>
@@ -306,13 +307,25 @@
                     .attr("d", state_path);
 
                 // add state label
-                d3.select(title_id).selectAll("text")
+                // d3.select(title_id).selectAll("text")
+                //     .remove();
+
+                // d3.select(title_id)
+                //     .append("text")
+                //     .attr("x", state_width / 2)
+                //     .attr("y", 20)
+                //     .attr("text-anchor", "middle")
+                //     .style("font-weight", 600)
+                //     .style("font-size", "16px")
+                //     .text(data[county_id]["county_name"] + ", " + data[county_id]["state_abbreviation"]);
+
+                // add state label
+                state_svg.selectAll("text")
                     .remove();
 
-                d3.select(title_id)
-                    .append("text")
+                state_svg.append("text")
                     .attr("x", state_width / 2)
-                    .attr("y", 20)
+                    .attr("y", 105)
                     .attr("text-anchor", "middle")
                     .style("font-weight", 600)
                     .style("font-size", "16px")
