@@ -79,13 +79,13 @@
         </div>
     </div>
     <div class="miniGraphs">
-        <svg id="hs_graph" height="300" width="500"></svg>
-        <svg id="employment_graph" height="300" width="500"></svg>
-        <svg id="empty space" height="300" width="300"></svg>
-        <svg id="gender_graph1" height="300" width="250"></svg>
-        <svg id="gender_graph2" height="300" width="250"></svg>
         <svg id="ethnicity_graph1" height="300" width="250"></svg>
         <svg id="ethnicity_graph2" height="300" width="250"></svg>
+        <svg id="gender_graph1" height="300" width="250"></svg>
+        <svg id="gender_graph2" height="300" width="250"></svg>
+        <svg id="empty space" height="300" width="300"></svg>
+        <svg id="hs_graph" height="300" width="500"></svg>
+        <svg id="employment_graph" height="300" width="500"></svg>
     </div>
 
     <script>
@@ -508,11 +508,11 @@
                     .text("County 2");
 
                 // x axis labels
-                svg.append("text")
-                    .attr("x", width / 2)
-                    .attr("y", height)
-                    .style("text-anchor", "middle")
-                    .style("font-weight", 600);
+                // svg.append("text")
+                //     .attr("x", width / 2)
+                //     .attr("y", height)
+                //     .style("text-anchor", "middle")
+                //     .style("font-weight", 600);
 
                 // y axis label
                 svg.append("text")
@@ -583,7 +583,7 @@
 
             // Male label
             svg3_part2.append("text")
-                .attr("x", width3 - 50)
+                .attr("x", width3 - 125)
                 .attr("y", 10)
                 .style("text-anchor", "middle")
                 .style("font-weight", 200)
@@ -592,8 +592,8 @@
 
             // Female label
             svg3_part2.append("text")
-                .attr("x", width3 - 50)
-                .attr("y", 30)
+                .attr("x", width3 - 125)
+                .attr("y", 25)
                 .style("text-anchor", "middle")
                 .style("font-weight", 200)
                 .style("stroke", "red")
@@ -602,16 +602,15 @@
             // County 1 label
             svg3.append("text")
                 .attr("x", width3 / 2)
-                .attr("y", height3 - 20)
+                .attr("y", height3 - 65)
                 .style("text-anchor", "middle")
                 .style("font-weight", 200)
                 .text("County 1");
 
-
             // County 2 label
             svg3_part2.append("text")
                 .attr("x", width3 / 2)
-                .attr("y", height3 - 20)
+                .attr("y", height3 - 65)
                 .style("text-anchor", "middle")
                 .style("font-weight", 200)
                 .text("County 2");
@@ -626,11 +625,11 @@
 
             // Generate the arcs
             var arc = d3.arc()
-                .innerRadius(0)
+                .innerRadius(20)
                 .outerRadius(radius);
 
             var arc2 = d3.arc()
-                .innerRadius(0)
+                .innerRadius(20)
                 .outerRadius(radius);
 
             //Generate groups
@@ -662,91 +661,109 @@
 
 
 
-            // ETHNICITY O PIE CHART CHART MINI GRAPH
-            // const svg4 = d3.select("svg#ethnicity_graph1");
-            // const svg4_part2 = d3.select("svg#ethnicity_graph2");
-            // const width4 = svg4.attr("width");
-            // const height4 = svg4.attr("height");
-            // const margin4 = 70;
-            // const radius4 = Math.min(width4, height4) / 2 - margin4;
 
-            // g4 = svg4.append("g").attr("transform", "translate(" + width4 / 2 + "," + height4 / 2 + ")");
-            // g5 = svg4_part2.append("g").attr("transform", "translate(" + width4 / 2 + "," + height4 / 2 + ")");
+            // ETHNICITY OF PIE CHART CHART MINI GRAPH
+            const svg4 = d3.select("svg#ethnicity_graph1");
+            const svg4_part2 = d3.select("svg#ethnicity_graph2");
+            const width4 = svg4.attr("width");
+            const height4 = svg4.attr("height");
+            const margin4 = 70;
+            const radius4 = Math.min(width4, height4) / 2 - margin4;
 
-            // //chart title
-            // svg4.append("text")
-            //     .attr("x", width4 / 2)
-            //     .attr("y", 20)
-            //     .style("text-anchor", "middle")
-            //     .style("font-weight", 600)
-            //     .style("font-size", "16px")
-            //     .text("Ethnicity Graph");
+            g4 = svg4.append("g").attr("transform", "translate(" + width4 / 2 + "," + height4 / 2 + ")");
+            g5 = svg4_part2.append("g").attr("transform", "translate(" + width4 / 2 + "," + height4 / 2 + ")");
 
-            // // County 1 label
-            // svg4.append("text")
-            //     .attr("x", width4 / 2)
-            //     .attr("y", height4 - 20)
-            //     .style("text-anchor", "middle")
-            //     .style("font-weight", 200)
-            //     .text("County 1");
+            //chart title
+            svg4.append("text")
+                .attr("x", width4 / 2)
+                .attr("y", 20)
+                .style("text-anchor", "middle")
+                .style("font-weight", 600)
+                .style("font-size", "16px")
+                .text("Ethnicity Graph");
 
+            // County 1 label
+            svg4.append("text")
+                .attr("x", width4 / 2)
+                .attr("y", height4 - 65)
+                .style("text-anchor", "middle")
+                .style("font-weight", 200)
+                .text("County 1");
 
-            // // County 2 label
-            // svg4_part2.append("text")
-            //     .attr("x", width4 / 2)
-            //     .attr("y", height4 - 20)
-            //     .style("text-anchor", "middle")
-            //     .style("font-weight", 200)
-            //     .text("County 2");
+            // County 2 label
+            svg4_part2.append("text")
+                .attr("x", width4 / 2)
+                .attr("y", height4 - 65)
+                .style("text-anchor", "middle")
+                .style("font-weight", 200)
+                .text("County 2");
 
-            // var ethnicity_data1 = [100 * data[compare1]["White"], 100 * data[compare1]["Black"],
-            // 100 * data[compare1]["Hispanic"], 100 * data[compare1]["Asian"],
-            // 100 * data[compare1]["AIAN"], 100 * data[compare1]["NHPI"],
-            // 100 * data[compare1]["NHPI"]];
-            // var ethnicity_data2 = [100 * data[compare2]["White"], 100 * data[compare2]["Black"],
-            // 100 * data[compare2]["Hispanic"], 100 * data[compare2]["Asian"],
-            // 100 * data[compare2]["AIAN"], 100 * data[compare2]["NHPI"],
-            // 100 * data[compare2]["NHPI"]];
-            // var color3 = d3.scaleOrdinal(['blue', 'red', 'green', 'orange', 'purple', 'yellow', 'pink']);
+            var ethnicity_data1 = [100 * data[compare1]["White"], 100 * data[compare1]["Black"],
+            100 * data[compare1]["Hispanic"], 100 * data[compare1]["Asian"],
+            100 * data[compare1]["AIAN"], 100 * data[compare1]["NHPI"],
+            100 * data[compare1]["Other_race"]];
+            var ethnicity_data2 = [100 * data[compare2]["White"], 100 * data[compare2]["Black"],
+            100 * data[compare2]["Hispanic"], 100 * data[compare2]["Asian"],
+            100 * data[compare2]["AIAN"], 100 * data[compare2]["NHPI"],
+            100 * data[compare2]["Other_race"]];
+            var color3 = d3.scaleOrdinal(['blue', 'red', 'green', 'orange', 'purple', 'gray', 'pink']);
 
-            // // Generate the pie
-            // var pie4 = d3.pie();
-            // var pie5 = d3.pie();
+            // Colored graph labels
+            const ethnicity_y_pixels = [10, 25, 40, 55, 10, 25, 40, 55];
+            const ethnicity_x_pixels = [200, 200, 200, 200, 100, 100, 100, 100];
+            const ethnicity_labels = ["White", "Black", "Hispanic", "Asian",
+                "Native American", "Pacific Islander",
+                "Other or", "Combination"]
+            const ethnicity_colors = ['blue', 'red', 'green', 'orange', 'purple', 'gray', 'pink', 'pink'];
 
-            // // Generate the arcs
-            // var arc4 = d3.arc()
-            //     .innerRadius(0)
-            //     .outerRadius(radius);
+            for (i = 0; i < 8; i++) {
+                svg4_part2.append("text")
+                    .attr("x", width4 - ethnicity_x_pixels[i])
+                    .attr("y", ethnicity_y_pixels[i])
+                    .style("font-weight", 200)
+                    .attr("font-size", "13px")
+                    .style("stroke", ethnicity_colors[i])
+                    .text(ethnicity_labels[i]);
+            }
 
-            // var arc5 = d3.arc()
-            //     .innerRadius(0)
-            //     .outerRadius(radius);
+            // Generate the pie
+            var pie4 = d3.pie();
+            var pie5 = d3.pie();
 
-            // //Generate groups
-            // var arcs4 = g4.selectAll("arc")
-            //     .data(pie4(ethnicity_data1))
-            //     .enter()
-            //     .append("g")
-            //     .attr("class", "arc4")
+            // Generate the arcs
+            var arc4 = d3.arc()
+                .innerRadius(20)
+                .outerRadius(radius);
 
-            // var arcs5 = g5.selectAll("ar2")
-            //     .data(pie5(ethnicity_data2))
-            //     .enter()
-            //     .append("g")
-            //     .attr("class", "arc5")
+            var arc5 = d3.arc()
+                .innerRadius(20)
+                .outerRadius(radius);
 
-            // //Draw arc paths
-            // arcs4.append("path")
-            //     .attr("fill", function (d, i) {
-            //         return color3(i);
-            //     })
-            //     .attr("d", arc4);
+            //Generate groups
+            var arcs4 = g4.selectAll("arc")
+                .data(pie4(ethnicity_data1))
+                .enter()
+                .append("g")
+                .attr("class", "arc4")
 
-            // arcs5.append("path")
-            //     .attr("fill", function (d, i) {
-            //         return color3(i);
-            //     })
-            //     .attr("d", arc5);
+            var arcs5 = g5.selectAll("ar2")
+                .data(pie5(ethnicity_data2))
+                .enter()
+                .append("g")
+                .attr("class", "arc5")
+
+            //Draw arc paths
+            arcs4.append("path")
+                .attr("fill", function (d, i) {
+                    return color3(i);
+                })
+                .attr("d", arc4);
+
+            arcs5.append("path")
+                .attr("fill", function (d, i) {
+                    return color3(i);
+                })
+                .attr("d", arc5);
         };
         request_data();
     </script>
