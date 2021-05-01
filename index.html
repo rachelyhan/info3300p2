@@ -79,13 +79,17 @@
         </div>
     </div>
     <div class="miniGraphs">
-        <svg id="ethnicity_graph1" height="300" width="250"></svg>
-        <svg id="ethnicity_graph2" height="300" width="250"></svg>
-        <svg id="gender_graph1" height="300" width="250"></svg>
-        <svg id="gender_graph2" height="300" width="250"></svg>
-        <svg id="empty space" height="300" width="300"></svg>
-        <svg id="hs_graph" height="300" width="500"></svg>
-        <svg id="employment_graph" height="300" width="500"></svg>
+        <svg id="hs_graph" height="300" width="500" style="margin-top: 50px;"></svg>
+        <svg id="empty space" height="300" width="50"></svg>
+        <svg id="employment_graph" height="300" width="500" style="margin-top: 50px;"></svg>
+        <svg id="empty space" height="300" width="300" style="margin-top: 50px;"></svg>
+
+        <svg id="ethnicity_graph1" height="300" width="250" style="margin-top: 50px;"></svg>
+        <svg id="ethnicity_graph2" height="300" width="250" style="margin-top: 50px;"></svg>
+        <svg id="empty space" height="300" width="50"></svg>
+        <svg id="gender_graph1" height="300" width="250" style="margin-top: 50px;"></svg>
+        <svg id="gender_graph2" height="300" width="250" style="margin-top: 50px;"></svg>
+
     </div>
 
     <script>
@@ -557,7 +561,7 @@
                 ["OCC_Manage", "OCC_Service", "OCC_Sales", "OCC_Military", "OCC_Prod"], 5);
 
 
-            // function pie_charts () {
+            // function bar_charts () {
 
             // };
 
@@ -584,7 +588,7 @@
             // Male label
             svg3_part2.append("text")
                 .attr("x", width3 - 125)
-                .attr("y", 10)
+                .attr("y", 25)
                 .style("text-anchor", "middle")
                 .style("font-weight", 200)
                 .style("stroke", "blue")
@@ -593,7 +597,7 @@
             // Female label
             svg3_part2.append("text")
                 .attr("x", width3 - 125)
-                .attr("y", 25)
+                .attr("y", 40)
                 .style("text-anchor", "middle")
                 .style("font-weight", 200)
                 .style("stroke", "red")
