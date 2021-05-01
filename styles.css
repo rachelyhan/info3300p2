@@ -46,10 +46,6 @@
             fill: #ddd;
         }
 
-        /* .selected_counties {
-            fill: #ddd;
-        } */
-
         .outline {
             stroke: #fff;
             stroke-width: 1px;
@@ -73,7 +69,7 @@
         }
 
         .select_outline {
-            stroke: red;
+            stroke: darkgray;
             stroke-width: 3px;
             fill: none;
         }
