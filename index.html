@@ -504,7 +504,7 @@
                     .attr("y", 20)
                     .style("text-anchor", "middle")
                     .style("font-weight", 200)
-                    .style("stroke", "blue")
+                    .style("stroke", "#80b1d3")
                     .text("County 1");
 
                 // county 2 label
@@ -513,7 +513,7 @@
                     .attr("y", 35)
                     .style("text-anchor", "middle")
                     .style("font-weight", 200)
-                    .style("stroke", "red")
+                    .style("stroke", "#fb8072")
                     .text("County 2");
 
                 // x axis labels
@@ -540,7 +540,7 @@
                         .attr("x2", xaxisScale(x_list[i]))
                         .attr("y1", chartHeight)
                         .attr("y2", yaxisScale(data[compare1][y_list[i]]))
-                        .style("stroke", "blue")
+                        .style("stroke", "#80b1d3")
                         .style("stroke-width", 30);
                 }
 
@@ -551,7 +551,7 @@
                         .attr("x2", xaxisScale2(x_list[i]))
                         .attr("y1", chartHeight)
                         .attr("y2", yaxisScale(data[compare2][y_list[i]]))
-                        .style("stroke", "red")
+                        .style("stroke", "#fb8072")
                         .style("stroke-width", 30);
                 }
             };
@@ -596,7 +596,7 @@
                 .attr("y", 25)
                 .style("text-anchor", "middle")
                 .style("font-weight", 200)
-                .style("stroke", "blue")
+                .style("stroke", "#80b1d3")
                 .text("Male");
 
             // Female label
@@ -605,7 +605,7 @@
                 .attr("y", 40)
                 .style("text-anchor", "middle")
                 .style("font-weight", 200)
-                .style("stroke", "red")
+                .style("stroke", "#fccde5")
                 .text("Female");
 
             // County 1 label
@@ -626,7 +626,7 @@
 
             var gender_data1 = [100 * data[compare1]["Male"], 100 * data[compare1]["Female"]];
             var gender_data2 = [100 * data[compare2]["Male"], 100 * data[compare2]["Female"]];
-            var color3 = d3.scaleOrdinal(['blue', 'red']);
+            var color3 = d3.scaleOrdinal(["#80b1d3", '#fccde5']);
 
             // Generate the pie
             var pie = d3.pie();
@@ -682,6 +682,8 @@
             g4 = svg4.append("g").attr("transform", "translate(" + width4 / 2 + "," + height4 / 2 + ")");
             g5 = svg4_part2.append("g").attr("transform", "translate(" + width4 / 2 + "," + height4 / 2 + ")");
 
+            var color4 = d3.scaleOrdinal(["#80b1d3", '#ffed6f', '#fdb462', '#bebada', '#fb8072', '#fccde5', '#ccebc5']);
+
             //chart title
             svg4.append("text")
                 .attr("x", width4 / 2)
@@ -715,7 +717,6 @@
             100 * data[compare2]["Hispanic"], 100 * data[compare2]["Asian"],
             100 * data[compare2]["AIAN"], 100 * data[compare2]["NHPI"],
             100 * data[compare2]["Other_race"]];
-            var color3 = d3.scaleOrdinal(['blue', 'red', 'green', 'orange', 'purple', 'gray', 'pink']);
 
             // Colored graph labels
             const ethnicity_y_pixels = [10, 25, 40, 55, 10, 25, 40, 55];
@@ -723,7 +724,7 @@
             const ethnicity_labels = ["White", "Black", "Hispanic", "Asian",
                 "Native American", "Pacific Islander",
                 "Other or", "Combination"]
-            const ethnicity_colors = ['blue', 'red', 'green', 'orange', 'purple', 'gray', 'pink', 'pink'];
+            const ethnicity_colors = ["#80b1d3", '#ffed6f', '#fdb462', '#bebada', '#fb8072', '#fccde5', '#ccebc5', '#ccebc5'];
 
             for (i = 0; i < 8; i++) {
                 svg4_part2.append("text")
@@ -764,13 +765,13 @@
             //Draw arc paths
             arcs4.append("path")
                 .attr("fill", function (d, i) {
-                    return color3(i);
+                    return color4(i);
                 })
                 .attr("d", arc4);
 
             arcs5.append("path")
                 .attr("fill", function (d, i) {
-                    return color3(i);
+                    return color4(i);
                 })
                 .attr("d", arc5);
         };
