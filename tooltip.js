@@ -1,4 +1,6 @@
-function add_tooltip(element_id, state_path, data, us) {
+//CREATES AND UPDATES TOOLTIPS FOR STATE MAPS
+
+function add_tooltip(element_id, data, us) {
   const tooltipWidth = 300;
   const tooltipHeight = 135;
   let svg = d3.select(element_id);
@@ -49,13 +51,13 @@ function add_tooltip(element_id, state_path, data, us) {
     //calculating translation and scale for tooltip placement
     var states = topojson.feature(us, us.objects.states);
     const state_width = svg.attr("width") - 200
-    const state_height = svg.attr("height") - 200
+    const state_height = svg.attr("height") - 135
     selected_state = states.features.filter(function (d) {
       return d.id === countyID.substring(0, 2);
     });
 
     var state_projection = d3.geoAlbersUsa().scale(1).translate([0, 0]);
-    state_path = d3.geoPath().projection(state_projection);
+    var state_path = d3.geoPath().projection(state_projection);
 
     var bounds = state_path.bounds(selected_state[0]);
     var state_x_difference = bounds[1][0] - bounds[0][0];
@@ -78,7 +80,7 @@ function add_tooltip(element_id, state_path, data, us) {
 
     //update and show tooltip
     tooltip.style("visibility", "visible")
-    tooltip.attr("transform", `translate(${xPos + 100},${yPos + 100})`);
+    tooltip.attr("transform", `translate(${xPos + 100},${yPos})`);
 
     svg.select("#name").text("County: " + data[Number(countyID)]["county_name"] + ", " + data[Number(countyID)]["state_abbreviation"])
     svg.select("#employment").text("Employment Rate: " + Math.round(data[Number(countyID)]["employment_rate"] * 100).toString() + "%");
