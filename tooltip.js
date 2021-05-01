@@ -11,8 +11,11 @@ function add_tooltip(element_id, data, us) {
     .attr("id", "tooltip")
 
   tooltip.append("rect")
-    .attr("fill", "black")
+    .attr("fill", "white")
     .attr("opacity", 0.9)
+    .attr("rx", "15")
+    .attr("stroke", "grey")
+    .attr("stroke-width", "1px")
     .attr("x", -tooltipWidth / 2.0)
     .attr("y", 0)
     .attr("width", tooltipWidth)
@@ -24,7 +27,7 @@ function add_tooltip(element_id, data, us) {
 
   attributes.forEach((d) => {
     tooltip.append("text")
-      .attr("fill", "white")
+      .attr("fill", "black")
       .attr("text-anchor", "middle")
       .attr("alignment-baseline", "hanging")
       .attr("x", 0)
@@ -46,7 +49,7 @@ function add_tooltip(element_id, data, us) {
     let countyID = county.id;
 
     //calculating translation and scale for tooltip placement
-    var states = topojson.feature(us, us.objects.states)
+    var states = topojson.feature(us, us.objects.states);
     const state_width = svg.attr("width") - 200
     const state_height = svg.attr("height") - 135
     selected_state = states.features.filter(function (d) {
@@ -79,15 +82,13 @@ function add_tooltip(element_id, data, us) {
     tooltip.style("visibility", "visible")
     tooltip.attr("transform", `translate(${xPos + 100},${yPos})`);
 
-    svg.select("#name").text(data[Number(countyID)]["county_name"] + ", " + data[Number(countyID)]["state"])
-    svg.select("#employment").text((data[Number(countyID)]["employment_rate"] * 100).toString() + "% employed");
-    svg.select("#income").text("Median Household Income" + data[Number(countyID)]["income"]);
-    svg.select("#literacy").text((data[Number(countyID)]["literacy"] * 100).toString() + "% at Level 3 literacy");
-    svg.select("#college").text(data[Number(countyID)]["college"] + "% have bachelor's degrees");
-    svg.select("#highschool").text(data[Number(countyID)]["high_school"] + "% graduated high school");
+    svg.select("#name").text("County: " + data[Number(countyID)]["county_name"] + ", " + data[Number(countyID)]["state_abbreviation"])
+    svg.select("#employment").text("Employment Rate: " + Math.round(data[Number(countyID)]["employment_rate"] * 100).toString() + "%");
+    svg.select("#income").text("Median Household Income: " + data[Number(countyID)]["income"].toString());
+    svg.select("#literacy").text("Pop. % at Level 3 Literacy: " + Math.round((data[Number(countyID)]["literacy"] * 100).toString()) +"%");
+    svg.select("#college").text("Pop. % with Bachelors' Degrees: " + Math.round(data[Number(countyID)]["college"]) + "%");
+    svg.select("#highschool").text("Pop. % of High School Graduates: " + Math.round(data[Number(countyID)]["high_school"]) +"%");
   }
-
-
 
   function mouseLeavesPlot() {
     const svg = d3.select(this.parentNode.parentNode)
