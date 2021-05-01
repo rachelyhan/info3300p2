@@ -230,6 +230,15 @@
                     d3.select("#state_min_div").style("display", "block")
                     make_state_map(user_county_id_input, "#user_state", "#user_state_title");
 
+                    if (user_input_county_id_string.length === 4) {
+                        user_input_state_id = "0" + user_input_county_id_string.substring(0, 1);
+                        var full = "0" + user_input_county_id_string
+                    }
+                    else {
+                        user_input_state_id = user_input_county_id_string.substring(0, 2);
+                        var full = user_input_county_id_string
+                    }
+
                     drawLegend("#colorLegend", colorScale);
 
                     //VISUALIZATION 2: US MAP + FILTERS
@@ -268,7 +277,7 @@
                 const state_width = state_svg.attr("width");
                 const state_height = state_svg.attr("height");
 
-                const margin = { top: 0, right: 100, bottom: 135, left: 100 };
+                const margin = { top: 100, right: 100, bottom: 135, left: 100 };
                 const mapWidth = state_width - margin.left - margin.right;
                 const mapHeight = state_height - margin.top - margin.bottom;
                 const map = state_svg.append("g")
@@ -278,9 +287,11 @@
 
                 if (user_input_county_id_string.length === 4) {
                     user_input_state_id = "0" + user_input_county_id_string.substring(0, 1);
+                    var full = "0" + user_input_county_id_string
                 }
                 else {
                     user_input_state_id = user_input_county_id_string.substring(0, 2);
+                    var full = user_input_county_id_string
                 }
 
                 selected_state = states.features.filter(function (d) {
@@ -381,7 +392,7 @@
                     .attr("d", "")
                     .attr("id", "momesh")
 
-                var mo = topojson.mesh(us, us.objects.counties, function (a, b) { return a.id === county_id.toString() || b.id === county_id.toString(); });
+                var mo = topojson.mesh(us, us.objects.counties, function (a, b) { return a.id === full || b.id === full });
                 momesh.datum(mo).attr("d", state_path)
 
                 add_tooltip(svg_id, data, us)

@@ -51,7 +51,7 @@ function add_tooltip(element_id, data, us) {
     //calculating translation and scale for tooltip placement
     var states = topojson.feature(us, us.objects.states);
     const state_width = svg.attr("width") - 200
-    const state_height = svg.attr("height") - 135
+    const state_height = svg.attr("height") - 235
     selected_state = states.features.filter(function (d) {
       return d.id === countyID.substring(0, 2);
     });
@@ -80,14 +80,14 @@ function add_tooltip(element_id, data, us) {
 
     //update and show tooltip
     tooltip.style("visibility", "visible")
-    tooltip.attr("transform", `translate(${xPos + 100},${yPos})`);
+    tooltip.attr("transform", `translate(${xPos + 100},${yPos + 100})`);
 
     svg.select("#name").text("County: " + data[Number(countyID)]["county_name"] + ", " + data[Number(countyID)]["state_abbreviation"])
     svg.select("#employment").text("Employment Rate: " + Math.round(data[Number(countyID)]["employment_rate"] * 100).toString() + "%");
     svg.select("#income").text("Median Household Income: " + data[Number(countyID)]["income"].toString());
-    svg.select("#literacy").text("Pop. % at Level 3 Literacy: " + Math.round((data[Number(countyID)]["literacy"] * 100).toString()) +"%");
+    svg.select("#literacy").text("Pop. % at Level 3 Literacy: " + Math.round((data[Number(countyID)]["literacy"] * 100).toString()) + "%");
     svg.select("#college").text("Pop. % with Bachelors' Degrees: " + Math.round(data[Number(countyID)]["college"]) + "%");
-    svg.select("#highschool").text("Pop. % of High School Graduates: " + Math.round(data[Number(countyID)]["high_school"]) +"%");
+    svg.select("#highschool").text("Pop. % of High School Graduates: " + Math.round(data[Number(countyID)]["high_school"]) + "%");
   }
 
   function mouseLeavesPlot() {
