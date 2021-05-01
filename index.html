@@ -31,7 +31,7 @@
     <br>
 
     <!-- style="text-align: center; width:1550;" -->
-    <div class="colorLegend_elm1" style="margin-left: 525px;" >
+    <div class="colorLegend_elm1" style="margin-left: 525px;">
         <svg id="colorLegend" height="50" width="500" style="background: #fff; margin-right: 100px; font-family: 'Lato', arial;
             font-size: 16px; font-weight: 300;"></svg>
     </div>
@@ -191,12 +191,12 @@
 
             d3.select("#state_min_metrics")
                 .append("text")
-      .attr("fill", "black")
-      .attr("text-anchor", "middle")
-      .attr("alignment-baseline", "hanging")
-      .attr("x", 20)
-      .attr("y", 0)
-      .text("test")
+                .attr("fill", "black")
+                .attr("text-anchor", "middle")
+                .attr("alignment-baseline", "hanging")
+                .attr("x", 20)
+                .attr("y", 0)
+                .text("test")
 
 
             function update_county_dropdown(user_state_input) {
@@ -345,13 +345,13 @@
                 // add metrics
                 const attributes = ["Employment Rate: ", "Median Household Income: ", "Pop. % at Level 3 Literacy: ", "Pop. % with Bachelors' Degrees: ", "Pop. % of High School Graduates: "]
 
-                attributes.forEach((d,i) => {
+                attributes.forEach((d, i) => {
                     state_svg.append("text")
-                    .attr("x", 0.10*state_width)
-                    .attr("y", state_height - (100 - 20*i))
-                    .style("font-weight", 600)
-                    .style("font-size", "14px")
-                    .text(d);
+                        .attr("x", 0.10 * state_width)
+                        .attr("y", state_height - (100 - 20 * i))
+                        .style("font-weight", 600)
+                        .style("font-size", "14px")
+                        .text(d);
                 })
 
                 // outline for selected state
@@ -434,319 +434,132 @@
             make_state_map(compare2, "#v3_c2", "#v3_c2_title");
 
 
-            // HS EDUCATION MINI GRAPH
-            const svg = d3.select("svg#hs_graph");
-            const width = svg.attr("width");
-            const height = svg.attr("height");
-            const margin = { "top": 40, "right": 10, "bottom": 50, "left": 60 };
-            const chartWidth = width - margin.left - margin.right;
-            const chartHeight = height - margin.top - margin.bottom
 
 
-            let annotations = svg.append("g").attr("id", "annotations");
-            let chartArea = svg.append("g").attr("id", "points")
-                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+            const svg_education = d3.select("svg#hs_graph");
+            const svg_employment = d3.select("svg#employment_graph");
 
-            const hsScale = d3.scaleLinear().domain([0, 100]).range([chartHeight, 0])
-            let leftAxis = d3.axisLeft(hsScale).tickFormat(d3.format(''));
-            let leftGridlines = d3.axisLeft(hsScale)
-                .tickSize(-chartWidth - 10)
-                .tickFormat("")
+            // function to create bar charts 
+            function bar_charts(svg, title, x_list, y_list, max) {
+                const width = svg.attr("width");
+                const height = svg.attr("height");
+                const margin = { "top": 40, "right": 10, "bottom": 50, "left": 60 };
+                const chartWidth = width - margin.left - margin.right;
+                const chartHeight = height - margin.top - margin.bottom
 
-            annotations.append("g")
-                .attr("class", "y axis")
-                .style("font", "11px Montserrat")
-                .attr("transform", `translate(${margin.left - 10},${margin.top})`)
-                .call(leftAxis)
-            annotations.append("g")
-                .attr("class", "y gridlines")
-                .attr("transform", `translate(${margin.left - 10},${margin.top})`)
-                .call(leftGridlines);
+                let annotations = svg.append("g").attr("id", "annotations");
+                let chartArea = svg.append("g").attr("id", "points")
+                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-            const xaxisScale = d3.scalePoint()
-                .domain(["less than HS education", "only HS education", "more than HS education"])
-                .range([20, chartWidth - 70]);
+                const yaxisScale = d3.scaleLinear().domain([0, 100]).range([chartHeight, 0])
+                let leftAxis = d3.axisLeft(yaxisScale).tickFormat(d3.format(''));
+                let leftGridlines = d3.axisLeft(yaxisScale)
+                    .tickSize(-chartWidth - 10)
+                    .tickFormat("")
 
-            const xaxisScale2 = d3.scalePoint()
-                .domain(["less than HS education", "only HS education", "more than HS education"])
-                .range([50, chartWidth - 40]);
+                annotations.append("g")
+                    .attr("class", "y axis")
+                    .attr("transform", `translate(${margin.left - 10},${margin.top})`)
+                    .call(leftAxis)
+                annotations.append("g")
+                    .attr("class", "y gridlines")
+                    .attr("transform", `translate(${margin.left - 10},${margin.top})`)
+                    .call(leftGridlines);
 
-            let bottomAxis = d3.axisBottom(xaxisScale)
-            let bottomAxisG = annotations.append("g")
-                .style("font", "14px Montserrat")
-                .attr("class", "x axis")
-                .attr("transform", `translate(${margin.left},${chartHeight + margin.top + 10})`)
-                .call(bottomAxis);
+                const xaxisScale = d3.scalePoint()
+                    .domain(x_list)
+                    .range([20, chartWidth - 70]);
 
-            //chart title
-            svg.append("text")
-                .attr("x", width / 2)
-                .attr("y", 20)
-                .style("text-anchor", "middle")
-                .style("font-weight", 600)
-                .style("font-size", "16px")
-                .text("Education Graph");
+                const xaxisScale2 = d3.scalePoint()
+                    .domain(x_list)
+                    .range([50, chartWidth - 40]);
 
-            svg.append("text")
-                .attr("x", width - 50)
-                .attr("y", 10)
-                .style("text-anchor", "middle")
-                .style("font-weight", 200)
-                .style("stroke", "blue")
-                .text("County 1");
+                let bottomAxis = d3.axisBottom(xaxisScale)
+                let bottomAxisG = annotations.append("g")
+                    .attr("class", "x axis")
+                    .attr("transform", `translate(${margin.left},${chartHeight + margin.top + 10})`)
+                    .call(bottomAxis);
 
-            svg.append("text")
-                .attr("x", width - 50)
-                .attr("y", 30)
-                .style("text-anchor", "middle")
-                .style("font-weight", 200)
-                .style("stroke", "red")
-                .text("County 2");
+                // chart title
+                svg.append("text")
+                    .attr("x", width / 2)
+                    .attr("y", 25)
+                    .style("text-anchor", "middle")
+                    .style("font-weight", 600)
+                    .style("font-size", "16px")
+                    .text(title);
 
-            //x axis labels
-            svg.append("text")
-                .attr("x", width / 2)
-                .attr("y", height)
-                .style("text-anchor", "middle")
-                .style("font-weight", 600);
+                // county 1 label
+                svg.append("text")
+                    .attr("x", width - 50)
+                    .attr("y", 20)
+                    .style("text-anchor", "middle")
+                    .style("font-weight", 200)
+                    .style("stroke", "blue")
+                    .text("County 1");
 
-            //y axis label
-            svg.append("text")
-                .attr("transform", "rotate(-90)")
-                .attr("y", 0)
-                .attr("x", 0 - (height / 2))
-                .attr("dy", "1em")
-                .style("text-anchor", "middle")
-                .style("font-weight", 600)
-                .text("Percentage");
+                // county 2 label
+                svg.append("text")
+                    .attr("x", width - 50)
+                    .attr("y", 35)
+                    .style("text-anchor", "middle")
+                    .style("font-weight", 200)
+                    .style("stroke", "red")
+                    .text("County 2");
 
-            //rectangle for less than HS education
-            chartArea.append("line")
-                .attr("x1", xaxisScale("less than HS education"))
-                .attr("x2", xaxisScale("less than HS education"))
-                .attr("y1", chartHeight)
-                .attr("y2", hsScale(data[compare1]["Percent of adults with less than a high school diploma, 2015-19"]))
-                .style("stroke", "blue")
-                .style("stroke-width", 30);
+                // x axis labels
+                svg.append("text")
+                    .attr("x", width / 2)
+                    .attr("y", height)
+                    .style("text-anchor", "middle")
+                    .style("font-weight", 600);
 
-            chartArea.append("line")
-                .attr("x1", xaxisScale2("less than HS education"))
-                .attr("x2", xaxisScale2("less than HS education"))
-                .attr("y1", chartHeight)
-                .attr("y2", hsScale(data[compare2]["Percent of adults with less than a high school diploma, 2015-19"]))
-                .style("stroke", "red")
-                .style("stroke-width", 30);
+                // y axis label
+                svg.append("text")
+                    .attr("transform", "rotate(-90)")
+                    .attr("y", 0)
+                    .attr("x", 0 - (height / 2))
+                    .attr("dy", "1em")
+                    .style("text-anchor", "middle")
+                    .style("font-weight", 600)
+                    .text("Percentage");
 
-            //rectangle for only HS education
-            chartArea.append("line")
-                .attr("x1", xaxisScale("only HS education"))
-                .attr("x2", xaxisScale("only HS education"))
-                .attr("y1", chartHeight)
-                .attr("y2", hsScale(data[compare1]["Percent of adults with a high school diploma only, 2015-19"]))
-                .style("stroke", "blue")
-                .style("stroke-width", 30);
+                // draw County 1 rectangles
+                for (i = 0; i < max; i++) {
+                    chartArea.append("line")
+                        .attr("x1", xaxisScale(x_list[i]))
+                        .attr("x2", xaxisScale(x_list[i]))
+                        .attr("y1", chartHeight)
+                        .attr("y2", yaxisScale(data[compare1][y_list[i]]))
+                        .style("stroke", "blue")
+                        .style("stroke-width", 30);
+                }
 
-            chartArea.append("line")
-                .attr("x1", xaxisScale2("only HS education"))
-                .attr("x2", xaxisScale2("only HS education"))
-                .attr("y1", chartHeight)
-                .attr("y2", hsScale(data[compare2]["Percent of adults with a high school diploma only, 2015-19"]))
-                .style("stroke", "red")
-                .style("stroke-width", 30);
+                // draw County 2 rectangles
+                for (i = 0; i < max; i++) {
+                    chartArea.append("line")
+                        .attr("x1", xaxisScale2(x_list[i]))
+                        .attr("x2", xaxisScale2(x_list[i]))
+                        .attr("y1", chartHeight)
+                        .attr("y2", yaxisScale(data[compare2][y_list[i]]))
+                        .style("stroke", "red")
+                        .style("stroke-width", 30);
+                }
+            };
 
-            //rectangle for more than HS education
-            chartArea.append("line")
-                .attr("x1", xaxisScale("more than HS education"))
-                .attr("x2", xaxisScale("more than HS education"))
-                .attr("y1", chartHeight)
-                .attr("y2", hsScale(data[compare1]["Percent of adults with a bachelor's degree or higher, 2015-19"]))
-                .style("stroke", "blue")
-                .style("stroke-width", 30);
+            // draw bar charts
+            bar_charts(svg_education, "Education", ["less than HS education", "only HS education",
+                "more than HS education"], ["Percent of adults with less than a high school diploma, 2015-19",
+                "Percent of adults with a high school diploma only, 2015-19",
+                "Percent of adults with a bachelor's degree or higher, 2015-19"], 3);
 
-            chartArea.append("line")
-                .attr("x1", xaxisScale2("more than HS education"))
-                .attr("x2", xaxisScale2("more than HS education"))
-                .attr("y1", chartHeight)
-                .attr("y2", hsScale(data[compare2]["Percent of adults with a bachelor's degree or higher, 2015-19"]))
-                .style("stroke", "red")
-                .style("stroke-width", 30);
+            bar_charts(svg_employment, "Employment", ["Management", "Service", "Sales", "Military", "Production"],
+                ["OCC_Manage", "OCC_Service", "OCC_Sales", "OCC_Military", "OCC_Prod"], 5);
 
 
+            // function pie_charts () {
 
-
-            // EMPLOYMENT SECTOR BAR CHART MINI GRAPH
-            const svg2 = d3.select("svg#employment_graph");
-            const width2 = svg2.attr("width");
-            const height2 = svg2.attr("height");
-            const margin2 = { "top": 40, "right": 10, "bottom": 50, "left": 60 };
-            const chartWidth2 = width2 - margin2.left - margin2.right;
-            const chartHeight2 = height2 - margin2.top - margin2.bottom
-
-
-            let annotations2 = svg2.append("g").attr("id", "annotations");
-            let chartArea2 = svg2.append("g").attr("id", "points")
-                .attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
-
-            const employmentScale = d3.scaleLinear().domain([0, 100]).range([chartHeight2, 0])
-            let leftAxis2 = d3.axisLeft(employmentScale).tickFormat(d3.format(''));
-            let leftGridlines2 = d3.axisLeft(employmentScale)
-                .tickSize(-chartWidth2 - 10)
-                .tickFormat("")
-
-            annotations2.append("g")
-                .attr("class", "y axis")
-                .style("font", "11px Montserrat")
-                .attr("transform", `translate(${margin2.left - 10},${margin2.top})`)
-                .call(leftAxis2)
-            annotations2.append("g")
-                .attr("class", "y gridlines")
-                .attr("transform", `translate(${margin2.left - 10},${margin2.top})`)
-                .call(leftGridlines2);
-
-            const xaxisScale_employment = d3.scalePoint()
-                .domain(["Management", "Service", "Sales", "Military", "Production"])
-                .range([20, chartWidth2 - 70]);
-            const xaxisScale_employment2 = d3.scalePoint()
-                .domain(["Management", "Service", "Sales", "Military", "Production"])
-                .range([50, chartWidth2 - 40]);
-
-            let bottomAxis2 = d3.axisBottom(xaxisScale_employment)
-            let bottomAxisG2 = annotations2.append("g")
-                .style("font", "14px Montserrat")
-                .attr("class", "x axis")
-                .attr("transform", `translate(${margin2.left},${chartHeight2 + margin2.top + 10})`)
-                .call(bottomAxis2);
-
-            //chart title
-            svg2.append("text")
-                .attr("x", width2 / 2)
-                .attr("y", 20)
-                .style("text-anchor", "middle")
-                .style("font-weight", 600)
-                .style("font-size", "16px")
-                .text("Employment Graph");
-
-
-            svg2.append("text")
-                .attr("x", width2 - 50)
-                .attr("y", 10)
-                .style("text-anchor", "middle")
-                .style("font-weight", 200)
-                .style("stroke", "blue")
-                .text("County 1");
-
-            svg2.append("text")
-                .attr("x", width2 - 50)
-                .attr("y", 30)
-                .style("text-anchor", "middle")
-                .style("font-weight", 200)
-                .style("stroke", "red")
-                .text("County 2");
-
-            //x axis labels
-            svg2.append("text")
-                .attr("x", width2 / 2)
-                .attr("y", height2)
-                .style("text-anchor", "middle")
-                .style("font-weight", 600);
-
-            //y axis label
-            svg2.append("text")
-                .attr("transform", "rotate(-90)")
-                .attr("y", 0)
-                .attr("x", 0 - (height2 / 2))
-                .attr("dy", "1em")
-                .style("text-anchor", "middle")
-                .style("font-weight", 600)
-                .text("Percentage");
-
-            //rectangle for Management
-            chartArea2.append("line")
-                .attr("x1", xaxisScale_employment("Management"))
-                .attr("x2", xaxisScale_employment("Management"))
-                .attr("y1", chartHeight2)
-                .attr("y2", employmentScale(data[compare1]["OCC_Manage"]))
-                .style("stroke", "blue")
-                .style("stroke-width", 30);
-
-            chartArea2.append("line")
-                .attr("x1", xaxisScale_employment2("Management"))
-                .attr("x2", xaxisScale_employment2("Management"))
-                .attr("y1", chartHeight2)
-                .attr("y2", employmentScale(data[compare2]["OCC_Manage"]))
-                .style("stroke", "red")
-                .style("stroke-width", 30);
-
-            //rectangle for Service
-            chartArea2.append("line")
-                .attr("x1", xaxisScale_employment("Service"))
-                .attr("x2", xaxisScale_employment("Service"))
-                .attr("y1", chartHeight2)
-                .attr("y2", employmentScale(data[compare1]["OCC_Service"]))
-                .style("stroke", "blue")
-                .style("stroke-width", 30);
-
-            chartArea2.append("line")
-                .attr("x1", xaxisScale_employment2("Service"))
-                .attr("x2", xaxisScale_employment2("Service"))
-                .attr("y1", chartHeight2)
-                .attr("y2", employmentScale(data[compare2]["OCC_Service"]))
-                .style("stroke", "red")
-                .style("stroke-width", 30);
-
-            //rectangle for Sales
-            chartArea2.append("line")
-                .attr("x1", xaxisScale_employment("Sales"))
-                .attr("x2", xaxisScale_employment("Sales"))
-                .attr("y1", chartHeight2)
-                .attr("y2", employmentScale(data[compare1]["OCC_Sales"]))
-                .style("stroke", "blue")
-                .style("stroke-width", 30);
-
-            chartArea2.append("line")
-                .attr("x1", xaxisScale_employment2("Sales"))
-                .attr("x2", xaxisScale_employment2("Sales"))
-                .attr("y1", chartHeight2)
-                .attr("y2", employmentScale(data[compare2]["OCC_Sales"]))
-                .style("stroke", "red")
-                .style("stroke-width", 30);
-
-            //rectangle for Military
-            chartArea2.append("line")
-                .attr("x1", xaxisScale_employment("Military"))
-                .attr("x2", xaxisScale_employment("Military"))
-                .attr("y1", chartHeight2)
-                .attr("y2", employmentScale(data[compare1]["OCC_Military"]))
-                .style("stroke", "blue")
-                .style("stroke-width", 30);
-
-            chartArea2.append("line")
-                .attr("x1", xaxisScale_employment2("Military"))
-                .attr("x2", xaxisScale_employment2("Military"))
-                .attr("y1", chartHeight2)
-                .attr("y2", employmentScale(data[compare2]["OCC_Military"]))
-                .style("stroke", "red")
-                .style("stroke-width", 30);
-
-            //rectangle for Production
-            chartArea2.append("line")
-                .attr("x1", xaxisScale_employment("Production"))
-                .attr("x2", xaxisScale_employment("Production"))
-                .attr("y1", chartHeight2)
-                .attr("y2", employmentScale(data[compare1]["OCC_Prod"]))
-                .style("stroke", "blue")
-                .style("stroke-width", 30);
-
-            chartArea2.append("line")
-                .attr("x1", xaxisScale_employment2("Production"))
-                .attr("x2", xaxisScale_employment2("Production"))
-                .attr("y1", chartHeight2)
-                .attr("y2", employmentScale(data[compare2]["OCC_Prod"]))
-                .style("stroke", "red")
-                .style("stroke-width", 30);
-
-
-
+            // };
 
             // GENDER RATIO PIE CHART CHART MINI GRAPH
             const svg3 = d3.select("svg#gender_graph1");
@@ -850,90 +663,90 @@
 
 
             // ETHNICITY O PIE CHART CHART MINI GRAPH
-            const svg4 = d3.select("svg#ethnicity_graph1");
-            const svg4_part2 = d3.select("svg#ethnicity_graph2");
-            const width4 = svg4.attr("width");
-            const height4 = svg4.attr("height");
-            const margin4 = 70;
-            const radius4 = Math.min(width4, height4) / 2 - margin4;
+            // const svg4 = d3.select("svg#ethnicity_graph1");
+            // const svg4_part2 = d3.select("svg#ethnicity_graph2");
+            // const width4 = svg4.attr("width");
+            // const height4 = svg4.attr("height");
+            // const margin4 = 70;
+            // const radius4 = Math.min(width4, height4) / 2 - margin4;
 
-            g4 = svg4.append("g").attr("transform", "translate(" + width4 / 2 + "," + height4 / 2 + ")");
-            g5 = svg4_part2.append("g").attr("transform", "translate(" + width4 / 2 + "," + height4 / 2 + ")");
+            // g4 = svg4.append("g").attr("transform", "translate(" + width4 / 2 + "," + height4 / 2 + ")");
+            // g5 = svg4_part2.append("g").attr("transform", "translate(" + width4 / 2 + "," + height4 / 2 + ")");
 
-            //chart title
-            svg4.append("text")
-                .attr("x", width4 / 2)
-                .attr("y", 20)
-                .style("text-anchor", "middle")
-                .style("font-weight", 600)
-                .style("font-size", "16px")
-                .text("Ethnicity Graph");
+            // //chart title
+            // svg4.append("text")
+            //     .attr("x", width4 / 2)
+            //     .attr("y", 20)
+            //     .style("text-anchor", "middle")
+            //     .style("font-weight", 600)
+            //     .style("font-size", "16px")
+            //     .text("Ethnicity Graph");
 
-            // County 1 label
-            svg4.append("text")
-                .attr("x", width4 / 2)
-                .attr("y", height4 - 20)
-                .style("text-anchor", "middle")
-                .style("font-weight", 200)
-                .text("County 1");
+            // // County 1 label
+            // svg4.append("text")
+            //     .attr("x", width4 / 2)
+            //     .attr("y", height4 - 20)
+            //     .style("text-anchor", "middle")
+            //     .style("font-weight", 200)
+            //     .text("County 1");
 
 
-            // County 2 label
-            svg4_part2.append("text")
-                .attr("x", width4 / 2)
-                .attr("y", height4 - 20)
-                .style("text-anchor", "middle")
-                .style("font-weight", 200)
-                .text("County 2");
+            // // County 2 label
+            // svg4_part2.append("text")
+            //     .attr("x", width4 / 2)
+            //     .attr("y", height4 - 20)
+            //     .style("text-anchor", "middle")
+            //     .style("font-weight", 200)
+            //     .text("County 2");
 
-            var ethnicity_data1 = [100 * data[compare1]["White"], 100 * data[compare1]["Black"],
-            100 * data[compare1]["Hispanic"], 100 * data[compare1]["Asian"],
-            100 * data[compare1]["AIAN"], 100 * data[compare1]["NHPI"],
-            100 * data[compare1]["NHPI"]];
-            var ethnicity_data2 = [100 * data[compare2]["White"], 100 * data[compare2]["Black"],
-            100 * data[compare2]["Hispanic"], 100 * data[compare2]["Asian"],
-            100 * data[compare2]["AIAN"], 100 * data[compare2]["NHPI"],
-            100 * data[compare2]["NHPI"]];
-            var color3 = d3.scaleOrdinal(['blue', 'red', 'green', 'orange', 'purple', 'yellow', 'pink']);
+            // var ethnicity_data1 = [100 * data[compare1]["White"], 100 * data[compare1]["Black"],
+            // 100 * data[compare1]["Hispanic"], 100 * data[compare1]["Asian"],
+            // 100 * data[compare1]["AIAN"], 100 * data[compare1]["NHPI"],
+            // 100 * data[compare1]["NHPI"]];
+            // var ethnicity_data2 = [100 * data[compare2]["White"], 100 * data[compare2]["Black"],
+            // 100 * data[compare2]["Hispanic"], 100 * data[compare2]["Asian"],
+            // 100 * data[compare2]["AIAN"], 100 * data[compare2]["NHPI"],
+            // 100 * data[compare2]["NHPI"]];
+            // var color3 = d3.scaleOrdinal(['blue', 'red', 'green', 'orange', 'purple', 'yellow', 'pink']);
 
-            // Generate the pie
-            var pie4 = d3.pie();
-            var pie5 = d3.pie();
+            // // Generate the pie
+            // var pie4 = d3.pie();
+            // var pie5 = d3.pie();
 
-            // Generate the arcs
-            var arc4 = d3.arc()
-                .innerRadius(0)
-                .outerRadius(radius);
+            // // Generate the arcs
+            // var arc4 = d3.arc()
+            //     .innerRadius(0)
+            //     .outerRadius(radius);
 
-            var arc5 = d3.arc()
-                .innerRadius(0)
-                .outerRadius(radius);
+            // var arc5 = d3.arc()
+            //     .innerRadius(0)
+            //     .outerRadius(radius);
 
-            //Generate groups
-            var arcs4 = g4.selectAll("arc")
-                .data(pie4(ethnicity_data1))
-                .enter()
-                .append("g")
-                .attr("class", "arc4")
+            // //Generate groups
+            // var arcs4 = g4.selectAll("arc")
+            //     .data(pie4(ethnicity_data1))
+            //     .enter()
+            //     .append("g")
+            //     .attr("class", "arc4")
 
-            var arcs5 = g5.selectAll("ar2")
-                .data(pie5(ethnicity_data2))
-                .enter()
-                .append("g")
-                .attr("class", "arc5")
+            // var arcs5 = g5.selectAll("ar2")
+            //     .data(pie5(ethnicity_data2))
+            //     .enter()
+            //     .append("g")
+            //     .attr("class", "arc5")
 
-            //Draw arc paths
-            arcs4.append("path")
-                .attr("fill", function (d, i) {
-                    return color3(i);
-                })
-                .attr("d", arc4);
+            // //Draw arc paths
+            // arcs4.append("path")
+            //     .attr("fill", function (d, i) {
+            //         return color3(i);
+            //     })
+            //     .attr("d", arc4);
 
-            arcs5.append("path")
-                .attr("fill", function (d, i) {
-                    return color3(i);
-                })
-                .attr("d", arc5);
+            // arcs5.append("path")
+            //     .attr("fill", function (d, i) {
+            //         return color3(i);
+            //     })
+            //     .attr("d", arc5);
         };
         request_data();
     </script>
