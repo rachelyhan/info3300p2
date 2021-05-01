@@ -31,7 +31,7 @@
     <br>
 
     <div class="visualization_1">
-        <div class="viz_1_map element_1">
+        <div id="state_min_div" class="viz_1_map element_1" style="display: none;">
             <svg id="state_min" height="400" width="600"></svg>
             <svg id="state_min_title" height="25" width="300"></svg>
         </div>
@@ -41,7 +41,7 @@
                 <svg id="user_state_title" height="25" width="600"></svg>
             </div>
         </div>
-        <div class="viz_1_map element_3">
+        <div id="state_max_div" class="viz_1_map element_3" style="display: none;">
             <svg id="state_max" height="400" width="600"></svg>
             <svg id="state_max_title" height="25" width="300"></svg>
         </div>
@@ -109,6 +109,11 @@
             var education = await d3.csv("education.csv", d3.autoType);
             var income = await d3.csv("unemployment_income.csv", d3.autoType);
 
+            // color scale constants
+            var all_employment_values = [];
+            const colorsArray = ["#B5375D", "#DBADA6", "#DEDEDE", "#A1D5ED", "#26C7CB"];
+
+            //new json with only data we need
             data = {}
             counties.features.forEach((county, i) => {
                 data[Number(county.id)] = {};
@@ -134,6 +139,8 @@
                 data[id]["AIAN"] = 100 * d["AIAN"];
                 data[id]["NHPI"] = 100 * d["NHPI"];
                 data[id]["Other_race"] = 100 * d["Other_race"];
+
+                all_employment_values.push(d['Employed'])
             });
 
             education.forEach((d, i) => {
@@ -155,13 +162,10 @@
                 }
             });
 
-            // color scale constants
-            var all_employment_values = [];
-            employment.forEach((d, i) => {
-                all_employment_values.push(d['Employed'])
-            });
 
-            const colorsArray = ["#B5375D", "#DBADA6", "#DEDEDE", "#A1D5ED", "#26C7CB"];
+            const colorScale = d3.scaleQuantile()
+                .domain(all_employment_values)
+                .range(colorsArray);
 
             // array of all states to dropdown
             var all_states = [];
@@ -183,10 +187,11 @@
             // update county dropdown based on state selection
             d3.select("#pick_state_input").on("change", function (d) {
                 var selected_state_input = d3.select(this).property("value");
-                //var selected_state_input = "New York";
                 update_county_dropdown(selected_state_input);
             });
 
+            make_state_map(42053, "#state_min", "#state_min_title");
+            make_state_map(46117, "#state_max", "#state_max_title");
 
             function update_county_dropdown(user_state_input) {
                 var user_counties = [];
@@ -211,23 +216,30 @@
                 d3.select("#pick_county_input").on("change", function (d) {
                     var selected_county_input = d3.select(this).property("value");
                     user_county_id_input = find_county_id(user_state_input, selected_county_input);
-                    make_state_map(42053, "#state_min", "#state_min_title");
-                    make_state_map(46117, "#state_max", "#state_max_title");
+
+                    //VISUALIZATION 1: STATES
+                    d3.select("#state_max_div").style("display", "block")
+                    d3.select("#state_min_div").style("display", "block")
                     make_state_map(user_county_id_input, "#user_state", "#user_state_title");
+
+                    drawLegend("#colorLegend", colorScale);
 
                     //VISUALIZATION 2: US MAP + FILTERS
                     const sliderWidth = 400
                     const sliderHeight = 20
+                    d3.select("#filters").html("")
                     makeSlider(d3.select("#filters"), "Employment Rate", "employment_rate", sliderHeight, sliderWidth, counties, us_path, statesMesh, user_county_id_input, data)
                     makeSlider(d3.select("#filters"), "Median Household Income", "income", sliderHeight, sliderWidth, counties, us_path, statesMesh, user_county_id_input, data)
                     makeSlider(d3.select("#filters"), "Adult Literacy", "literacy", sliderHeight, sliderWidth, counties, us_path, statesMesh, user_county_id_input, data)
                     makeSlider(d3.select("#filters"), "Completed High School", "high_school", sliderHeight, sliderWidth, counties, us_path, statesMesh, user_county_id_input, data)
                     makeSlider(d3.select("#filters"), "Completed College", "college", sliderHeight, sliderWidth, counties, us_path, statesMesh, user_county_id_input, data)
 
-                    drawUS(counties, us_path, statesMesh, data)
-
+                    d3.select("#us_map").html("")
+                    drawUS(counties, us_path, statesMesh, data, user_county_id_input, us)
+                    usTooltip(data, us)
                 });
             };
+
 
             function find_county_id(state, county) {
                 selected_county_id = "";
@@ -248,7 +260,7 @@
                 const state_width = state_svg.attr("width");
                 const state_height = state_svg.attr("height");
 
-                const margin = { top: 100, right: 100, bottom: 100, left: 100 };
+                const margin = { top: 0, right: 100, bottom: 135, left: 100 };
                 const mapWidth = state_width - margin.left - margin.right;
                 const mapHeight = state_height - margin.top - margin.bottom;
                 const map = state_svg.append("g")
@@ -271,7 +283,6 @@
                     return d.id.substring(0, 2) === user_input_state_id;
                 });
 
-
                 //source for centering state map: https://bl.ocks.org/gregdevs/a73f8a16f129757c037e72ecdebdd8f2
                 var state_bounds = state_path.bounds(selected_state[0]);
                 var state_x_difference = state_bounds[1][0] - state_bounds[0][0];
@@ -284,12 +295,6 @@
 
                 state_projection.scale(state_scale)
                     .translate(state_translate);
-
-                const colorScale = d3.scaleQuantile()
-                    .domain(all_employment_values)
-                    .range(colorsArray);
-
-                drawLegend("#colorLegend", colorScale);
 
                 map.selectAll("path.selected_counties")
                     .remove();
@@ -331,7 +336,7 @@
                 var mo = topojson.mesh(us, us.objects.counties, function (a, b) { return a.id === county_id.toString() || b.id === county_id.toString(); });
                 momesh.datum(mo).attr("d", state_path)
 
-                add_tooltip(svg_id, state_path, data, us)
+                add_tooltip(svg_id, data, us)
             };
 
             // reset button for dropdowns
@@ -386,10 +391,6 @@
                 bar.append("line").attr("stroke", "white").attr("stroke-width", 3).attr("x1", barScale(legendMinMax[0])).attr("x2", barScale(legendMinMax[0])).attr("y1", 0).attr("y1", barHeight + 4);
                 bar.append("line").attr("stroke", "white").attr("stroke-width", 3).attr("x1", barScale(legendMinMax[1])).attr("x2", barScale(legendMinMax[1])).attr("y1", 0).attr("y1", barHeight + 4);
             };
-
-            const colorScale = d3.scaleQuantile()
-                .domain(all_employment_values)
-                .range(colorsArray);
 
             //PART 3: COMPARE COUNTIES (CRYSTAL)
             var compare1 = 2016
