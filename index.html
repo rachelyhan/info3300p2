@@ -241,6 +241,7 @@
 
                     drawLegend("#colorLegend", colorScale);
 
+
                     //VISUALIZATION 2: US MAP + FILTERS
                     const sliderWidth = 400
                     const sliderHeight = 20
@@ -254,6 +255,8 @@
                     d3.select("#us_map").html("")
                     drawUS(counties, us_path, statesMesh, data, user_county_id_input, us)
                     usTooltip(data, us)
+
+
                 });
             };
 
