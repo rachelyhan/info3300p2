@@ -455,7 +455,17 @@
             };
 
             //PART 3: COMPARE COUNTIES (CRYSTAL)
-            var compare1 = 2016
+
+            var v2countyID;
+            d3.selectAll(".counties").on("click", function (d) {
+                console.log("success");
+                let county = d3.select(this).datum();
+                v2countyID = county.id;
+                console.log(county);
+                console.log(v2countyID);
+            });
+
+            var compare1 = Number(v2CountyID);
             var compare2 = 36027
             make_state_map(compare1, "#v3_c1", "#v3_c1_title");
             make_state_map(compare2, "#v3_c2", "#v3_c2_title");

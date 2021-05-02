@@ -302,7 +302,14 @@ function usTooltip(data, us) {
   });
 
 
-
+  // var v2countyID;
+  // d3.selectAll(".counties").on("click", function (d) {
+  //   console.log("success");
+  //   let county = d3.select(this).datum();
+  //   v2countyID = county.id;
+  //   console.log(county);
+  //   console.log((v2countyID));
+  // });
 
 
   function mouseLeavesPlot() {
