@@ -48,7 +48,13 @@
 
         .outline {
             stroke: #fff;
-            stroke-width: 1px;
+            stroke-width: 2px;
+            fill: none;
+        }
+
+        .county_outline {
+            stroke: #fff;
+            stroke-width: 0.5px;
             fill: none;
         }
 
@@ -69,13 +75,19 @@
         }
 
         .select_outline {
-            stroke: darkgray;
+            stroke: black;
             stroke-width: 3px;
+            fill: none;
+        }
+
+        .select_outline_us {
+            stroke: red;
+            stroke-width: 2px;
             fill: none;
         }
 
         .mouseover_outline {
             stroke: black;
-            stroke-width: 3px;
+            stroke-width: 2px;
             fill: none;
         }

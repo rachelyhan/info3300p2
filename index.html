@@ -56,7 +56,7 @@
     <h3>Explore other counties in the US by filtering for various metrics such as income, literacy, and more.</h3>
     <div class="viz2" style="width: 100%">
         <div id="us_div" style="width: 70%; height: 800px; float: left;">
-            <svg id="us_map" height="800" style="width: 85%;"></svg>
+            <svg id="us_map" height="1000" style="width: 100%"></svg>
         </div>
         <div id="filters" style="height:800px; width: 20%; float:left; padding-left: 5%; padding-right: 5%;"></div>
     </div>
@@ -91,11 +91,12 @@
     <script>
         // PART 1: COUNTY VISUALIZATION (SHRUTI)
         const us_svg = d3.select("#us_map");
+        const scale = [1300, 487.5, 400]
 
         const request_data = async function () {
             const us = await d3.json("counties-10m.json");
 
-            var us_projection = d3.geoAlbersUsa().scale(1300).translate([487.5, 400]);
+            var us_projection = d3.geoAlbersUsa().scale(scale[0]).translate([scale[1], scale[2]]);
             var us_path = d3.geoPath().projection(us_projection);
 
             var nation = topojson.feature(us, us.objects.nation);
@@ -252,7 +253,7 @@
                     makeSlider(d3.select("#filters"), "Completed College", "college", sliderHeight, sliderWidth, counties, us_path, statesMesh, user_county_id_input, data)
 
                     d3.select("#us_map").html("")
-                    drawUS(counties, us_path, statesMesh, data, user_county_id_input, us)
+                    drawUS(counties, us_path, statesMesh, data, user_county_id_input, us, scale, countiesMesh)
                     usTooltip(data, us)
                 });
             };
@@ -391,6 +392,8 @@
                     .attr("class", "mouseover_outline")
                     .attr("d", "")
                     .attr("id", "momesh")
+
+                console.log(full)
 
                 var mo = topojson.mesh(us, us.objects.counties, function (a, b) { return a.id === full || b.id === full });
                 momesh.datum(mo).attr("d", state_path)

@@ -1,6 +1,6 @@
 // DRAWS US MAP IN VISUALIZATION 2, AND CREATES HOVER TOOLTIP FOR IT
 
-const colorsArray2 = ["lightgrey", "cyan"];
+const colorsArray2 = ["lightgrey", "#C7A9E3"];
 const colorScale2 = d3.scaleQuantize()
   .domain([0, 1])
   .range(colorsArray2);
@@ -26,7 +26,7 @@ function updateUS(counties, us_path, data) {
 }
 
 //draws US map
-function drawUS(counties, us_path, statesMesh, data, county_id, us) {
+function drawUS(counties, us_path, statesMesh, data, county_id, us, scale, countiesMesh) {
   const margin = { top: 0, right: 0, bottom: 0, left: 0 };
   // const mapWidth = us_svg.attr("width") - margin.left - margin.right;
   // const mapHeight = us_svg.attr("height") - margin.top - margin.bottom;
@@ -38,12 +38,17 @@ function drawUS(counties, us_path, statesMesh, data, county_id, us) {
     .attr("class", "counties")
     .attr("d", us_path)
     .attr("fill", d => colorScale2(Number(matchCounties(d.id, data))));
+
+  map.append("path").datum(countiesMesh)
+    .attr("class", "county_outline")
+    .attr("d", us_path);
+
   map.append("path").datum(statesMesh)
     .attr("class", "outline")
     .attr("d", us_path);
 
   let momesh = map.append("path")
-    .attr("class", "select_outline")
+    .attr("class", "select_outline_us")
     .attr("d", "");
 
   map.append("path")
@@ -53,6 +58,29 @@ function drawUS(counties, us_path, statesMesh, data, county_id, us) {
 
   var state_projection = d3.geoAlbersUsa().scale(1).translate([0, 0]);
   var state_path = d3.geoPath().projection(state_projection);
+
+  if (user_input_county_id_string.length === 4) {
+    user_input_state_id = "0" + user_input_county_id_string.substring(0, 1);
+    var county_id = "0" + user_input_county_id_string
+  }
+  else {
+    user_input_state_id = user_input_county_id_string.substring(0, 2);
+    var county_id = user_input_county_id_string
+  }
+  console.log(county_id.toString())
+
+  var state_projection = d3.geoAlbersUsa().scale(1).translate([0, 0]);
+  var state_path = d3.geoPath().projection(state_projection);
+
+  console.log(scale)
+
+  bounds = state_path.bounds(selected_state[0]);
+  var state_scale = scale[0]
+  var state_translate = [scale[1] + (bounds[0][0]) / 2, scale[2] + (bounds[0][1]) / 2];
+
+  state_projection.scale(state_scale)
+    .translate(state_translate);
+  state_projection.translate(state_translate);
 
   var mo = topojson.mesh(us, us.objects.counties, function (a, b) { return a.id === county_id.toString() || b.id === county_id.toString(); });
   momesh.datum(mo).attr("d", state_path)
@@ -96,7 +124,7 @@ function makeSlider(container, label, attribute, sliderHeight, sliderWidth, coun
   canvas.append("rect").attr("transform", `translate(${xScale(select_value)}, 0)`)
     .attr("width", 2)
     .attr("height", sliderHeight)
-    .attr("fill", "red")
+    .attr("fill", "darkgrey")
 
   let numBins = 15;
   let histoGen = d3.histogram().domain(minMax)

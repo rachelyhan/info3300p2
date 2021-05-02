@@ -71,8 +71,18 @@ function add_tooltip(element_id, data, us) {
       .translate(state_translate);
 
     bounds = state_path.bounds(county);
-    let xPos = (bounds[0][0] + bounds[1][0]) / 2.0;
-    let yPos = bounds[1][1];
+    let xPos = (bounds[0][0] + bounds[1][0]) / 2.0 + 100
+    let yPos = bounds[1][1] + 100
+
+    if (xPos + tooltipWidth / 2 > state_width) {
+      xPos = (bounds[0][0] - 20)
+    } else if (xPos - tooltipWidth / 2 < 0) {
+      xPos = bounds[0][0] + tooltipWidth / 2
+    }
+
+    if (yPos + tooltipHeight / 2 > state_height + 80) {
+      yPos = bounds[1][1] - tooltipHeight / 2 - 10
+    }
 
     //highlight outline
     var mo = topojson.mesh(us, us.objects.counties, function (a, b) { return a.id === countyID || b.id === countyID });
@@ -80,7 +90,7 @@ function add_tooltip(element_id, data, us) {
 
     //update and show tooltip
     tooltip.style("visibility", "visible")
-    tooltip.attr("transform", `translate(${xPos + 100},${yPos + 100})`);
+    tooltip.attr("transform", `translate(${xPos},${yPos})`);
 
     svg.select("#name").text("County: " + data[Number(countyID)]["county_name"] + ", " + data[Number(countyID)]["state_abbreviation"])
     svg.select("#employment").text("Employment Rate: " + Math.round(data[Number(countyID)]["employment_rate"] * 100).toString() + "%");
