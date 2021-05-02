@@ -228,7 +228,7 @@ function usTooltip(data, us) {
 
   d3.selectAll(".counties").on("mouseenter", mouseEntersPlot);
   d3.selectAll(".counties").on("mouseout", mouseLeavesPlot);
-
+  // d3.selectAll(".counties").on("selectcounty", selectCounty);
 
 
   function mouseEntersPlot() {
@@ -272,7 +272,35 @@ function usTooltip(data, us) {
     svg.select("#literacy").text((data[Number(countyID)]["literacy"] * 100).toString() + "% at Level 3 literacy");
     svg.select("#college").text(data[Number(countyID)]["college"] + "% have bachelor's degrees");
     svg.select("#highschool").text(data[Number(countyID)]["high_school"] + "% graduated high school");
+
   }
+
+  let county = d3.select(this).datum();
+  console.log(d3.select(county));
+
+  d3.select(county).on("click", function (d) {
+    console.log("success");
+    console.log(county);
+    console.log(countyID);
+
+  });
+
+  // function selectCounty() {
+
+  //   console.log(d3.select(county));
+  //   const svg = d3.select(this.parentNode.parentNode);
+
+  //   let countyID = county.id;
+
+  //   d3.select(county).on("click", function (d) {
+  //     console.log("success");
+  //     console.log(county);
+  //     console.log(countyID);
+
+  //   });
+  // }
+
+
 
 
 
