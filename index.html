@@ -61,7 +61,6 @@
         <div id="filters" style="height:800px; width: 20%; float:left; padding-left: 5%; padding-right: 5%;"></div>
     </div>
 
-
     <div class="viz3_title">
         <h2>Part III: Compare two counties</h2>
         <h3>Based on your exploration from Part II, compare and contrast two counties you are interested in</h3>
@@ -91,7 +90,7 @@
     <script>
         // PART 1: COUNTY VISUALIZATION (SHRUTI)
         const us_svg = d3.select("#us_map");
-        const scale = [1300, 487.5, 400]
+        var scale = [1500, 550, 400]
 
         const request_data = async function () {
             const us = await d3.json("counties-10m.json");
@@ -395,8 +394,6 @@
                     .attr("class", "mouseover_outline")
                     .attr("d", "")
                     .attr("id", "momesh")
-
-                console.log(full)
 
                 var mo = topojson.mesh(us, us.objects.counties, function (a, b) { return a.id === full || b.id === full });
                 momesh.datum(mo).attr("d", state_path)
