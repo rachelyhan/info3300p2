@@ -456,353 +456,645 @@
 
             //PART 3: COMPARE COUNTIES (CRYSTAL)
 
-            var v2countyID;
-            d3.selectAll(".counties").on("click", function (d) {
-                console.log("success");
-                let county = d3.select(this).datum();
-                v2countyID = county.id;
-                console.log(county);
-                console.log(v2countyID);
-            });
+            // var v2countyID;
+            // console.log(v2countyID);
+            // d3.selectAll(".counties").on("click", function (d) {
+            //     console.log("success");
+            //     let county = d3.select(this).datum();
+            //     v2countyID = county.id;
+            //     console.log(county);
+            //     console.log(v2countyID);
+            // });
 
-            var compare1 = Number(v2CountyID);
-            var compare2 = 36027
-            make_state_map(compare1, "#v3_c1", "#v3_c1_title");
-            make_state_map(compare2, "#v3_c2", "#v3_c2_title");
+            // var compare1 = Number(v2CountyID);
+            // var compare2 = 36027
 
+            // DRAWS US MAP IN VISUALIZATION 2, AND CREATES HOVER TOOLTIP FOR IT
 
+            const colorsArray2 = ["lightgrey", "#C7A9E3"];
+            const colorScale2 = d3.scaleQuantize()
+                .domain([0, 1])
+                .range(colorsArray2);
+            scale = [1500, 550, 400]
 
+            var filters = {};
 
-            const svg_education = d3.select("svg#hs_graph");
-            const svg_employment = d3.select("svg#employment_graph");
+            //returns true if county fulfills all filter criteria
+            function matchCounties(county, data) {
+                var pass = true
+                Object.values(filters).forEach(filterFunc => {
+                    pass = pass && filterFunc(data[Number(county)]);
+                });
+                return pass
+            };
 
-            // function to create bar charts 
-            function bar_charts(svg, title, x_list, y_list, max) {
-                const width = svg.attr("width");
-                const height = svg.attr("height");
-                const margin = { "top": 40, "right": 10, "bottom": 50, "left": 60 };
-                const chartWidth = width - margin.left - margin.right;
-                const chartHeight = height - margin.top - margin.bottom
+            //updates colors for counties
+            function updateUS(counties, us_path, data) {
+                us_svg.selectAll("path.counties").data(counties.features)
+                    .join("path")
+                    .attr("class", "counties")
+                    .attr("d", us_path)
+                    .attr("fill", d => colorScale2(Number(matchCounties(d.id, data))));
+            }
 
-                let annotations = svg.append("g").attr("id", "annotations");
-                let chartArea = svg.append("g").attr("id", "points")
+            //draws US map
+            function drawUS(counties, us_path, statesMesh, data, county_id, us, scale, countiesMesh) {
+                const margin = { top: 0, right: 0, bottom: 0, left: 0 };
+                // const mapWidth = us_svg.attr("width") - margin.left - margin.right;
+                // const mapHeight = us_svg.attr("height") - margin.top - margin.bottom;
+                const map = us_svg.append("g")
                     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-                const yaxisScale = d3.scaleLinear().domain([0, 100]).range([chartHeight, 0])
-                let leftAxis = d3.axisLeft(yaxisScale).tickFormat(d3.format(''));
-                let leftGridlines = d3.axisLeft(yaxisScale)
-                    .tickSize(-chartWidth - 10)
-                    .tickFormat("")
+                map.selectAll("path.counties").data(counties.features)
+                    .join("path")
+                    .attr("class", "counties")
+                    .attr("d", us_path)
+                    .attr("fill", d => colorScale2(Number(matchCounties(d.id, data))));
 
-                annotations.append("g")
-                    .attr("class", "y axis")
-                    .attr("transform", `translate(${margin.left - 10},${margin.top})`)
-                    .call(leftAxis)
-                annotations.append("g")
-                    .attr("class", "y gridlines")
-                    .attr("transform", `translate(${margin.left - 10},${margin.top})`)
-                    .call(leftGridlines);
+                map.append("path").datum(countiesMesh)
+                    .attr("class", "county_outline")
+                    .attr("d", us_path);
 
-                const xaxisScale = d3.scalePoint()
-                    .domain(x_list)
-                    .range([20, chartWidth - 70]);
+                map.append("path").datum(statesMesh)
+                    .attr("class", "outline")
+                    .attr("d", us_path);
 
-                const xaxisScale2 = d3.scalePoint()
-                    .domain(x_list)
-                    .range([50, chartWidth - 40]);
+                let momesh = map.append("path")
+                    .attr("class", "select_outline_us")
+                    .attr("d", "");
 
-                let bottomAxis = d3.axisBottom(xaxisScale)
-                let bottomAxisG = annotations.append("g")
-                    .attr("class", "x axis")
-                    .attr("transform", `translate(${margin.left},${chartHeight + margin.top + 10})`)
-                    .call(bottomAxis);
+                map.append("path")
+                    .attr("class", "mouseover_outline")
+                    .attr("d", "")
+                    .attr("id", "momesh")
 
-                // chart title
-                svg.append("text")
-                    .attr("x", width / 2)
-                    .attr("y", 25)
+                var state_projection = d3.geoAlbersUsa().scale(1).translate([0, 0]);
+                var state_path = d3.geoPath().projection(state_projection);
+
+                if (user_input_county_id_string.length === 4) {
+                    user_input_state_id = "0" + user_input_county_id_string.substring(0, 1);
+                    var county_id = "0" + user_input_county_id_string
+                }
+                else {
+                    user_input_state_id = user_input_county_id_string.substring(0, 2);
+                    var county_id = user_input_county_id_string
+                }
+                var state_projection = d3.geoAlbersUsa().scale(1).translate([0, 0]);
+                var state_path = d3.geoPath().projection(state_projection);
+
+                bounds = state_path.bounds(selected_state[0]);
+                var state_scale = scale[0]
+                var state_translate = [scale[1] + (bounds[0][0]) / 2, scale[2] + (bounds[0][1]) / 2];
+
+                state_projection.scale(state_scale)
+                    .translate(state_translate);
+                state_projection.translate(state_translate);
+
+                var mo = topojson.mesh(us, us.objects.counties, function (a, b) { return a.id === county_id.toString() || b.id === county_id.toString(); });
+                momesh.datum(mo).attr("d", state_path)
+            }
+
+            function makeSlider(container, label, attribute, sliderHeight, sliderWidth, counties, us_path, statesMesh, selected_county, data) {
+                let values = []
+                let format = d3.format(".0%")
+                Object.keys(data).forEach((county) => {
+                    let value = data[county][attribute]
+                    if (attribute === "college" || attribute === "high_school") {
+                        value /= 100
+                    } else if (attribute === "income") {
+                        value *= 1000
+                        format = d3.format("$.2s")
+                    }
+                    values.push(value);
+                });
+
+                let minMax = d3.extent(values);
+                let xScale = d3.scaleLinear().domain(minMax).range([10, sliderWidth - 10]);
+                let xAxis = d3.axisBottom(xScale).tickFormat(format);
+
+                //set default brush 
+                let select_value = data[selected_county][attribute]
+                if (attribute === "college" || attribute === "high_school") {
+                    select_value /= 100
+                } else if (attribute === "income") {
+                    select_value *= 1000
+                }
+
+                let wrapper = container.append("div").attr("class", "control");
+                wrapper.append("div").text(label);
+                let canvas = wrapper.append("svg").attr("width", sliderWidth)
+                    .attr("height", sliderHeight + 40)
+                    .attr("attribute", attribute);
+                let areaLayer = canvas.append("g");
+                canvas.append("g").attr("transform", `translate(0,${sliderHeight})`)
+                    .call(xAxis);
+                canvas.append("rect").attr("transform", `translate(${xScale(select_value)}, 0)`)
+                    .attr("width", 2)
+                    .attr("height", sliderHeight)
+                    .attr("fill", "#C11515")
+
+                let numBins = 15;
+                let histoGen = d3.histogram().domain(minMax)
+                    .thresholds(numBins);
+                let counts = histoGen(values);
+
+                counts.unshift({
+                    x0: 0,
+                    x1: counts[0].x0,
+                    length: counts[0].length
+                });
+
+                let yScale = d3.scaleLinear().domain(d3.extent(counts, d => d.length))
+                    .range([sliderHeight, 4]);
+
+                let area = d3.area().x(d => xScale(d.x1))
+                    .y0(yScale(0))
+                    .y1(d => yScale(d.length))
+                    .curve(d3.curveNatural);
+                areaLayer.append("path").datum(counts)
+                    .attr("class", "area")
+                    .attr("d", area);
+
+
+                // const defaultSelection = [Math.max(0, select_value - minMax[1] * 0.1), Math.min(minMax[1], select_value + minMax[1] * 0.1)]
+                // console.log(defaultSelection)
+
+                // wrapper.append("div").text(defaultSelection[0].toString() + " - " + defaultSelection[1].toString())
+                //   .attr("id", "values");
+
+                let filterFunc = d => true;
+                // let filterFunc = d => d[attribute] >= defaultSelection[0] && d[attribute] <= defaultSelection[1];
+                filters[attribute] = filterFunc;
+
+                var brush = d3.brushX().extent([[10, 0],
+                [sliderWidth - 10, sliderHeight]])
+                    .on("brush end", brushMoved);
+
+                function brushMoved(event) {
+                    if (event.selection !== null) {
+                        start = xScale.invert(event.selection[0]);
+                        end = xScale.invert(event.selection[1]);
+                        if (attribute === "college" || attribute === "high_school") {
+                            start *= 100
+                            end *= 100
+                        } else if (attribute === "income") {
+                            start /= 1000
+                            end /= 1000
+                        }
+                        let filterFunc = d => d[attribute] >= start && d[attribute] <= end;
+                        filters[attribute] = filterFunc;
+                        // console.log(filters[attribute], start, end)
+
+                        // d3.select(this.parentNode.parentNode).select("#values").text(start.toString() + " - " + end.toString())
+                    }
+                    else {
+                        let filterFunc = d => true;
+                        filters[attribute] = filterFunc;
+                        // d3.select(this.parentNode.parentNode).select("#values").text("No Filter")
+                        // console.log(filters[attribute])
+                    }
+                    updateUS(counties, us_path, data)
+                }
+                canvas.append("g").attr("class", "brush").call(brush)
+                // .call(brush.move, defaultSelection);
+            }
+
+            function usTooltip(data, us) {
+                const tooltipWidth = 300;
+                const tooltipHeight = 135;
+                let svg = d3.select("#us_map");
+
+                let tooltip = svg.append("g")
+                    .attr("class", "us_tooltip")
+                    .style("visibility", "hidden")
+                    .attr("id", "tooltip")
+
+                tooltip.append("rect")
+                    .attr("fill", "black")
+                    .attr("opacity", 0.9)
+                    .attr("x", -tooltipWidth / 2.0)
+                    .attr("y", 0)
+                    .attr("width", tooltipWidth)
+                    .attr("height", tooltipHeight)
+
+                //text
+                const attributes = ["name", "employment", "income", "literacy", "college", "highschool"]
+                var y = 10
+
+                attributes.forEach((d) => {
+                    tooltip.append("text")
+                        .attr("fill", "white")
+                        .attr("text-anchor", "middle")
+                        .attr("alignment-baseline", "hanging")
+                        .attr("x", 0)
+                        .attr("y", y)
+                        .attr("id", d)
+
+                    y += 20
+                })
+
+                d3.selectAll(".counties").on("mouseenter", mouseEntersPlot);
+                d3.selectAll(".counties").on("mouseout", mouseLeavesPlot);
+                // d3.selectAll(".counties").on("selectcounty", selectCounty);
+
+                var v2countyID;
+                d3.selectAll(".counties").on("click", function (d) {
+                    console.log("success");
+                    let county = d3.select(this).datum();
+                    v2countyID = county.id;
+                    console.log(county);
+                    console.log((v2countyID));
+
+                    viz3(Number(v2countyID), Number(v2countyID))
+                });
+
+
+                function mouseEntersPlot() {
+                    const svg = d3.select(this.parentNode.parentNode)
+                    tooltip = svg.select("#tooltip")
+                    let county = d3.select(this).datum();
+                    let countyID = county.id;
+
+                    //calculating translation and scale for tooltip placement
+                    var states = topojson.feature(us, us.objects.states)
+                    selected_state = states.features.filter(function (d) {
+                        return d.id === countyID.substring(0, 2);
+                    });
+
+                    var state_projection = d3.geoAlbersUsa().scale(1).translate([0, 0]);
+                    var state_path = d3.geoPath().projection(state_projection);
+
+                    bounds = state_path.bounds(selected_state[0]);
+                    var state_scale = scale[0]
+                    var state_translate = [scale[1] + (bounds[0][0]) / 2, scale[2] + (bounds[0][1]) / 2];
+
+                    state_projection.scale(state_scale)
+                        .translate(state_translate);
+                    state_projection.translate(state_translate);
+
+                    bounds = state_path.bounds(county);
+                    let xPos = (bounds[0][0] + bounds[1][0]) / 2.0;
+                    let yPos = bounds[1][1];
+
+                    //highlight outline
+                    var mo = topojson.mesh(us, us.objects.counties, function (a, b) { return a.id === countyID || b.id === countyID });
+                    svg.select("#momesh").datum(mo).attr("d", state_path)
+
+                    //update and show tooltip
+                    tooltip.style("visibility", "visible")
+                    tooltip.attr("transform", `translate(${xPos},${yPos})`);
+
+                    svg.select("#name").text(data[Number(countyID)]["county_name"] + ", " + data[Number(countyID)]["state"])
+                    svg.select("#employment").text((data[Number(countyID)]["employment_rate"] * 100).toString() + "% employed");
+                    svg.select("#income").text("Median Household Income" + data[Number(countyID)]["income"]);
+                    svg.select("#literacy").text((data[Number(countyID)]["literacy"] * 100).toString() + "% at Level 3 literacy");
+                    svg.select("#college").text(data[Number(countyID)]["college"] + "% have bachelor's degrees");
+                    svg.select("#highschool").text(data[Number(countyID)]["high_school"] + "% graduated high school");
+
+                }
+
+                function mouseLeavesPlot() {
+                    const svg = d3.select(this.parentNode.parentNode)
+                    tooltip = svg.select("#tooltip").style("visibility", "hidden");
+                    svg.select("#momesh").attr("d", "");
+                }
+            }
+
+            function viz3(compare1, compare2) {
+                make_state_map(compare1, "#v3_c1", "#v3_c1_title");
+                make_state_map(compare2, "#v3_c2", "#v3_c2_title");
+
+                const svg_education = d3.select("svg#hs_graph");
+                const svg_employment = d3.select("svg#employment_graph");
+
+                // function to create bar charts 
+                function bar_charts(svg, title, x_list, y_list, max) {
+                    const width = svg.attr("width");
+                    const height = svg.attr("height");
+                    const margin = { "top": 40, "right": 10, "bottom": 50, "left": 60 };
+                    const chartWidth = width - margin.left - margin.right;
+                    const chartHeight = height - margin.top - margin.bottom
+
+                    let annotations = svg.append("g").attr("id", "annotations");
+                    let chartArea = svg.append("g").attr("id", "points")
+                        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+                    const yaxisScale = d3.scaleLinear().domain([0, 100]).range([chartHeight, 0])
+                    let leftAxis = d3.axisLeft(yaxisScale).tickFormat(d3.format(''));
+                    let leftGridlines = d3.axisLeft(yaxisScale)
+                        .tickSize(-chartWidth - 10)
+                        .tickFormat("")
+
+                    annotations.append("g")
+                        .attr("class", "y axis")
+                        .attr("transform", `translate(${margin.left - 10},${margin.top})`)
+                        .call(leftAxis)
+                    annotations.append("g")
+                        .attr("class", "y gridlines")
+                        .attr("transform", `translate(${margin.left - 10},${margin.top})`)
+                        .call(leftGridlines);
+
+                    const xaxisScale = d3.scalePoint()
+                        .domain(x_list)
+                        .range([20, chartWidth - 70]);
+
+                    const xaxisScale2 = d3.scalePoint()
+                        .domain(x_list)
+                        .range([50, chartWidth - 40]);
+
+                    let bottomAxis = d3.axisBottom(xaxisScale)
+                    let bottomAxisG = annotations.append("g")
+                        .attr("class", "x axis")
+                        .attr("transform", `translate(${margin.left},${chartHeight + margin.top + 10})`)
+                        .call(bottomAxis);
+
+                    // chart title
+                    svg.append("text")
+                        .attr("x", width / 2)
+                        .attr("y", 25)
+                        .style("text-anchor", "middle")
+                        .style("font-weight", 600)
+                        .style("font-size", "16px")
+                        .text(title);
+
+                    // county 1 label
+                    svg.append("text")
+                        .attr("x", width - 50)
+                        .attr("y", 20)
+                        .style("text-anchor", "middle")
+                        .style("font-weight", 200)
+                        .style("stroke", "#80b1d3")
+                        .text("County 1");
+
+                    // county 2 label
+                    svg.append("text")
+                        .attr("x", width - 50)
+                        .attr("y", 35)
+                        .style("text-anchor", "middle")
+                        .style("font-weight", 200)
+                        .style("stroke", "#fb8072")
+                        .text("County 2");
+
+                    // x axis labels
+                    // svg.append("text")
+                    //     .attr("x", width / 2)
+                    //     .attr("y", height)
+                    //     .style("text-anchor", "middle")
+                    //     .style("font-weight", 600);
+
+                    // y axis label
+                    svg.append("text")
+                        .attr("transform", "rotate(-90)")
+                        .attr("y", 0)
+                        .attr("x", 0 - (height / 2))
+                        .attr("dy", "1em")
+                        .style("text-anchor", "middle")
+                        .style("font-weight", 600)
+                        .text("Percentage");
+
+                    // draw County 1 rectangles
+                    for (i = 0; i < max; i++) {
+                        chartArea.append("line")
+                            .attr("x1", xaxisScale(x_list[i]))
+                            .attr("x2", xaxisScale(x_list[i]))
+                            .attr("y1", chartHeight)
+                            .attr("y2", yaxisScale(data[compare1][y_list[i]]))
+                            .style("stroke", "#80b1d3")
+                            .style("stroke-width", 30);
+                    }
+
+                    // draw County 2 rectangles
+                    for (i = 0; i < max; i++) {
+                        chartArea.append("line")
+                            .attr("x1", xaxisScale2(x_list[i]))
+                            .attr("x2", xaxisScale2(x_list[i]))
+                            .attr("y1", chartHeight)
+                            .attr("y2", yaxisScale(data[compare2][y_list[i]]))
+                            .style("stroke", "#fb8072")
+                            .style("stroke-width", 30);
+                    }
+                };
+
+                // draw bar charts
+                bar_charts(svg_education, "Education", ["Less than High School Diploma", "High School Diploma",
+                    "Bachelor's Degree or Higher"], ["Percent of adults with less than a high school diploma, 2015-19",
+                    "Percent of adults with a high school diploma only, 2015-19",
+                    "Percent of adults with a bachelor's degree or higher, 2015-19"], 3);
+
+                bar_charts(svg_employment, "Employment", ["Management", "Service", "Sales", "Military", "Production"],
+                    ["OCC_Manage", "OCC_Service", "OCC_Sales", "OCC_Military", "OCC_Prod"], 5);
+
+
+                // function bar_charts () {
+
+                // };
+
+                // GENDER RATIO PIE CHART CHART MINI GRAPH
+                const svg3 = d3.select("svg#gender_graph1");
+                const svg3_part2 = d3.select("svg#gender_graph2");
+                const width3 = svg3.attr("width");
+                const height3 = svg3.attr("height");
+                const margin3 = 70;
+                const radius = Math.min(width3, height3) / 2 - margin3;
+
+                g = svg3.append("g").attr("transform", "translate(" + width3 / 2 + "," + height3 / 2 + ")");
+                g2 = svg3_part2.append("g").attr("transform", "translate(" + width3 / 2 + "," + height3 / 2 + ")");
+
+                //chart title
+                svg3.append("text")
+                    .attr("x", width3 / 2)
+                    .attr("y", 20)
                     .style("text-anchor", "middle")
                     .style("font-weight", 600)
                     .style("font-size", "16px")
-                    .text(title);
+                    .text("Gender Graph");
 
-                // county 1 label
-                svg.append("text")
-                    .attr("x", width - 50)
-                    .attr("y", 20)
+                // Male label
+                svg3_part2.append("text")
+                    .attr("x", width3 - 125)
+                    .attr("y", 25)
                     .style("text-anchor", "middle")
                     .style("font-weight", 200)
                     .style("stroke", "#80b1d3")
+                    .text("Male");
+
+                // Female label
+                svg3_part2.append("text")
+                    .attr("x", width3 - 125)
+                    .attr("y", 40)
+                    .style("text-anchor", "middle")
+                    .style("font-weight", 200)
+                    .style("stroke", "#fccde5")
+                    .text("Female");
+
+                // County 1 label
+                svg3.append("text")
+                    .attr("x", width3 / 2)
+                    .attr("y", height3 - 65)
+                    .style("text-anchor", "middle")
+                    .style("font-weight", 200)
                     .text("County 1");
 
-                // county 2 label
-                svg.append("text")
-                    .attr("x", width - 50)
-                    .attr("y", 35)
+                // County 2 label
+                svg3_part2.append("text")
+                    .attr("x", width3 / 2)
+                    .attr("y", height3 - 65)
                     .style("text-anchor", "middle")
                     .style("font-weight", 200)
-                    .style("stroke", "#fb8072")
                     .text("County 2");
 
-                // x axis labels
-                // svg.append("text")
-                //     .attr("x", width / 2)
-                //     .attr("y", height)
-                //     .style("text-anchor", "middle")
-                //     .style("font-weight", 600);
+                var gender_data1 = [100 * data[compare1]["Male"], 100 * data[compare1]["Female"]];
+                var gender_data2 = [100 * data[compare2]["Male"], 100 * data[compare2]["Female"]];
+                var color3 = d3.scaleOrdinal(["#80b1d3", '#fccde5']);
 
-                // y axis label
-                svg.append("text")
-                    .attr("transform", "rotate(-90)")
-                    .attr("y", 0)
-                    .attr("x", 0 - (height / 2))
-                    .attr("dy", "1em")
+                // Generate the pie
+                var pie = d3.pie();
+                var pie2 = d3.pie();
+
+                // Generate the arcs
+                var arc = d3.arc()
+                    .innerRadius(20)
+                    .outerRadius(radius);
+
+                var arc2 = d3.arc()
+                    .innerRadius(20)
+                    .outerRadius(radius);
+
+                //Generate groups
+                var arcs = g.selectAll("arc")
+                    .data(pie(gender_data1))
+                    .enter()
+                    .append("g")
+                    .attr("class", "arc")
+
+                var arcs2 = g2.selectAll("ar2")
+                    .data(pie2(gender_data2))
+                    .enter()
+                    .append("g")
+                    .attr("class", "arc2")
+
+                //Draw arc paths
+                arcs.append("path")
+                    .attr("fill", function (d, i) {
+                        return color3(i);
+                    })
+                    .attr("d", arc);
+
+                arcs2.append("path")
+                    .attr("fill", function (d, i) {
+                        return color3(i);
+                    })
+                    .attr("d", arc2);
+
+
+
+
+
+                // ETHNICITY OF PIE CHART CHART MINI GRAPH
+                const svg4 = d3.select("svg#ethnicity_graph1");
+                const svg4_part2 = d3.select("svg#ethnicity_graph2");
+                const width4 = svg4.attr("width");
+                const height4 = svg4.attr("height");
+                const margin4 = 70;
+                const radius4 = Math.min(width4, height4) / 2 - margin4;
+
+                g4 = svg4.append("g").attr("transform", "translate(" + width4 / 2 + "," + height4 / 2 + ")");
+                g5 = svg4_part2.append("g").attr("transform", "translate(" + width4 / 2 + "," + height4 / 2 + ")");
+
+                var color4 = d3.scaleOrdinal(["#80b1d3", '#ffed6f', '#fdb462', '#bebada', '#fb8072', '#fccde5', '#ccebc5']);
+
+                //chart title
+                svg4.append("text")
+                    .attr("x", width4 / 2)
+                    .attr("y", 20)
                     .style("text-anchor", "middle")
                     .style("font-weight", 600)
-                    .text("Percentage");
+                    .style("font-size", "16px")
+                    .text("Ethnicity Graph");
 
-                // draw County 1 rectangles
-                for (i = 0; i < max; i++) {
-                    chartArea.append("line")
-                        .attr("x1", xaxisScale(x_list[i]))
-                        .attr("x2", xaxisScale(x_list[i]))
-                        .attr("y1", chartHeight)
-                        .attr("y2", yaxisScale(data[compare1][y_list[i]]))
-                        .style("stroke", "#80b1d3")
-                        .style("stroke-width", 30);
-                }
-
-                // draw County 2 rectangles
-                for (i = 0; i < max; i++) {
-                    chartArea.append("line")
-                        .attr("x1", xaxisScale2(x_list[i]))
-                        .attr("x2", xaxisScale2(x_list[i]))
-                        .attr("y1", chartHeight)
-                        .attr("y2", yaxisScale(data[compare2][y_list[i]]))
-                        .style("stroke", "#fb8072")
-                        .style("stroke-width", 30);
-                }
-            };
-
-            // draw bar charts
-            bar_charts(svg_education, "Education", ["Less than High School Diploma", "High School Diploma",
-                "Bachelor's Degree or Higher"], ["Percent of adults with less than a high school diploma, 2015-19",
-                "Percent of adults with a high school diploma only, 2015-19",
-                "Percent of adults with a bachelor's degree or higher, 2015-19"], 3);
-
-            bar_charts(svg_employment, "Employment", ["Management", "Service", "Sales", "Military", "Production"],
-                ["OCC_Manage", "OCC_Service", "OCC_Sales", "OCC_Military", "OCC_Prod"], 5);
-
-
-            // function bar_charts () {
-
-            // };
-
-            // GENDER RATIO PIE CHART CHART MINI GRAPH
-            const svg3 = d3.select("svg#gender_graph1");
-            const svg3_part2 = d3.select("svg#gender_graph2");
-            const width3 = svg3.attr("width");
-            const height3 = svg3.attr("height");
-            const margin3 = 70;
-            const radius = Math.min(width3, height3) / 2 - margin3;
-
-            g = svg3.append("g").attr("transform", "translate(" + width3 / 2 + "," + height3 / 2 + ")");
-            g2 = svg3_part2.append("g").attr("transform", "translate(" + width3 / 2 + "," + height3 / 2 + ")");
-
-            //chart title
-            svg3.append("text")
-                .attr("x", width3 / 2)
-                .attr("y", 20)
-                .style("text-anchor", "middle")
-                .style("font-weight", 600)
-                .style("font-size", "16px")
-                .text("Gender Graph");
-
-            // Male label
-            svg3_part2.append("text")
-                .attr("x", width3 - 125)
-                .attr("y", 25)
-                .style("text-anchor", "middle")
-                .style("font-weight", 200)
-                .style("stroke", "#80b1d3")
-                .text("Male");
-
-            // Female label
-            svg3_part2.append("text")
-                .attr("x", width3 - 125)
-                .attr("y", 40)
-                .style("text-anchor", "middle")
-                .style("font-weight", 200)
-                .style("stroke", "#fccde5")
-                .text("Female");
-
-            // County 1 label
-            svg3.append("text")
-                .attr("x", width3 / 2)
-                .attr("y", height3 - 65)
-                .style("text-anchor", "middle")
-                .style("font-weight", 200)
-                .text("County 1");
-
-            // County 2 label
-            svg3_part2.append("text")
-                .attr("x", width3 / 2)
-                .attr("y", height3 - 65)
-                .style("text-anchor", "middle")
-                .style("font-weight", 200)
-                .text("County 2");
-
-            var gender_data1 = [100 * data[compare1]["Male"], 100 * data[compare1]["Female"]];
-            var gender_data2 = [100 * data[compare2]["Male"], 100 * data[compare2]["Female"]];
-            var color3 = d3.scaleOrdinal(["#80b1d3", '#fccde5']);
-
-            // Generate the pie
-            var pie = d3.pie();
-            var pie2 = d3.pie();
-
-            // Generate the arcs
-            var arc = d3.arc()
-                .innerRadius(20)
-                .outerRadius(radius);
-
-            var arc2 = d3.arc()
-                .innerRadius(20)
-                .outerRadius(radius);
-
-            //Generate groups
-            var arcs = g.selectAll("arc")
-                .data(pie(gender_data1))
-                .enter()
-                .append("g")
-                .attr("class", "arc")
-
-            var arcs2 = g2.selectAll("ar2")
-                .data(pie2(gender_data2))
-                .enter()
-                .append("g")
-                .attr("class", "arc2")
-
-            //Draw arc paths
-            arcs.append("path")
-                .attr("fill", function (d, i) {
-                    return color3(i);
-                })
-                .attr("d", arc);
-
-            arcs2.append("path")
-                .attr("fill", function (d, i) {
-                    return color3(i);
-                })
-                .attr("d", arc2);
-
-
-
-
-
-            // ETHNICITY OF PIE CHART CHART MINI GRAPH
-            const svg4 = d3.select("svg#ethnicity_graph1");
-            const svg4_part2 = d3.select("svg#ethnicity_graph2");
-            const width4 = svg4.attr("width");
-            const height4 = svg4.attr("height");
-            const margin4 = 70;
-            const radius4 = Math.min(width4, height4) / 2 - margin4;
-
-            g4 = svg4.append("g").attr("transform", "translate(" + width4 / 2 + "," + height4 / 2 + ")");
-            g5 = svg4_part2.append("g").attr("transform", "translate(" + width4 / 2 + "," + height4 / 2 + ")");
-
-            var color4 = d3.scaleOrdinal(["#80b1d3", '#ffed6f', '#fdb462', '#bebada', '#fb8072', '#fccde5', '#ccebc5']);
-
-            //chart title
-            svg4.append("text")
-                .attr("x", width4 / 2)
-                .attr("y", 20)
-                .style("text-anchor", "middle")
-                .style("font-weight", 600)
-                .style("font-size", "16px")
-                .text("Ethnicity Graph");
-
-            // County 1 label
-            svg4.append("text")
-                .attr("x", width4 / 2)
-                .attr("y", height4 - 65)
-                .style("text-anchor", "middle")
-                .style("font-weight", 200)
-                .text("County 1");
-
-            // County 2 label
-            svg4_part2.append("text")
-                .attr("x", width4 / 2)
-                .attr("y", height4 - 65)
-                .style("text-anchor", "middle")
-                .style("font-weight", 200)
-                .text("County 2");
-
-            var ethnicity_data1 = [100 * data[compare1]["White"], 100 * data[compare1]["Black"],
-            100 * data[compare1]["Hispanic"], 100 * data[compare1]["Asian"],
-            100 * data[compare1]["AIAN"], 100 * data[compare1]["NHPI"],
-            100 * data[compare1]["Other_race"]];
-            var ethnicity_data2 = [100 * data[compare2]["White"], 100 * data[compare2]["Black"],
-            100 * data[compare2]["Hispanic"], 100 * data[compare2]["Asian"],
-            100 * data[compare2]["AIAN"], 100 * data[compare2]["NHPI"],
-            100 * data[compare2]["Other_race"]];
-
-            // Colored graph labels
-            const ethnicity_y_pixels = [10, 25, 40, 55, 10, 25, 40, 55];
-            const ethnicity_x_pixels = [200, 200, 200, 200, 100, 100, 100, 100];
-            const ethnicity_labels = ["White", "Black", "Hispanic", "Asian",
-                "Native American", "Pacific Islander",
-                "Other or", "Combination"]
-            const ethnicity_colors = ["#80b1d3", '#ffed6f', '#fdb462', '#bebada', '#fb8072', '#fccde5', '#ccebc5', '#ccebc5'];
-
-            for (i = 0; i < 8; i++) {
-                svg4_part2.append("text")
-                    .attr("x", width4 - ethnicity_x_pixels[i])
-                    .attr("y", ethnicity_y_pixels[i])
+                // County 1 label
+                svg4.append("text")
+                    .attr("x", width4 / 2)
+                    .attr("y", height4 - 65)
+                    .style("text-anchor", "middle")
                     .style("font-weight", 200)
-                    .attr("font-size", "13px")
-                    .style("stroke", ethnicity_colors[i])
-                    .text(ethnicity_labels[i]);
-            }
+                    .text("County 1");
 
-            // Generate the pie
-            var pie4 = d3.pie();
-            var pie5 = d3.pie();
+                // County 2 label
+                svg4_part2.append("text")
+                    .attr("x", width4 / 2)
+                    .attr("y", height4 - 65)
+                    .style("text-anchor", "middle")
+                    .style("font-weight", 200)
+                    .text("County 2");
 
-            // Generate the arcs
-            var arc4 = d3.arc()
-                .innerRadius(20)
-                .outerRadius(radius);
+                var ethnicity_data1 = [100 * data[compare1]["White"], 100 * data[compare1]["Black"],
+                100 * data[compare1]["Hispanic"], 100 * data[compare1]["Asian"],
+                100 * data[compare1]["AIAN"], 100 * data[compare1]["NHPI"],
+                100 * data[compare1]["Other_race"]];
+                var ethnicity_data2 = [100 * data[compare2]["White"], 100 * data[compare2]["Black"],
+                100 * data[compare2]["Hispanic"], 100 * data[compare2]["Asian"],
+                100 * data[compare2]["AIAN"], 100 * data[compare2]["NHPI"],
+                100 * data[compare2]["Other_race"]];
 
-            var arc5 = d3.arc()
-                .innerRadius(20)
-                .outerRadius(radius);
+                // Colored graph labels
+                const ethnicity_y_pixels = [10, 25, 40, 55, 10, 25, 40, 55];
+                const ethnicity_x_pixels = [200, 200, 200, 200, 100, 100, 100, 100];
+                const ethnicity_labels = ["White", "Black", "Hispanic", "Asian",
+                    "Native American", "Pacific Islander",
+                    "Other or", "Combination"]
+                const ethnicity_colors = ["#80b1d3", '#ffed6f', '#fdb462', '#bebada', '#fb8072', '#fccde5', '#ccebc5', '#ccebc5'];
 
-            //Generate groups
-            var arcs4 = g4.selectAll("arc")
-                .data(pie4(ethnicity_data1))
-                .enter()
-                .append("g")
-                .attr("class", "arc4")
+                for (i = 0; i < 8; i++) {
+                    svg4_part2.append("text")
+                        .attr("x", width4 - ethnicity_x_pixels[i])
+                        .attr("y", ethnicity_y_pixels[i])
+                        .style("font-weight", 200)
+                        .attr("font-size", "13px")
+                        .style("stroke", ethnicity_colors[i])
+                        .text(ethnicity_labels[i]);
+                }
 
-            var arcs5 = g5.selectAll("ar2")
-                .data(pie5(ethnicity_data2))
-                .enter()
-                .append("g")
-                .attr("class", "arc5")
+                // Generate the pie
+                var pie4 = d3.pie();
+                var pie5 = d3.pie();
 
-            //Draw arc paths
-            arcs4.append("path")
-                .attr("fill", function (d, i) {
-                    return color4(i);
-                })
-                .attr("d", arc4);
+                // Generate the arcs
+                var arc4 = d3.arc()
+                    .innerRadius(20)
+                    .outerRadius(radius);
 
-            arcs5.append("path")
-                .attr("fill", function (d, i) {
-                    return color4(i);
-                })
-                .attr("d", arc5);
-        };
+                var arc5 = d3.arc()
+                    .innerRadius(20)
+                    .outerRadius(radius);
+
+                //Generate groups
+                var arcs4 = g4.selectAll("arc")
+                    .data(pie4(ethnicity_data1))
+                    .enter()
+                    .append("g")
+                    .attr("class", "arc4")
+
+                var arcs5 = g5.selectAll("ar2")
+                    .data(pie5(ethnicity_data2))
+                    .enter()
+                    .append("g")
+                    .attr("class", "arc5")
+
+                //Draw arc paths
+                arcs4.append("path")
+                    .attr("fill", function (d, i) {
+                        return color4(i);
+                    })
+                    .attr("d", arc4);
+
+                arcs5.append("path")
+                    .attr("fill", function (d, i) {
+                        return color4(i);
+                    })
+                    .attr("d", arc5);
+            };
+        }
         request_data();
     </script>
 </body>
