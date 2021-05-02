@@ -401,20 +401,6 @@
                 add_tooltip(svg_id, data, us)
             };
 
-            // reset button for dropdowns
-            // d3.select("#reset_button").on("click", function (d) {
-            //     console.log("in reset");
-            //     d3.select("#pick_state_input")
-            //         .selectAll('state_options')
-            //         .exit()
-            //         .remove();
-
-            //     d3.select("#pick_county_input")
-            //         .selectAll('county_options')
-            //         .exit()
-            //         .remove();
-            // });
-
             function drawLegend(legend_id, legendColorScale) {
 
                 // Bonus code here to draw an adaptive gradient legend so we can see different color scales for choropleth maps
@@ -453,21 +439,6 @@
                 bar.append("line").attr("stroke", "white").attr("stroke-width", 3).attr("x1", barScale(legendMinMax[0])).attr("x2", barScale(legendMinMax[0])).attr("y1", 0).attr("y1", barHeight + 4);
                 bar.append("line").attr("stroke", "white").attr("stroke-width", 3).attr("x1", barScale(legendMinMax[1])).attr("x2", barScale(legendMinMax[1])).attr("y1", 0).attr("y1", barHeight + 4);
             };
-
-            //PART 3: COMPARE COUNTIES (CRYSTAL)
-
-            // var v2countyID;
-            // console.log(v2countyID);
-            // d3.selectAll(".counties").on("click", function (d) {
-            //     console.log("success");
-            //     let county = d3.select(this).datum();
-            //     v2countyID = county.id;
-            //     console.log(county);
-            //     console.log(v2countyID);
-            // });
-
-            // var compare1 = Number(v2CountyID);
-            // var compare2 = 36027
 
             // DRAWS US MAP IN VISUALIZATION 2, AND CREATES HOVER TOOLTIP FOR IT
 
