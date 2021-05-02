@@ -37,17 +37,17 @@
     </div>
 
     <div class="visualization_1">
-        <div id="state_min_div" class="viz_1_map element_1" style="display: none;">
-            <svg id="state_min" height="400" width="600"></svg>
+        <div id="state_min_div" class="viz_1_map element_1" style="display: none; padding-top: 100px;">
+            <svg id="state_min" height="400" width="500"></svg>
             <svg id="state_min_title" height="25" width="300"></svg>
         </div>
         <div class="viz_1_map element_2">
             <div id="viz_1_outline">
-                <svg id="user_state" height="650" width="650"></svg>
+                <svg id="user_state" height="650" width="600"></svg>
             </div>
         </div>
-        <div id="state_max_div" class="viz_1_map element_3" style="display: none;">
-            <svg id="state_max" height="400" width="600"></svg>
+        <div id="state_max_div" class="viz_1_map element_3" style="display: none;padding-top: 100px;">
+            <svg id="state_max" height="400" width="500"></svg>
             <svg id="state_max_title" height="25" width="300"></svg>
         </div>
     </div>
@@ -281,7 +281,7 @@
                 const state_width = state_svg.attr("width");
                 const state_height = state_svg.attr("height");
 
-                const margin = { top: 100, right: 100, bottom: 135, left: 100 };
+                const margin = { top: 50, right: 0, bottom: 100, left: 0 };
                 const mapWidth = state_width - margin.left - margin.right;
                 const mapHeight = state_height - margin.top - margin.bottom;
                 const map = state_svg.append("g")
@@ -339,7 +339,7 @@
 
                 state_svg.append("text")
                     .attr("x", state_width / 2)
-                    .attr("y", 105)
+                    .attr("y", 30)
                     .attr("text-anchor", "middle")
                     .style("font-weight", 600)
                     .style("font-size", "16px")
@@ -351,7 +351,7 @@
 
                 attributes.forEach((d, i) => {
                     state_svg.append("text")
-                        .attr("x", 0.10 * state_width)
+                        .attr("x", 0.1 * state_width)
                         .attr("y", state_height - (100 - 20 * i))
                         .style("font-weight", 600)
                         .style("font-size", "14px")
@@ -368,7 +368,7 @@
                 if (state_width === "450") {
                     metrics.forEach((d, i) => {
                         state_svg.append("text")
-                            .attr("x", 0.57 * state_width)
+                            .attr("x", 0.8 * state_width)
                             .attr("y", state_height - (100 - 20 * i))
                             .style("font-weight", 300)
                             .style("font-size", "14px")

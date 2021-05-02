@@ -43,7 +43,7 @@
         }
 
         .state {
-            fill: #ddd;
+            fill: #eee;
         }
 
         .outline {
@@ -81,7 +81,7 @@
         }
 
         .select_outline_us {
-            stroke: red;
+            stroke: #C11515;
             stroke-width: 2px;
             fill: none;
         }

@@ -124,7 +124,7 @@ function makeSlider(container, label, attribute, sliderHeight, sliderWidth, coun
   canvas.append("rect").attr("transform", `translate(${xScale(select_value)}, 0)`)
     .attr("width", 2)
     .attr("height", sliderHeight)
-    .attr("fill", "darkgrey")
+    .attr("fill", "#C11515")
 
   let numBins = 15;
   let histoGen = d3.histogram().domain(minMax)

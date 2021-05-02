@@ -50,8 +50,8 @@ function add_tooltip(element_id, data, us) {
 
     //calculating translation and scale for tooltip placement
     var states = topojson.feature(us, us.objects.states);
-    const state_width = svg.attr("width") - 200
-    const state_height = svg.attr("height") - 235
+    const state_width = svg.attr("width")
+    const state_height = svg.attr("height")
     selected_state = states.features.filter(function (d) {
       return d.id === countyID.substring(0, 2);
     });
@@ -71,17 +71,17 @@ function add_tooltip(element_id, data, us) {
       .translate(state_translate);
 
     bounds = state_path.bounds(county);
-    let xPos = (bounds[0][0] + bounds[1][0]) / 2.0 + 100
-    let yPos = bounds[1][1] + 100
+    let xPos = (bounds[0][0] + bounds[1][0]) / 2.0
+    let yPos = bounds[1][1]
 
     if (xPos + tooltipWidth / 2 > state_width) {
-      xPos = (bounds[0][0] - 20)
+      xPos = (bounds[0][0] - tooltipWidth / 2)
     } else if (xPos - tooltipWidth / 2 < 0) {
       xPos = bounds[0][0] + tooltipWidth / 2
     }
 
-    if (yPos + tooltipHeight / 2 > state_height + 80) {
-      yPos = bounds[1][1] - tooltipHeight / 2 - 10
+    if (yPos + tooltipHeight > state_height) {
+      yPos = bounds[1][1] - tooltipHeight - 30
     }
 
     //highlight outline
