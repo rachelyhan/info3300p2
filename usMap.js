@@ -271,35 +271,6 @@ function usTooltip(data, us) {
 
   }
 
-  // let county = d3.select(this).datum();
-  // const countyID
-  // console.log(d3.select(county));
-
-  // d3.select(county).on("click", function (d) {
-  //   console.log("success");
-  //   console.log(county);
-  //   console.log(countyID);
-
-  // });
-
-  // function selectCounty() {
-
-  //   console.log(d3.select(county));
-  //   const svg = d3.select(this.parentNode.parentNode);
-
-  //   let countyID = county.id;
-
-  //   d3.select(county).on("click", function (d) {
-  //     console.log("success");
-  //     console.log(county);
-  //     console.log(countyID);
-
-  //   });
-  // }
-
-  d3.selectAll(".counties").on("click", function (d) {
-    // console.log("success");
-  });
 
 
   // var v2countyID;
