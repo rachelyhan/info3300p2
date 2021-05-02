@@ -275,15 +275,16 @@ function usTooltip(data, us) {
 
   }
 
-  let county = d3.select(this).datum();
-  console.log(d3.select(county));
+  // let county = d3.select(this).datum();
+  // const countyID
+  // console.log(d3.select(county));
 
-  d3.select(county).on("click", function (d) {
-    console.log("success");
-    console.log(county);
-    console.log(countyID);
+  // d3.select(county).on("click", function (d) {
+  //   console.log("success");
+  //   console.log(county);
+  //   console.log(countyID);
 
-  });
+  // });
 
   // function selectCounty() {
 
@@ -299,6 +300,10 @@ function usTooltip(data, us) {
 
   //   });
   // }
+
+  d3.selectAll(".counties").on("click", function (d) {
+    console.log("success");
+  });
 
 
 
