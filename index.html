@@ -60,7 +60,9 @@
     <div class="viz3_title">
         <h2>Part III: Compare two counties</h2>
         <h3>Based on your exploration from Part II, compare and contrast two counties you are interested in</h3>
+        <button id="reset">Click to pick 2 other counties!</button>
     </div>
+
     <div class="v3" style="display: flex;">
         <div class="v3_map element_1" style="width: 50%">
             <svg id="v3_c1" height="600" width="600"></svg>
@@ -97,8 +99,8 @@
                 <svg id="gender_graphs_title" height="25" width="500" style="margin-top: 50px"></svg>
             </div>
             <div>
-            <svg id="gender_graph1" height="300" width="250" style="margin-top: 0px;"></svg>
-            <svg id="gender_graph2" height="300" width="250" style="margin-top: 0px;"></svg>
+                <svg id="gender_graph1" height="300" width="250" style="margin-top: 0px;"></svg>
+                <svg id="gender_graph2" height="300" width="250" style="margin-top: 0px;"></svg>
             </div>
             <div>
                 <svg id="male_female_legend" height="25" width="500"></svg>
@@ -737,20 +739,69 @@
 
                 d3.selectAll(".counties").on("mouseenter", mouseEntersPlot);
                 d3.selectAll(".counties").on("mouseout", mouseLeavesPlot);
-                // d3.selectAll(".counties").on("selectcounty", selectCounty);
 
+                var county1;
+                var county2;
                 var v2countyID1;
                 var v2countyID2;
                 d3.selectAll(".counties").on("click", function (d) {
-                    let county = d3.select(this).datum();
-                    v2countyID1 = county.id;
+                    county1 = d3.select(this).datum();
+                    v2countyID1 = county1.id;
 
+                    // attempt to highlight selected county
+                    var state_projection = d3.geoAlbersUsa().scale(1).translate([0, 0]);
+                    var state_path = d3.geoPath().projection(state_projection);
+
+                    var svg = d3.select(this.parentNode.parentNode);
+                    var mo = topojson.mesh(us, us.objects.counties, function (a, b) { return a.id === v2countyID1 || b.id === v2countyID1 });
+                    svg.select("#momesh").datum(mo).attr("d", state_path);
+
+
+                    // select 2nd county
                     d3.selectAll(".counties").on("click", function (d) {
-                        let county2 = d3.select(this).datum();
+                        county2 = d3.select(this).datum();
                         v2countyID2 = county2.id;
+
+                        // const svg = d3.select(this.parentNode.parentNode);
+                        // var mo = topojson.mesh(us, us.objects.counties, function (a, b) { return a.id === v2countyID2 || b.id === v2countyID2 });
+                        // svg.select("#momesh").datum(mo).attr("d", state_path);
+
+                        // reset button
+                        // d3.select("button").on("click", function (d) {
+                        //     console.log("success");
+                        //     let svg1 = d3.select("#v3_c1");
+                        //     let svg2 = d3.select("#v3_c2");
+                        //     svg1.selectAll("*").remove();
+                        //     svg2.selectAll("*").remove();
+                        // });
                         viz3(Number(v2countyID1), Number(v2countyID2));
                     });
+
                 });
+
+                // var counter = 0;
+                // while (counter != 0) {
+                //     d3.selectAll(".counties").on("click", function (d) {
+                //         let county = d3.select(this).datum();
+                //         v2countyID1 = county.id;
+
+                //         // select 2nd county
+                //         d3.selectAll(".counties").on("click", function (d) {
+                //             let county2 = d3.select(this).datum();
+                //             v2countyID2 = county2.id;
+                //             viz3(Number(v2countyID1), Number(v2countyID2));
+                //             d3.select("button").on("click", function (d) {
+                //                 console.log("success");
+                //                 let svg1 = d3.select("#v3_c1");
+                //                 let svg2 = d3.select("#v3_c2");
+                //                 svg1.selectAll("*").remove();
+                //                 svg2.selectAll("*").remove();
+                //             });
+
+                //         });
+                //     });
+                // };
+
 
                 function mouseEntersPlot() {
                     const svg = d3.select(this.parentNode.parentNode);
@@ -866,7 +917,7 @@
 
                     // chart title
                     svg.append("text")
-                        .attr("x", width/2)
+                        .attr("x", width / 2)
                         .attr("y", 25)
                         .style("text-anchor", "middle")
                         .style("font-weight", 600)
@@ -875,8 +926,8 @@
 
                     // county 1 label
                     svg.append("text")
-                        .attr("x", 0.35*width)
-                        .attr("y", height-5)
+                        .attr("x", 0.35 * width)
+                        .attr("y", height - 5)
                         .style("text-anchor", "middle")
                         .style("font-weight", 200)
                         .style("font-size", "12px")
@@ -885,8 +936,8 @@
 
                     // county 2 label
                     svg.append("text")
-                        .attr("x", 0.75*width)
-                        .attr("y", height-5)
+                        .attr("x", 0.75 * width)
+                        .attr("y", height - 5)
                         .style("text-anchor", "middle")
                         .style("font-weight", 200)
                         .style("font-size", "12px")
@@ -926,6 +977,7 @@
                             .style("stroke", "#fb8072")
                             .style("stroke-width", 30);
                     }
+
                 };
 
                 // draw bar charts
@@ -946,12 +998,15 @@
                 const margin3 = 70;
                 const radius = Math.min(width3, height3) / 2 - margin3;
 
+                svg3.selectAll("text").remove();
+                svg3_part2.selectAll("text").remove();
+
                 g = svg3.append("g").attr("transform", "translate(" + width3 / 2 + "," + height3 / 2 + ")");
                 g2 = svg3_part2.append("g").attr("transform", "translate(" + width3 / 2 + "," + height3 / 2 + ")");
 
                 //chart title
                 d3.select("#gender_graphs_title").append("text")
-                    .attr("x", 500/2)
+                    .attr("x", 500 / 2)
                     .attr("y", 15)
                     .style("text-anchor", "middle")
                     .style("font-weight", 600)
@@ -959,15 +1014,15 @@
                     .text("Gender Graph");
 
                 d3.select("#male_female_legend").append("text")
-                    .attr("x", 0.30*500)
+                    .attr("x", 0.30 * 500)
                     .attr("y", 15)
                     .style("text-anchor", "middle")
                     .style("font-weight", 200)
                     .style("stroke", "#80b1d3")
                     .text("Male");
-                
-                    d3.select("#male_female_legend").append("text")
-                    .attr("x", 0.70*500)
+
+                d3.select("#male_female_legend").append("text")
+                    .attr("x", 0.70 * 500)
                     .attr("y", 15)
                     .style("text-anchor", "middle")
                     .style("font-weight", 200)
@@ -1064,16 +1119,17 @@
                 const radius4 = Math.min(width4, height4) / 2 - margin4;
 
                 svg4.selectAll("text").remove();
+                svg4_part2.selectAll("text").remove();
 
                 g4 = svg4.append("g").attr("transform", "translate(" + width4 / 2 + "," + height4 / 2 + ")");
                 g5 = svg4_part2.append("g").attr("transform", "translate(" + width4 / 2 + "," + height4 / 2 + ")");
 
                 // var color4 = d3.scaleOrdinal(["#80b1d3", '#ffed6f', '#fdb462', '#bebada', '#fb8072', '#fccde5', '#ccebc5']);
-                var color4 = d3.scaleOrdinal(["#4e79a7","#f28e2c","#e15759","#76b7b2","#59a14f","#edc949","#af7aa1","#ff9da7","#9c755f","#bab0ab"]);
+                var color4 = d3.scaleOrdinal(["#4e79a7", "#f28e2c", "#e15759", "#76b7b2", "#59a14f", "#edc949", "#af7aa1", "#ff9da7", "#9c755f", "#bab0ab"]);
 
                 //chart title
                 d3.select("#ethnicity_graphs_title").append("text")
-                    .attr("x", 500/2)
+                    .attr("x", 500 / 2)
                     .attr("y", 15)
                     .style("text-anchor", "middle")
                     .style("font-weight", 600)
@@ -1120,7 +1176,7 @@
                     "Native American", "Pacific Islander",
                     "Other or", "Combination"]
                 // const ethnicity_colors = ["#80b1d3", '#ffed6f', '#fdb462', '#bebada', '#fb8072', '#fccde5', '#ccebc5', '#ccebc5'];
-                const ethnicity_colors = ["#4e79a7","#f28e2c","#e15759","#76b7b2","#59a14f","#edc949","#af7aa1","#ff9da7","#9c755f","#bab0ab"];
+                const ethnicity_colors = ["#4e79a7", "#f28e2c", "#e15759", "#76b7b2", "#59a14f", "#edc949", "#af7aa1", "#ff9da7", "#9c755f", "#bab0ab"];
                 // const ethnicity_colors = d3.schemeTableau10;
 
                 for (i = 0; i < 8; i++) {
