@@ -5,7 +5,6 @@
     <script src="https://d3js.org/d3.v6.min.js"></script>
     <script src="https://d3js.org/topojson.v3.min.js"></script>
     <script src="./tooltip.js"></script>
-    <script src="./usMap.js"></script>
     <link rel="stylesheet" href="./styles.css">
 </head>
 
@@ -410,7 +409,7 @@
                 else {
                     attributes.forEach((d, i) => {
                         state_svg.append("text")
-                            .attr("x", 0.25*state_width)
+                            .attr("x", 0.25 * state_width)
                             .attr("y", state_height - (90 - 20 * i))
                             .style("font-weight", 600)
                             .style("font-size", "14px")
@@ -419,7 +418,7 @@
 
                     metrics.forEach((d, i) => {
                         state_svg.append("text")
-                            .attr("x", 0.60*state_width)
+                            .attr("x", 0.60 * state_width)
                             .attr("y", state_height - (90 - 20 * i))
                             .style("font-weight", 300)
                             .style("font-size", "14px")
@@ -706,15 +705,17 @@
                 d3.selectAll(".counties").on("mouseout", mouseLeavesPlot);
                 // d3.selectAll(".counties").on("selectcounty", selectCounty);
 
-                var v2countyID;
+                var v2countyID1;
+                var v2countyID2;
                 d3.selectAll(".counties").on("click", function (d) {
-                    console.log("success");
                     let county = d3.select(this).datum();
-                    v2countyID = county.id;
-                    console.log(county);
-                    console.log((v2countyID));
+                    v2countyID1 = county.id;
 
-                    viz3(Number(v2countyID), Number(v2countyID))
+                    d3.selectAll(".counties").on("click", function (d) {
+                        let county2 = d3.select(this).datum();
+                        v2countyID2 = county2.id;
+                        viz3(Number(v2countyID1), Number(v2countyID2));
+                    });
                 });
 
 
@@ -819,7 +820,7 @@
 
                     // chart title
                     svg.append("text")
-                        .attr("x", width / 2)
+                        .attr("x", 100)
                         .attr("y", 25)
                         .style("text-anchor", "middle")
                         .style("font-weight", 600)
@@ -828,28 +829,21 @@
 
                     // county 1 label
                     svg.append("text")
-                        .attr("x", width - 50)
+                        .attr("x", width - 150)
                         .attr("y", 20)
                         .style("text-anchor", "middle")
                         .style("font-weight", 200)
                         .style("stroke", "#80b1d3")
-                        .text("County 1");
+                        .text(data[Number(compare1)]["county_name"] + ", " + data[Number(compare1)]["state"]);
 
                     // county 2 label
                     svg.append("text")
-                        .attr("x", width - 50)
+                        .attr("x", width - 150)
                         .attr("y", 35)
                         .style("text-anchor", "middle")
                         .style("font-weight", 200)
                         .style("stroke", "#fb8072")
-                        .text("County 2");
-
-                    // x axis labels
-                    // svg.append("text")
-                    //     .attr("x", width / 2)
-                    //     .attr("y", height)
-                    //     .style("text-anchor", "middle")
-                    //     .style("font-weight", 600);
+                        .text(data[Number(compare2)]["county_name"] + ", " + data[Number(compare2)]["state"]);
 
                     // y axis label
                     svg.append("text")
@@ -894,10 +888,6 @@
                     ["OCC_Manage", "OCC_Service", "OCC_Sales", "OCC_Military", "OCC_Prod"], 5);
 
 
-                // function bar_charts () {
-
-                // };
-
                 // GENDER RATIO PIE CHART CHART MINI GRAPH
                 const svg3 = d3.select("svg#gender_graph1");
                 const svg3_part2 = d3.select("svg#gender_graph2");
@@ -939,18 +929,18 @@
                 // County 1 label
                 svg3.append("text")
                     .attr("x", width3 / 2)
-                    .attr("y", height3 - 65)
+                    .attr("y", height3 - 55)
                     .style("text-anchor", "middle")
                     .style("font-weight", 200)
-                    .text("County 1");
+                    .text(data[Number(compare1)]["county_name"] + ", " + data[Number(compare1)]["state"]);
 
                 // County 2 label
                 svg3_part2.append("text")
                     .attr("x", width3 / 2)
-                    .attr("y", height3 - 65)
+                    .attr("y", height3 - 55)
                     .style("text-anchor", "middle")
                     .style("font-weight", 200)
-                    .text("County 2");
+                    .text(data[Number(compare2)]["county_name"] + ", " + data[Number(compare2)]["state"]);
 
                 var gender_data1 = [100 * data[compare1]["Male"], 100 * data[compare1]["Female"]];
                 var gender_data2 = [100 * data[compare2]["Male"], 100 * data[compare2]["Female"]];
@@ -1024,18 +1014,18 @@
                 // County 1 label
                 svg4.append("text")
                     .attr("x", width4 / 2)
-                    .attr("y", height4 - 65)
+                    .attr("y", height4 - 55)
                     .style("text-anchor", "middle")
                     .style("font-weight", 200)
-                    .text("County 1");
+                    .text(data[Number(compare1)]["county_name"] + ", " + data[Number(compare1)]["state"]);
 
                 // County 2 label
                 svg4_part2.append("text")
                     .attr("x", width4 / 2)
-                    .attr("y", height4 - 65)
+                    .attr("y", height4 - 55)
                     .style("text-anchor", "middle")
                     .style("font-weight", 200)
-                    .text("County 2");
+                    .text(data[Number(compare2)]["county_name"] + ", " + data[Number(compare2)]["state"]);
 
                 var ethnicity_data1 = [100 * data[compare1]["White"], 100 * data[compare1]["Black"],
                 100 * data[compare1]["Hispanic"], 100 * data[compare1]["Asian"],
