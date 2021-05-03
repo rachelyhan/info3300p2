@@ -107,11 +107,6 @@
             fill: none;
         }
 
-        .y_gridlines {
-            stroke: darkgray;
-            color: darkgray;
-        }
-
         .mouseover_outline {
             stroke: black;
             stroke-width: 2px;

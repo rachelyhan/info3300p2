@@ -87,8 +87,8 @@
             </div>
             <div>
                 <!-- <svg id="ethnicity_all" height="600" width="500"></svg> -->
-                <svg id="ethnicity_graph1" height="300" width="250" style="margin-top: 0px;"></svg>
-                <svg id="ethnicity_graph2" height="300" width="250" style="margin-top: 0px;"></svg>
+                <svg id="ethnicity_graph1" height="300" width="500" style="margin-top: 0px;"></svg>
+                <svg id="ethnicity_graph2" height="300" width="500" style="margin-top: 0px;"></svg>
             </div>
             <div>
                 <svg id="ethnicity_legend" height="100" width="500"></svg>
@@ -883,6 +883,7 @@
                 // function to create bar charts 
                 function bar_charts(svg, title, x_list, y_list, max) {
                     svg.selectAll("text").remove();
+                    svg.selectAll("line").remove();
 
                     const width = svg.attr("width");
                     const height = svg.attr("height");
@@ -1084,24 +1085,37 @@
                     .style("font-weight", 200)
                     .text(data[Number(compare2)]["county_name"] + ", " + data[Number(compare2)]["state_abbreviation"]);
 
-                var ethnicity_data1 = [100 * data[compare1]["White"], 100 * data[compare1]["Black"],
-                100 * data[compare1]["Hispanic"], 100 * data[compare1]["Asian"],
-                100 * data[compare1]["AIAN"], 100 * data[compare1]["NHPI"],
-                100 * data[compare1]["Other_race"]];
-                var ethnicity_data2 = [100 * data[compare2]["White"], 100 * data[compare2]["Black"],
-                100 * data[compare2]["Hispanic"], 100 * data[compare2]["Asian"],
-                100 * data[compare2]["AIAN"], 100 * data[compare2]["NHPI"],
-                100 * data[compare2]["Other_race"]];
+                // var ethnicity_data1 = [100 * data[compare1]["White"], 100 * data[compare1]["Black"],
+                // 100 * data[compare1]["Hispanic"], 100 * data[compare1]["Asian"],
+                // 100 * data[compare1]["AIAN"], 100 * data[compare1]["NHPI"],
+                // 100 * data[compare1]["Other_race"]];
+
+                // var ethnicity_data2 = [100 * data[compare2]["White"], 100 * data[compare2]["Black"],
+                // 100 * data[compare2]["Hispanic"], 100 * data[compare2]["Asian"],
+                // 100 * data[compare2]["AIAN"], 100 * data[compare2]["NHPI"],
+                // 100 * data[compare2]["Other_race"]];
+
+                var ethnicity_data1 = [data[compare1]["White"], data[compare1]["Black"],
+                data[compare1]["Hispanic"], data[compare1]["Asian"],
+                data[compare1]["AIAN"], data[compare1]["NHPI"],
+                data[compare1]["Other_race"]];
+
+                var ethnicity_data2 = [data[compare2]["White"], data[compare2]["Black"],
+                data[compare2]["Hispanic"], data[compare2]["Asian"],
+                data[compare2]["AIAN"], data[compare2]["NHPI"],
+                data[compare2]["Other_race"]];
 
                 // Colored graph labels
+                const ethnicity_x_pixels = [150, 150, 150, 150, 250, 250, 250, 250];
                 const ethnicity_y_pixels = [10, 25, 40, 55, 10, 25, 40, 55];
-                const ethnicity_x_pixels = [250, 250, 250, 250, 150, 150, 150, 150];
                 const ethnicity_labels = ["White", "Black", "Hispanic", "Asian",
                     "Native American", "Pacific Islander",
                     "Other or", "Combination"]
                 // const ethnicity_colors = ["#80b1d3", '#ffed6f', '#fdb462', '#bebada', '#fb8072', '#fccde5', '#ccebc5', '#ccebc5'];
                 const ethnicity_colors = ["#4e79a7", "#f28e2c", "#e15759", "#76b7b2", "#59a14f", "#edc949", "#af7aa1", "#ff9da7", "#9c755f", "#bab0ab"];
                 // const ethnicity_colors = d3.schemeTableau10;
+
+                d3.select(".label").raise();
 
                 for (i = 0; i < 8; i++) {
                     // svg4_part2.append("text")
@@ -1141,6 +1155,8 @@
                     .append("g")
                     .attr("class", "arc4")
 
+                    console.log(arcs4);
+
                 var arcs5 = g5.selectAll("ar2")
                     .data(pie5(ethnicity_data2))
                     .enter()
@@ -1152,13 +1168,53 @@
                     .attr("fill", function (d, i) {
                         return color4(i);
                     })
-                    .attr("d", arc4);
+                    .attr("d", arc4)
+                    .on("mouseover", function (d, i) {
+                        const ethnicity_labels = ["White", "Black", "Hispanic", "Asian",
+                            "Native American", "Pacific Islander",
+                            "Other or", "Combination"]
+
+                        var ethnicity_data1 = [data[compare1]["White"], data[compare1]["Black"],
+                        data[compare1]["Hispanic"], data[compare1]["Asian"],
+                        data[compare1]["AIAN"], data[compare1]["NHPI"],
+                        data[compare1]["Other_race"]];
+
+                        var arc_index = ethnicity_data1.indexOf(i['value']);
+                        console.log(arc_index);
+                        console.log(Math.round(i['value']));
+
+                        d3.select(this)
+                            .attr("stroke", "black")
+                            .attr("stroke-width", "2px");
+
+                        svg4.append("text")
+                            .attr("x", width4 / 2)
+                            .attr("y", 50)
+                            .attr("class", "arc_label")
+                            .style("text-anchor", "middle")
+                            .style("font-size", "14px")
+                            .text(ethnicity_labels[arc_index] + ": " + (Math.round(i['value'])).toString() + "%");
+                    })
+                    .on("mouseout", function (d, i) {
+                        d3.select(this)
+                            .attr("stroke", "none")
+                            .attr("stroke-width", "none");
+
+                        svg4.select(".arc_label").remove();
+                    });
+
 
                 arcs5.append("path")
                     .attr("fill", function (d, i) {
                         return color4(i);
                     })
-                    .attr("d", arc5);
+                    .attr("d", arc5)
+                    .on("mouseover", function (d, i) {
+                        // console.log(d)
+                    })
+                    .on("mouseout", function (d) {
+                        // console.log(d)
+                    });
             };
         }
         request_data();
