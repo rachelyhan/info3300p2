@@ -61,7 +61,7 @@
     <div class="viz3_title">
         <h2>Part III: Compare two counties</h2>
         <h3>Based on your exploration from Part II, compare and contrast two counties you are interested in</h3>
-        <button id="reset">Click to pick 2 other counties!</button>
+        <!-- <button id="reset">Click to pick 2 other counties!</button> -->
     </div>
 
     <div class="v3" style="display: flex;">
@@ -402,14 +402,11 @@
                         .text(data[county_id]["county_name"] + ", " + data[county_id]["state_abbreviation"]);
                 }
 
-                // explanation for min and max counties
-
-
                 // add metrics
                 const attributes = ["Employment Rate: ", "Median Household Income: ", "Pop. % at Level 3 Literacy: ", "Pop. % with Bachelors' Degrees: ", "Pop. % of High School Graduates: "];
 
                 const metrics = [(Math.round(data[Number(county_id)]["employment_rate"] * 100).toString() + "%"),
-                (Math.round(data[Number(county_id)]["income"]).toString() + "K"),
+                (d3.format(",")(Math.round(data[Number(county_id)]["income"])).toString() + "K"),
                 (Math.round((data[Number(county_id)]["literacy"] * 100).toString()) + "%"),
                 (Math.round(data[Number(county_id)]["college"]) + "%"),
                 (Math.round(data[Number(county_id)]["high_school"]) + "%")];
@@ -557,7 +554,8 @@
 
                 let momesh = map.append("path")
                     .attr("class", "select_outline_us")
-                    .attr("d", "");
+                    .attr("d", "")
+                    .attr("id", "momesh2");
 
                 map.append("path")
                     .attr("class", "mouseover_outline")
@@ -800,16 +798,28 @@
                 var v2countyID2;
                 d3.selectAll(".counties").on("click", function (d) {
                     county1 = d3.select(this).datum();
-                    v2countyID1 = county1.id;
+                    // v2countyID1 = county1.id;
+                    v2countyID1 = user_county_id_input;
 
                     // attempt to highlight selected county
                     var state_projection = d3.geoAlbersUsa().scale(1).translate([0, 0]);
                     var state_path = d3.geoPath().projection(state_projection);
 
                     var svg = d3.select(this.parentNode.parentNode);
-                    var mo = topojson.mesh(us, us.objects.counties, function (a, b) { return a.id === v2countyID1 || b.id === v2countyID1 });
-                    svg.select("#momesh").datum(mo).attr("d", state_path);
+                    var mo = topojson.mesh(us, us.objects.counties, function (a, b) { return a.id === v2countyID1 || b.id === v2countyID1 || user_county_id_input == a.id || user_county_id_input == b.id });
+                    svg.select("#momesh2").datum(mo).attr("d", state_path);
 
+                    // let momesh = svg.append("path")
+                    //     .attr("class", "select_outline")
+                    //     .attr("d", "");
+
+                    // svg.append("path")
+                    //     .attr("class", "mouseover_outline")
+                    //     .attr("d", "")
+                    //     .attr("id", "momesh")
+
+                    // var mo = topojson.mesh(us, us.objects.counties, function (a, b) { return a.id === v2countyID1 || b.id === v2countyID1 });
+                    // momesh.datum(mo).attr("d", state_path)
 
                     // select 2nd county
                     d3.selectAll(".counties").on("click", function (d) {
@@ -926,6 +936,15 @@
                 const svg_education = d3.select("svg#hs_graph");
                 const svg_employment = d3.select("svg#employment_graph");
 
+                // draw bar charts
+                bar_charts(svg_education, "Education", ["Less than High School Diploma", "High School Diploma",
+                    "Bachelor's Degree or Higher"], ["Percent of adults with less than a high school diploma, 2015-19",
+                    "Percent of adults with a high school diploma only, 2015-19",
+                    "Percent of adults with a bachelor's degree or higher, 2015-19"], 3);
+
+                bar_charts(svg_employment, "Employment", ["Management", "Service", "Sales", "Military", "Production"],
+                    ["OCC_Manage", "OCC_Service", "OCC_Sales", "OCC_Military", "OCC_Prod"], 5);
+
                 // function to create bar charts 
                 function bar_charts(svg, title, x_list, y_list, max) {
                     svg.selectAll("text").remove();
@@ -951,7 +970,7 @@
                         .attr("transform", `translate(${margin.left - 10},${margin.top})`)
                         .call(leftAxis)
                     annotations.append("g")
-                        .attr("class", "y gridlines")
+                        .attr("class", "y_gridlines")
                         .attr("transform", `translate(${margin.left - 10},${margin.top})`)
                         .call(leftGridlines);
 
@@ -1017,9 +1036,30 @@
                             .attr("x2", xaxisScale(x_list[i]))
                             .attr("y1", chartHeight)
                             .attr("y2", yaxisScale(data[compare1][y_list[i]]))
+                            .attr("id", Math.round(data[compare1][y_list[i]]))
                             .style("stroke", "#80b1d3")
-                            .style("stroke-width", 30);
-                    }
+                            .style("stroke-width", 30)
+                            .on("mouseover", function () {
+                                d3.select(this)
+                                    .style("stroke", "#0096FF");
+
+                                chartArea.append("text")
+                                    .attr("x", d3.select(this).attr("x1"))
+                                    .attr("y", d3.select(this).attr("y2") - 5)
+                                    .attr("class", "bar_numbers")
+                                    .style("text-anchor", "middle")
+                                    .style("font-weight", 300)
+                                    .style("font-size", "12px")
+                                    .style("stroke", "#0096FF")
+                                    .text(d3.select(this).attr("id").toString() + "%");
+                            })
+                            .on("mouseout", function () {
+                                d3.select(this)
+                                    .style("stroke", "#80b1d3");
+
+                                d3.selectAll(".bar_numbers").remove();
+                            });
+                    };
 
                     // draw County 2 rectangles
                     for (i = 0; i < max; i++) {
@@ -1028,21 +1068,32 @@
                             .attr("x2", xaxisScale2(x_list[i]))
                             .attr("y1", chartHeight)
                             .attr("y2", yaxisScale(data[compare2][y_list[i]]))
+                            .attr("id", Math.round(data[compare2][y_list[i]]))
                             .style("stroke", "#fb8072")
-                            .style("stroke-width", 30);
-                    }
+                            .style("stroke-width", 30)
+                            .on("mouseover", function () {
+                                d3.select(this)
+                                    .style("stroke", "#F93D28");
+
+                                chartArea.append("text")
+                                    .attr("x", d3.select(this).attr("x1"))
+                                    .attr("y", d3.select(this).attr("y2") - 5)
+                                    .attr("class", "bar_numbers")
+                                    .style("text-anchor", "middle")
+                                    .style("font-weight", 300)
+                                    .style("font-size", "12px")
+                                    .style("stroke", "#F93D28")
+                                    .text(d3.select(this).attr("id").toString() + "%");
+                            })
+                            .on("mouseout", function () {
+                                d3.select(this)
+                                    .style("stroke", "#fb8072");
+
+                                d3.selectAll(".bar_numbers").remove();
+                            });
+                    };
 
                 };
-
-                // draw bar charts
-                bar_charts(svg_education, "Education", ["Less than High School Diploma", "High School Diploma",
-                    "Bachelor's Degree or Higher"], ["Percent of adults with less than a high school diploma, 2015-19",
-                    "Percent of adults with a high school diploma only, 2015-19",
-                    "Percent of adults with a bachelor's degree or higher, 2015-19"], 3);
-
-                bar_charts(svg_employment, "Employment", ["Management", "Service", "Sales", "Military", "Production"],
-                    ["OCC_Manage", "OCC_Service", "OCC_Sales", "OCC_Military", "OCC_Prod"], 5);
-
 
                 // GENDER RATIO PIE CHART CHART MINI GRAPH
                 const svg3 = d3.select("svg#gender_graph1");
