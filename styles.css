@@ -64,31 +64,41 @@
 
         .visualization_1 {
             display: flex;
+            justify-content: center;
         }
 
         #viz_1_map {
             flex: 1;
         }
 
-        .miniGraphs {
+        .miniGraphs_1 {
             display: flex;
             justify-content: center;
             flex-direction: row;
-            flex-wrap: wrap;
         }
 
-        .v3 {
+        .miniGraphs_2 {
             display: flex;
+            justify-content: center;
+            flex-direction: row;
         }
 
-        #v3_map {
-            flex: 1;
+        .v3_map {
+            display: flex;
+            justify-content: center;
+            flex-direction: row; 
         }
 
         .select_outline {
             stroke: black;
             stroke-width: 3px;
             fill: none;
+        }
+
+        .tick text {
+            font-family: 'Lato', arial;
+            font-size: 10px;
+            font-weight: 300;
         }
 
         .select_outline_us {

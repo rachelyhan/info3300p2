@@ -54,15 +54,17 @@
         metrics such as income, literacy, and education.</h3>
     <div class="viz2" style="width: 100%;">
         <div id="us_div" style="width: 70%; height:800px; float: left;">
-            <svg id="us_map" height="800" width="1300"></svg>
+            <svg id="us_map" height="800" width="1200"></svg>
         </div>
         <div id="filters" style="height:800px; width: 20%; float:left; padding-left: 5%; padding-right: 5%;"></div>
     </div>
     <div class="viz3_title">
         <h2>Part III: Compare two counties</h2>
         <h3>Based on your exploration from Part II, compare and contrast two counties you are interested in</h3>
+        <button id="reset">Click to pick 2 other counties!</button>
     </div>
-    <div id="v3" style="display: flex">
+
+    <div class="v3" style="display: flex;">
         <div class="v3_map element_1" style="width: 50%">
             <svg id="v3_c1" height="600" width="600"></svg>
         </div>
@@ -70,22 +72,46 @@
             <svg id="v3_c2" height="600" width="600"></svg>
         </div>
     </div>
-    <div class="miniGraphs">
-        <svg id="hs_graph" height="300" width="500" style="margin-top: 50px;"></svg>
-        <svg id="empty space" height="300" width="50"></svg>
-        <svg id="employment_graph" height="300" width="500" style="margin-top: 50px;"></svg>
-        <svg id="empty space" height="300" width="300" style="margin-top: 50px;"></svg>
 
-        <svg id="ethnicity_graph1" height="300" width="250" style="margin-top: 50px;"></svg>
-        <svg id="ethnicity_graph2" height="300" width="250" style="margin-top: 50px;"></svg>
-        <svg id="empty space" height="300" width="50"></svg>
-        <svg id="gender_graph1" height="300" width="250" style="margin-top: 50px;"></svg>
-        <svg id="gender_graph2" height="300" width="250" style="margin-top: 50px;"></svg>
+    <div class="miniGraphs_1">
+        <div>
+            <svg id="hs_graph" height="300" width="400" style="margin-top: 50px;"></svg>
+        </div>
+        <div>
+            <svg id="employment_graph" height="300" width="400" style="margin-top: 50px;"></svg>
+        </div>
+    </div>
+    <div class="miniGraphs_2">
+        <div class=ethnicity_graphs>
+            <div>
+                <svg id="ethnicity_graphs_title" height="25" width="500" style="margin-top: 50px"></svg>
+            </div>
+            <div>
+                <!-- <svg id="ethnicity_all" height="600" width="500"></svg> -->
+                <svg id="ethnicity_graph1" height="300" width="250" style="margin-top: 0px;"></svg>
+                <svg id="ethnicity_graph2" height="300" width="250" style="margin-top: 0px;"></svg>
+            </div>
+            <div>
+                <svg id="ethnicity_legend" height="100" width="500"></svg>
+            </div>
+        </div>
+        <div class="gender_graphs">
+            <div>
+                <svg id="gender_graphs_title" height="25" width="500" style="margin-top: 50px"></svg>
+            </div>
+            <div>
+                <svg id="gender_graph1" height="300" width="250" style="margin-top: 0px;"></svg>
+                <svg id="gender_graph2" height="300" width="250" style="margin-top: 0px;"></svg>
+            </div>
+            <div>
+                <svg id="male_female_legend" height="25" width="500"></svg>
+            </div>
+        </div>
     </div>
 
     <script>
         const us_svg = d3.select("#us_map");
-        var scale = [1500, 550, 400]
+        var scale = [1300, 550, 400]
 
         const request_data = async function () {
             const us = await d3.json("counties-10m.json");
@@ -236,7 +262,7 @@
 
 
                     //VISUALIZATION 2: US MAP + FILTERS
-                    const sliderWidth = 400
+                    const sliderWidth = 350
                     const sliderHeight = 30
                     d3.select("#filters").html("")
                     var brushes = []
@@ -767,20 +793,69 @@
 
                 d3.selectAll(".counties").on("mouseenter", mouseEntersPlot);
                 d3.selectAll(".counties").on("mouseout", mouseLeavesPlot);
-                // d3.selectAll(".counties").on("selectcounty", selectCounty);
 
+                var county1;
+                var county2;
                 var v2countyID1;
                 var v2countyID2;
                 d3.selectAll(".counties").on("click", function (d) {
-                    let county = d3.select(this).datum();
-                    v2countyID1 = county.id;
+                    county1 = d3.select(this).datum();
+                    v2countyID1 = county1.id;
 
+                    // attempt to highlight selected county
+                    var state_projection = d3.geoAlbersUsa().scale(1).translate([0, 0]);
+                    var state_path = d3.geoPath().projection(state_projection);
+
+                    var svg = d3.select(this.parentNode.parentNode);
+                    var mo = topojson.mesh(us, us.objects.counties, function (a, b) { return a.id === v2countyID1 || b.id === v2countyID1 });
+                    svg.select("#momesh").datum(mo).attr("d", state_path);
+
+
+                    // select 2nd county
                     d3.selectAll(".counties").on("click", function (d) {
-                        let county2 = d3.select(this).datum();
+                        county2 = d3.select(this).datum();
                         v2countyID2 = county2.id;
+
+                        // const svg = d3.select(this.parentNode.parentNode);
+                        // var mo = topojson.mesh(us, us.objects.counties, function (a, b) { return a.id === v2countyID2 || b.id === v2countyID2 });
+                        // svg.select("#momesh").datum(mo).attr("d", state_path);
+
+                        // reset button
+                        // d3.select("button").on("click", function (d) {
+                        //     console.log("success");
+                        //     let svg1 = d3.select("#v3_c1");
+                        //     let svg2 = d3.select("#v3_c2");
+                        //     svg1.selectAll("*").remove();
+                        //     svg2.selectAll("*").remove();
+                        // });
                         viz3(Number(v2countyID1), Number(v2countyID2));
                     });
+
                 });
+
+                // var counter = 0;
+                // while (counter != 0) {
+                //     d3.selectAll(".counties").on("click", function (d) {
+                //         let county = d3.select(this).datum();
+                //         v2countyID1 = county.id;
+
+                //         // select 2nd county
+                //         d3.selectAll(".counties").on("click", function (d) {
+                //             let county2 = d3.select(this).datum();
+                //             v2countyID2 = county2.id;
+                //             viz3(Number(v2countyID1), Number(v2countyID2));
+                //             d3.select("button").on("click", function (d) {
+                //                 console.log("success");
+                //                 let svg1 = d3.select("#v3_c1");
+                //                 let svg2 = d3.select("#v3_c2");
+                //                 svg1.selectAll("*").remove();
+                //                 svg2.selectAll("*").remove();
+                //             });
+
+                //         });
+                //     });
+                // };
+
 
                 function mouseEntersPlot() {
                     const svg = d3.select(this.parentNode.parentNode);
@@ -853,6 +928,8 @@
 
                 // function to create bar charts 
                 function bar_charts(svg, title, x_list, y_list, max) {
+                    svg.selectAll("text").remove();
+
                     const width = svg.attr("width");
                     const height = svg.attr("height");
                     const margin = { "top": 40, "right": 10, "bottom": 50, "left": 60 };
@@ -894,7 +971,7 @@
 
                     // chart title
                     svg.append("text")
-                        .attr("x", 100)
+                        .attr("x", width / 2)
                         .attr("y", 25)
                         .style("text-anchor", "middle")
                         .style("font-weight", 600)
@@ -903,21 +980,23 @@
 
                     // county 1 label
                     svg.append("text")
-                        .attr("x", width - 150)
-                        .attr("y", 20)
+                        .attr("x", 0.35 * width)
+                        .attr("y", height - 5)
                         .style("text-anchor", "middle")
                         .style("font-weight", 200)
+                        .style("font-size", "12px")
                         .style("stroke", "#80b1d3")
-                        .text(data[Number(compare1)]["county_name"] + ", " + data[Number(compare1)]["state"]);
+                        .text(data[Number(compare1)]["county_name"] + ", " + data[Number(compare1)]["state_abbreviation"]);
 
                     // county 2 label
                     svg.append("text")
-                        .attr("x", width - 150)
-                        .attr("y", 35)
+                        .attr("x", 0.75 * width)
+                        .attr("y", height - 5)
                         .style("text-anchor", "middle")
                         .style("font-weight", 200)
+                        .style("font-size", "12px")
                         .style("stroke", "#fb8072")
-                        .text(data[Number(compare2)]["county_name"] + ", " + data[Number(compare2)]["state"]);
+                        .text(data[Number(compare2)]["county_name"] + ", " + data[Number(compare2)]["state_abbreviation"]);
 
                     // y axis label
                     svg.append("text")
@@ -926,7 +1005,9 @@
                         .attr("x", 0 - (height / 2))
                         .attr("dy", "1em")
                         .style("text-anchor", "middle")
-                        .style("font-weight", 600)
+                        .style("font-family", "'Lato', arial")
+                        .style("font-size", "10px")
+                        .style("font-weight", 300)
                         .text("Percentage");
 
                     // draw County 1 rectangles
@@ -950,6 +1031,7 @@
                             .style("stroke", "#fb8072")
                             .style("stroke-width", 30);
                     }
+
                 };
 
                 // draw bar charts
@@ -970,35 +1052,54 @@
                 const margin3 = 70;
                 const radius = Math.min(width3, height3) / 2 - margin3;
 
+                svg3.selectAll("text").remove();
+                svg3_part2.selectAll("text").remove();
+
                 g = svg3.append("g").attr("transform", "translate(" + width3 / 2 + "," + height3 / 2 + ")");
                 g2 = svg3_part2.append("g").attr("transform", "translate(" + width3 / 2 + "," + height3 / 2 + ")");
 
                 //chart title
-                svg3.append("text")
-                    .attr("x", width3 / 2)
-                    .attr("y", 20)
+                d3.select("#gender_graphs_title").append("text")
+                    .attr("x", 500 / 2)
+                    .attr("y", 15)
                     .style("text-anchor", "middle")
                     .style("font-weight", 600)
                     .style("font-size", "16px")
                     .text("Gender Graph");
 
-                // Male label
-                svg3_part2.append("text")
-                    .attr("x", width3 - 125)
-                    .attr("y", 25)
+                d3.select("#male_female_legend").append("text")
+                    .attr("x", 0.30 * 500)
+                    .attr("y", 15)
                     .style("text-anchor", "middle")
                     .style("font-weight", 200)
                     .style("stroke", "#80b1d3")
                     .text("Male");
 
-                // Female label
-                svg3_part2.append("text")
-                    .attr("x", width3 - 125)
-                    .attr("y", 40)
+                d3.select("#male_female_legend").append("text")
+                    .attr("x", 0.70 * 500)
+                    .attr("y", 15)
                     .style("text-anchor", "middle")
                     .style("font-weight", 200)
                     .style("stroke", "#fccde5")
                     .text("Female");
+
+                // Male label
+                // svg3_part2.append("text")
+                //     .attr("x", width3 - 125)
+                //     .attr("y", 25)
+                //     .style("text-anchor", "middle")
+                //     .style("font-weight", 200)
+                //     .style("stroke", "#80b1d3")
+                //     .text("Male");
+
+                // // Female label
+                // svg3_part2.append("text")
+                //     .attr("x", width3 - 125)
+                //     .attr("y", 40)
+                //     .style("text-anchor", "middle")
+                //     .style("font-weight", 200)
+                //     .style("stroke", "#fccde5")
+                //     .text("Female");
 
                 // County 1 label
                 svg3.append("text")
@@ -1006,7 +1107,7 @@
                     .attr("y", height3 - 55)
                     .style("text-anchor", "middle")
                     .style("font-weight", 200)
-                    .text(data[Number(compare1)]["county_name"] + ", " + data[Number(compare1)]["state"]);
+                    .text(data[Number(compare1)]["county_name"] + ", " + data[Number(compare1)]["state_abbreviation"]);
 
                 // County 2 label
                 svg3_part2.append("text")
@@ -1014,7 +1115,7 @@
                     .attr("y", height3 - 55)
                     .style("text-anchor", "middle")
                     .style("font-weight", 200)
-                    .text(data[Number(compare2)]["county_name"] + ", " + data[Number(compare2)]["state"]);
+                    .text(data[Number(compare2)]["county_name"] + ", " + data[Number(compare2)]["state_abbreviation"]);
 
                 var gender_data1 = [100 * data[compare1]["Male"], 100 * data[compare1]["Female"]];
                 var gender_data2 = [100 * data[compare2]["Male"], 100 * data[compare2]["Female"]];
@@ -1071,19 +1172,31 @@
                 const margin4 = 70;
                 const radius4 = Math.min(width4, height4) / 2 - margin4;
 
+                svg4.selectAll("text").remove();
+                svg4_part2.selectAll("text").remove();
+
                 g4 = svg4.append("g").attr("transform", "translate(" + width4 / 2 + "," + height4 / 2 + ")");
                 g5 = svg4_part2.append("g").attr("transform", "translate(" + width4 / 2 + "," + height4 / 2 + ")");
 
-                var color4 = d3.scaleOrdinal(["#80b1d3", '#ffed6f', '#fdb462', '#bebada', '#fb8072', '#fccde5', '#ccebc5']);
+                // var color4 = d3.scaleOrdinal(["#80b1d3", '#ffed6f', '#fdb462', '#bebada', '#fb8072', '#fccde5', '#ccebc5']);
+                var color4 = d3.scaleOrdinal(["#4e79a7", "#f28e2c", "#e15759", "#76b7b2", "#59a14f", "#edc949", "#af7aa1", "#ff9da7", "#9c755f", "#bab0ab"]);
 
                 //chart title
-                svg4.append("text")
-                    .attr("x", width4 / 2)
-                    .attr("y", 20)
+                d3.select("#ethnicity_graphs_title").append("text")
+                    .attr("x", 500 / 2)
+                    .attr("y", 15)
                     .style("text-anchor", "middle")
                     .style("font-weight", 600)
                     .style("font-size", "16px")
                     .text("Ethnicity Graph");
+
+                // d3.select("#ethnicity_all").append("text")
+                // .attr("x", 500/2)
+                //     .attr("y", 15)
+                //     .style("text-anchor", "middle")
+                //     .style("font-weight", 600)
+                //     .style("font-size", "16px")
+                //     .text("Ethnicity Graph");
 
                 // County 1 label
                 svg4.append("text")
@@ -1091,7 +1204,7 @@
                     .attr("y", height4 - 55)
                     .style("text-anchor", "middle")
                     .style("font-weight", 200)
-                    .text(data[Number(compare1)]["county_name"] + ", " + data[Number(compare1)]["state"]);
+                    .text(data[Number(compare1)]["county_name"] + ", " + data[Number(compare1)]["state_abbreviation"]);
 
                 // County 2 label
                 svg4_part2.append("text")
@@ -1099,7 +1212,7 @@
                     .attr("y", height4 - 55)
                     .style("text-anchor", "middle")
                     .style("font-weight", 200)
-                    .text(data[Number(compare2)]["county_name"] + ", " + data[Number(compare2)]["state"]);
+                    .text(data[Number(compare2)]["county_name"] + ", " + data[Number(compare2)]["state_abbreviation"]);
 
                 var ethnicity_data1 = [100 * data[compare1]["White"], 100 * data[compare1]["Black"],
                 100 * data[compare1]["Hispanic"], 100 * data[compare1]["Asian"],
@@ -1112,15 +1225,25 @@
 
                 // Colored graph labels
                 const ethnicity_y_pixels = [10, 25, 40, 55, 10, 25, 40, 55];
-                const ethnicity_x_pixels = [200, 200, 200, 200, 100, 100, 100, 100];
+                const ethnicity_x_pixels = [250, 250, 250, 250, 150, 150, 150, 150];
                 const ethnicity_labels = ["White", "Black", "Hispanic", "Asian",
                     "Native American", "Pacific Islander",
                     "Other or", "Combination"]
-                const ethnicity_colors = ["#80b1d3", '#ffed6f', '#fdb462', '#bebada', '#fb8072', '#fccde5', '#ccebc5', '#ccebc5'];
+                // const ethnicity_colors = ["#80b1d3", '#ffed6f', '#fdb462', '#bebada', '#fb8072', '#fccde5', '#ccebc5', '#ccebc5'];
+                const ethnicity_colors = ["#4e79a7", "#f28e2c", "#e15759", "#76b7b2", "#59a14f", "#edc949", "#af7aa1", "#ff9da7", "#9c755f", "#bab0ab"];
+                // const ethnicity_colors = d3.schemeTableau10;
 
                 for (i = 0; i < 8; i++) {
-                    svg4_part2.append("text")
-                        .attr("x", width4 - ethnicity_x_pixels[i])
+                    // svg4_part2.append("text")
+                    //     .attr("x", width4 - ethnicity_x_pixels[i])
+                    //     .attr("y", ethnicity_y_pixels[i])
+                    //     .style("font-weight", 200)
+                    //     .attr("font-size", "13px")
+                    //     .style("stroke", ethnicity_colors[i])
+                    //     .text(ethnicity_labels[i]);
+
+                    d3.select("#ethnicity_legend").append("text")
+                        .attr("x", ethnicity_x_pixels[i])
                         .attr("y", ethnicity_y_pixels[i])
                         .style("font-weight", 200)
                         .attr("font-size", "13px")
