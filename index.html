@@ -770,7 +770,7 @@
                     }
 
                     var mo = topojson.mesh(us, us.objects.counties, function (a, b) { return a.id === v2countyID2 || b.id === v2countyID2 });
-                    svg.select("#county2").datum(mo).attr("d", state_path);
+                    svg.select("#county2").datum(mo).attr("d", state_path).style("stroke", "darkblue");
 
                     console.log(mo)
 
