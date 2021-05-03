@@ -554,7 +554,8 @@
 
                 let momesh = map.append("path")
                     .attr("class", "select_outline_us")
-                    .attr("d", "");
+                    .attr("d", "")
+                    .attr("id", "momesh2");
 
                 map.append("path")
                     .attr("class", "mouseover_outline")
@@ -797,15 +798,16 @@
                 var v2countyID2;
                 d3.selectAll(".counties").on("click", function (d) {
                     county1 = d3.select(this).datum();
-                    v2countyID1 = county1.id;
+                    // v2countyID1 = county1.id;
+                    v2countyID1 = user_county_id_input;
 
                     // attempt to highlight selected county
                     var state_projection = d3.geoAlbersUsa().scale(1).translate([0, 0]);
                     var state_path = d3.geoPath().projection(state_projection);
 
                     var svg = d3.select(this.parentNode.parentNode);
-                    var mo = topojson.mesh(us, us.objects.counties, function (a, b) { return a.id === v2countyID1 || b.id === v2countyID1 });
-                    svg.select("#momesh").datum(mo).attr("d", state_path);
+                    var mo = topojson.mesh(us, us.objects.counties, function (a, b) { return a.id === v2countyID1 || b.id === v2countyID1 || user_county_id_input == a.id || user_county_id_input == b.id });
+                    svg.select("#momesh2").datum(mo).attr("d", state_path);
 
                     // let momesh = svg.append("path")
                     //     .attr("class", "select_outline")
