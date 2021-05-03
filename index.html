@@ -402,14 +402,11 @@
                         .text(data[county_id]["county_name"] + ", " + data[county_id]["state_abbreviation"]);
                 }
 
-                // explanation for min and max counties
-
-
                 // add metrics
                 const attributes = ["Employment Rate: ", "Median Household Income: ", "Pop. % at Level 3 Literacy: ", "Pop. % with Bachelors' Degrees: ", "Pop. % of High School Graduates: "];
 
                 const metrics = [(Math.round(data[Number(county_id)]["employment_rate"] * 100).toString() + "%"),
-                (Math.round(data[Number(county_id)]["income"]).toString() + "K"),
+                (d3.format(",")(Math.round(data[Number(county_id)]["income"])).toString() + "K"),
                 (Math.round((data[Number(county_id)]["literacy"] * 100).toString()) + "%"),
                 (Math.round(data[Number(county_id)]["college"]) + "%"),
                 (Math.round(data[Number(county_id)]["high_school"]) + "%")];
@@ -960,7 +957,7 @@
                         .attr("transform", `translate(${margin.left - 10},${margin.top})`)
                         .call(leftAxis)
                     annotations.append("g")
-                        .attr("class", "y gridlines")
+                        .attr("class", "y_gridlines")
                         .attr("transform", `translate(${margin.left - 10},${margin.top})`)
                         .call(leftGridlines);
 
@@ -1026,9 +1023,30 @@
                             .attr("x2", xaxisScale(x_list[i]))
                             .attr("y1", chartHeight)
                             .attr("y2", yaxisScale(data[compare1][y_list[i]]))
+                            .attr("id", Math.round(data[compare1][y_list[i]]))
                             .style("stroke", "#80b1d3")
-                            .style("stroke-width", 30);
-                    }
+                            .style("stroke-width", 30)
+                            .on("mouseover", function () {
+                                d3.select(this)
+                                    .style("stroke", "#0096FF");
+
+                                chartArea.append("text")
+                                    .attr("x", d3.select(this).attr("x1"))
+                                    .attr("y", d3.select(this).attr("y2") - 5)
+                                    .attr("class", "bar_numbers")
+                                    .style("text-anchor", "middle")
+                                    .style("font-weight", 300)
+                                    .style("font-size", "12px")
+                                    .style("stroke", "#0096FF")
+                                    .text(d3.select(this).attr("id").toString() + "%");
+                            })
+                            .on("mouseout", function () {
+                                d3.select(this)
+                                    .style("stroke", "#80b1d3");
+
+                                d3.selectAll(".bar_numbers").remove();
+                            });
+                    };
 
                     // draw County 2 rectangles
                     for (i = 0; i < max; i++) {
@@ -1037,13 +1055,32 @@
                             .attr("x2", xaxisScale2(x_list[i]))
                             .attr("y1", chartHeight)
                             .attr("y2", yaxisScale(data[compare2][y_list[i]]))
+                            .attr("id", Math.round(data[compare2][y_list[i]]))
                             .style("stroke", "#fb8072")
-                            .style("stroke-width", 30);
-                    }
+                            .style("stroke-width", 30)
+                            .on("mouseover", function () {
+                                d3.select(this)
+                                    .style("stroke", "#F93D28");
+
+                                chartArea.append("text")
+                                    .attr("x", d3.select(this).attr("x1"))
+                                    .attr("y", d3.select(this).attr("y2") - 5)
+                                    .attr("class", "bar_numbers")
+                                    .style("text-anchor", "middle")
+                                    .style("font-weight", 300)
+                                    .style("font-size", "12px")
+                                    .style("stroke", "#F93D28")
+                                    .text(d3.select(this).attr("id").toString() + "%");
+                            })
+                            .on("mouseout", function () {
+                                d3.select(this)
+                                    .style("stroke", "#fb8072");
+
+                                d3.selectAll(".bar_numbers").remove();
+                            });
+                    };
 
                 };
-
-
 
                 // GENDER RATIO PIE CHART CHART MINI GRAPH
                 const svg3 = d3.select("svg#gender_graph1");
