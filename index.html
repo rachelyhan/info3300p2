@@ -25,7 +25,6 @@
             <option value="" selected>Select your county</option>
         </select>
 
-        <!-- <button type="button" id="reset_button">Reset</button> -->
     </div>
     <br>
 
@@ -260,13 +259,9 @@
                     brushes.push(makeSlider(d3.select("#filters"), "% Graduated High School", "high_school", sliderHeight, sliderWidth, counties, us_path, statesMesh, user_county_id_input, data))
                     brushes.push(makeSlider(d3.select("#filters"), "% with Bachelor's Degrees", "college", sliderHeight, sliderWidth, counties, us_path, statesMesh, user_county_id_input, data))
 
-                    // d3.select("#filters").append("button").text("Reset to " + selected_county_input).on("click", setDefault(data, selected_county_id.toString(), sliderWidth, brushes))
-
                     d3.select("#us_map").html("")
                     drawUS(counties, us_path, statesMesh, data, user_county_id_input, us, scale, countiesMesh)
                     usTooltip(data, us)
-
-
                 });
             };
 
@@ -550,6 +545,12 @@
                     .attr("d", "")
                     .attr("id", "momesh")
 
+                map.append("path")
+                    .attr("class", "select_outline_us")
+                    .attr("d", "")
+                    .attr("id", "county2");
+
+
                 var state_projection = d3.geoAlbersUsa().scale(1).translate([0, 0]);
                 var state_path = d3.geoPath().projection(state_projection);
 
@@ -561,6 +562,11 @@
                     user_input_state_id = user_input_county_id_string.substring(0, 2);
                     var county_id = user_input_county_id_string
                 }
+
+                selected_state = states.features.filter(function (d) {
+                    return d.id === county_id.substring(0, 2);
+                });
+
                 var state_projection = d3.geoAlbersUsa().scale(1).translate([0, 0]);
                 var state_path = d3.geoPath().projection(state_projection);
 
@@ -575,56 +581,6 @@
                 var mo = topojson.mesh(us, us.objects.counties, function (a, b) { return a.id === county_id.toString() || b.id === county_id.toString(); });
                 momesh.datum(mo).attr("d", state_path)
             }
-
-            // function setDefault(data, selected_county, sliderWidth, brushes) {
-
-            //     const attributes = ["employment_rate", "income", "literacy", "high_school", "college"]
-            //     attributes.forEach((attribute, i) => {
-            //         let select_value = data[selected_county][attribute]
-
-            //         let values = []
-            //         Object.keys(data).forEach((county) => {
-            //             let value = data[county][attribute]
-
-            //             if (attribute === "college" || attribute === "high_school") {
-            //                 value /= 100
-            //             }
-            //             values.push(value);
-            //         });
-
-            //         let minMax = d3.extent(values);
-            //         let xScale = d3.scaleLinear().domain(minMax).range([10, sliderWidth - 10]);
-
-            //         if (attribute === "college" || attribute === "high_school") {
-            //             select_value /= 100
-            //         }
-
-            //         const defaultSelection = [Math.max(0, select_value - minMax[1] * 0.1), Math.min(minMax[1], select_value + minMax[1] * 0.1)]
-            //         const defaultBar = [xScale(defaultSelection[0]), xScale(defaultSelection[1])]
-
-            //         d3.select("#values" + attribute).text(defaultSelection[0].toString().substring(0, 5) + " - " + defaultSelection[1].toString().substring(0, 5))
-
-            //         const text = d3.select("#values" + attribute).text()
-            //         const dash = text.indexOf("-")
-
-            //         var start = Number(text.substring(0, dash - 1))
-            //         var end = Number(text.substring(dash + 1))
-            //         if (attribute === "college" || attribute === "high_school") {
-            //             start *= 100
-            //             end *= 100
-            //         }
-
-            //         let filterFunc = d => d[attribute] >= start && d[attribute] <= end;
-            //         filters[attribute] = filterFunc;
-
-            //         const gb = d3.select("#brush" + attribute)
-
-            //         console.log(attribute, defaultSelection)
-            //         gb.call(brushes[i].move, defaultSelection);
-            //     })
-
-            //     updateUS(counties, us_path, data)
-            // }
 
             function makeSlider(container, label, attribute, sliderHeight, sliderWidth, counties, us_path, statesMesh, selected_county, data) {
                 let values = []
@@ -784,33 +740,41 @@
                 var v2countyID1;
                 var v2countyID2;
                 d3.selectAll(".counties").on("click", function (d) {
-                    v2countyID1 = user_county_id_input;
-                    county2 = d3.select(this).datum();
-                    v2countyID2 = county2.id;
+                    // county1 = d3.select(this).datum();
+                    // v2countyID1 = county1.id;
+                    v2countyID1 = user_county_id_input.toString();
 
+                    county2 = d3.select(this).datum();
+                    v2countyID2 = county2.id.toString();
 
                     // attempt to highlight selected county
                     var state_projection = d3.geoAlbersUsa().scale(1).translate([0, 0]);
                     var state_path = d3.geoPath().projection(state_projection);
 
-                    // var svg = d3.select(this.parentNode.parentNode);
-                    // var mo = topojson.mesh(us, us.objects.counties, function (a, b) { return a.id === v2countyID1 || b.id === v2countyID1 || user_county_id_input == a.id || user_county_id_input == b.id });
-                    // svg.select("#momesh2").datum(mo).attr("d", state_path);
+                    bounds = state_path.bounds(selected_state[0]);
+                    var state_scale = scale[0]
+                    var state_translate = [scale[1] + (bounds[0][0]) / 2, scale[2] + (bounds[0][1]) / 2];
+
+                    state_projection.scale(state_scale)
+                        .translate(state_translate);
+                    state_projection.translate(state_translate);
+
+                    var svg = d3.select(this.parentNode.parentNode);
+                    const map = svg.selectAll("g")
+
+                    if (v2countyID2.length === 4) {
+                        var full = "0" + v2countyID2
+                    }
+                    else {
+                        var full = v2countyID2
+                    }
+
+                    var mo = topojson.mesh(us, us.objects.counties, function (a, b) { return a.id === v2countyID2 || b.id === v2countyID2 });
+                    svg.select("#county2").datum(mo).attr("d", state_path);
+
+                    console.log(mo)
 
                     viz3(Number(v2countyID1), Number(v2countyID2));
-
-                    // let momesh = svg.append("path")
-                    //     .attr("class", "select_outline")
-                    //     .attr("d", "");
-
-                    // svg.append("path")
-                    //     .attr("class", "mouseover_outline")
-                    //     .attr("d", "")
-                    //     .attr("id", "momesh")
-
-                    // var mo = topojson.mesh(us, us.objects.counties, function (a, b) { return a.id === v2countyID1 || b.id === v2countyID1 });
-                    // momesh.datum(mo).attr("d", state_path)
-
 
                 });
 
