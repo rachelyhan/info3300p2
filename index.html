@@ -1095,122 +1095,6 @@
 
                 };
 
-                // GENDER RATIO PIE CHART CHART MINI GRAPH
-                const svg3 = d3.select("svg#gender_graph1");
-                const svg3_part2 = d3.select("svg#gender_graph2");
-                const width3 = svg3.attr("width");
-                const height3 = svg3.attr("height");
-                const margin3 = 70;
-                const radius = Math.min(width3, height3) / 2 - margin3;
-
-                svg3.selectAll("text").remove();
-                svg3_part2.selectAll("text").remove();
-
-                g = svg3.append("g").attr("transform", "translate(" + width3 / 2 + "," + height3 / 2 + ")");
-                g2 = svg3_part2.append("g").attr("transform", "translate(" + width3 / 2 + "," + height3 / 2 + ")");
-
-                //chart title
-                d3.select("#gender_graphs_title").append("text")
-                    .attr("x", 500 / 2)
-                    .attr("y", 15)
-                    .style("text-anchor", "middle")
-                    .style("font-weight", 600)
-                    .style("font-size", "16px")
-                    .text("Gender Graph");
-
-                d3.select("#male_female_legend").append("text")
-                    .attr("x", 0.30 * 500)
-                    .attr("y", 15)
-                    .style("text-anchor", "middle")
-                    .style("font-weight", 200)
-                    .style("stroke", "#80b1d3")
-                    .text("Male");
-
-                d3.select("#male_female_legend").append("text")
-                    .attr("x", 0.70 * 500)
-                    .attr("y", 15)
-                    .style("text-anchor", "middle")
-                    .style("font-weight", 200)
-                    .style("stroke", "#fccde5")
-                    .text("Female");
-
-                // Male label
-                // svg3_part2.append("text")
-                //     .attr("x", width3 - 125)
-                //     .attr("y", 25)
-                //     .style("text-anchor", "middle")
-                //     .style("font-weight", 200)
-                //     .style("stroke", "#80b1d3")
-                //     .text("Male");
-
-                // // Female label
-                // svg3_part2.append("text")
-                //     .attr("x", width3 - 125)
-                //     .attr("y", 40)
-                //     .style("text-anchor", "middle")
-                //     .style("font-weight", 200)
-                //     .style("stroke", "#fccde5")
-                //     .text("Female");
-
-                // County 1 label
-                svg3.append("text")
-                    .attr("x", width3 / 2)
-                    .attr("y", height3 - 55)
-                    .style("text-anchor", "middle")
-                    .style("font-weight", 200)
-                    .text(data[Number(compare1)]["county_name"] + ", " + data[Number(compare1)]["state_abbreviation"]);
-
-                // County 2 label
-                svg3_part2.append("text")
-                    .attr("x", width3 / 2)
-                    .attr("y", height3 - 55)
-                    .style("text-anchor", "middle")
-                    .style("font-weight", 200)
-                    .text(data[Number(compare2)]["county_name"] + ", " + data[Number(compare2)]["state_abbreviation"]);
-
-                var gender_data1 = [100 * data[compare1]["Male"], 100 * data[compare1]["Female"]];
-                var gender_data2 = [100 * data[compare2]["Male"], 100 * data[compare2]["Female"]];
-                var color3 = d3.scaleOrdinal(["#80b1d3", '#fccde5']);
-
-                // Generate the pie
-                var pie = d3.pie();
-                var pie2 = d3.pie();
-
-                // Generate the arcs
-                var arc = d3.arc()
-                    .innerRadius(20)
-                    .outerRadius(radius);
-
-                var arc2 = d3.arc()
-                    .innerRadius(20)
-                    .outerRadius(radius);
-
-                //Generate groups
-                var arcs = g.selectAll("arc")
-                    .data(pie(gender_data1))
-                    .enter()
-                    .append("g")
-                    .attr("class", "arc")
-
-                var arcs2 = g2.selectAll("ar2")
-                    .data(pie2(gender_data2))
-                    .enter()
-                    .append("g")
-                    .attr("class", "arc2")
-
-                //Draw arc paths
-                arcs.append("path")
-                    .attr("fill", function (d, i) {
-                        return color3(i);
-                    })
-                    .attr("d", arc);
-
-                arcs2.append("path")
-                    .attr("fill", function (d, i) {
-                        return color3(i);
-                    })
-                    .attr("d", arc2);
-
 
 
 
@@ -1309,11 +1193,11 @@
                 // Generate the arcs
                 var arc4 = d3.arc()
                     .innerRadius(20)
-                    .outerRadius(radius);
+                    .outerRadius(radius4);
 
                 var arc5 = d3.arc()
                     .innerRadius(20)
-                    .outerRadius(radius);
+                    .outerRadius(radius4);
 
                 //Generate groups
                 var arcs4 = g4.selectAll("arc")
