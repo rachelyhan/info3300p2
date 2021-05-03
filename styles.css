@@ -6,6 +6,10 @@
             font-weight: 400;
         }
 
+        .area {
+            fill: darkgrey
+        }
+
         #pick_county_input {
             font-family: 'Lato', arial;
             font-size: 16px;

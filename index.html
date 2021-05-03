@@ -5,7 +5,6 @@
     <script src="https://d3js.org/d3.v6.min.js"></script>
     <script src="https://d3js.org/topojson.v3.min.js"></script>
     <script src="./tooltip.js"></script>
-    <script src="./usMap.js"></script>
     <link rel="stylesheet" href="./styles.css">
 </head>
 
@@ -54,13 +53,12 @@
 
     <h2>Part II: Discover other counties</h2>
     <h3>Explore other counties in the US by filtering for various metrics such as income, literacy, and more.</h3>
-    <div class="viz2" style="width: 100%">
-        <div id="us_div" style="width: 70%; height: 800px; float: left;">
-            <svg id="us_map" height="1000" style="width: 100%"></svg>
+    <div class="viz2" style="width: 100%;">
+        <div id="us_div" style="width: 70%; height:800px; float: left;">
+            <svg id="us_map" height="800" width="1300"></svg>
         </div>
         <div id="filters" style="height:800px; width: 20%; float:left; padding-left: 5%; padding-right: 5%;"></div>
     </div>
-
     <div class="viz3_title">
         <h2>Part III: Compare two counties</h2>
         <h3>Based on your exploration from Part II, compare and contrast two counties you are interested in</h3>
@@ -161,10 +159,8 @@
             // median income not pulling the right values
             income.forEach((d, i) => {
                 const id = d['fips_txt']
-                if (id in data && ["Attribute" === "Median_Household_Income_2019"]) {
+                if (id in data && d["Attribute"] === "Median_Household_Income_2019") {
                     data[id]["income"] = d["Value"]
-                    // console.log(id)
-                    // console.log(d["Value"])
                 }
             });
 
@@ -244,13 +240,13 @@
 
                     //VISUALIZATION 2: US MAP + FILTERS
                     const sliderWidth = 400
-                    const sliderHeight = 20
+                    const sliderHeight = 30
                     d3.select("#filters").html("")
-                    makeSlider(d3.select("#filters"), "Employment Rate", "employment_rate", sliderHeight, sliderWidth, counties, us_path, statesMesh, user_county_id_input, data)
+                    makeSlider(d3.select("#filters"), "% Employed", "employment_rate", sliderHeight, sliderWidth, counties, us_path, statesMesh, user_county_id_input, data)
                     makeSlider(d3.select("#filters"), "Median Household Income", "income", sliderHeight, sliderWidth, counties, us_path, statesMesh, user_county_id_input, data)
-                    makeSlider(d3.select("#filters"), "Adult Literacy", "literacy", sliderHeight, sliderWidth, counties, us_path, statesMesh, user_county_id_input, data)
-                    makeSlider(d3.select("#filters"), "Completed High School", "high_school", sliderHeight, sliderWidth, counties, us_path, statesMesh, user_county_id_input, data)
-                    makeSlider(d3.select("#filters"), "Completed College", "college", sliderHeight, sliderWidth, counties, us_path, statesMesh, user_county_id_input, data)
+                    makeSlider(d3.select("#filters"), "% of adults at Level 3 Literacy", "literacy", sliderHeight, sliderWidth, counties, us_path, statesMesh, user_county_id_input, data)
+                    makeSlider(d3.select("#filters"), "% Graduated High School", "high_school", sliderHeight, sliderWidth, counties, us_path, statesMesh, user_county_id_input, data)
+                    makeSlider(d3.select("#filters"), "% with Bachelor's Degrees", "college", sliderHeight, sliderWidth, counties, us_path, statesMesh, user_county_id_input, data)
 
                     d3.select("#us_map").html("")
                     drawUS(counties, us_path, statesMesh, data, user_county_id_input, us, scale, countiesMesh)
@@ -454,7 +450,9 @@
             function matchCounties(county, data) {
                 var pass = true
                 Object.values(filters).forEach(filterFunc => {
-                    pass = pass && filterFunc(data[Number(county)]);
+                    if (!filterFunc(data[Number(county)])) {
+                        pass = false
+                    };
                 });
                 return pass
             };
@@ -530,29 +528,28 @@
                 let format = d3.format(".0%")
                 Object.keys(data).forEach((county) => {
                     let value = data[county][attribute]
+
                     if (attribute === "college" || attribute === "high_school") {
                         value /= 100
                     } else if (attribute === "income") {
-                        value *= 1000
                         format = d3.format("$.2s")
                     }
                     values.push(value);
                 });
 
+                let select_value = data[selected_county][attribute]
+
+                if (attribute === "college" || attribute === "high_school") {
+                    select_value /= 100
+                }
+
                 let minMax = d3.extent(values);
                 let xScale = d3.scaleLinear().domain(minMax).range([10, sliderWidth - 10]);
                 let xAxis = d3.axisBottom(xScale).tickFormat(format);
 
-                //set default brush 
-                let select_value = data[selected_county][attribute]
-                if (attribute === "college" || attribute === "high_school") {
-                    select_value /= 100
-                } else if (attribute === "income") {
-                    select_value *= 1000
-                }
-
-                let wrapper = container.append("div").attr("class", "control");
-                wrapper.append("div").text(label);
+                let wrapper = container.append("div").attr("class", "control").style("margin-bottom", "40px");
+                wrapper.append("div").text(label).style("font-weight", "bold").style("margin-bottom", "5px");
+                wrapper.append("div").text("").attr("id", "values" + attribute).style("display", "none");
                 let canvas = wrapper.append("svg").attr("width", sliderWidth)
                     .attr("height", sliderHeight + 40)
                     .attr("attribute", attribute);
@@ -586,16 +583,25 @@
                     .attr("class", "area")
                     .attr("d", area);
 
+                const defaultSelection = [Math.max(0, select_value - minMax[1] * 0.1), Math.min(minMax[1], select_value + minMax[1] * 0.1)]
 
-                // const defaultSelection = [Math.max(0, select_value - minMax[1] * 0.1), Math.min(minMax[1], select_value + minMax[1] * 0.1)]
-                // console.log(defaultSelection)
+                d3.select("#values" + attribute).text(defaultSelection[0].toString().substring(0, 5) + " - " + defaultSelection[1].toString().substring(0, 5))
 
-                // wrapper.append("div").text(defaultSelection[0].toString() + " - " + defaultSelection[1].toString())
-                //   .attr("id", "values");
+                const text = wrapper.select("#values" + attribute).text()
+                const dash = text.indexOf("-")
 
-                let filterFunc = d => true;
-                // let filterFunc = d => d[attribute] >= defaultSelection[0] && d[attribute] <= defaultSelection[1];
+                var start = Number(text.substring(0, dash - 1))
+                var end = Number(text.substring(dash + 1))
+                if (attribute === "college" || attribute === "high_school") {
+                    start *= 100
+                    end *= 100
+                }
+
+                let filterFunc = d => d[attribute] >= start && d[attribute] <= end;
+                // let filterFunc = d => true;
                 filters[attribute] = filterFunc;
+
+                updateUS(counties, us_path, data)
 
                 var brush = d3.brushX().extent([[10, 0],
                 [sliderWidth - 10, sliderHeight]])
@@ -608,23 +614,24 @@
                         if (attribute === "college" || attribute === "high_school") {
                             start *= 100
                             end *= 100
-                        } else if (attribute === "income") {
-                            start /= 1000
-                            end /= 1000
                         }
-                        let filterFunc = d => d[attribute] >= start && d[attribute] <= end;
-                        filters[attribute] = filterFunc;
-                        // console.log(filters[attribute], start, end)
 
-                        // d3.select(this.parentNode.parentNode).select("#values").text(start.toString() + " - " + end.toString())
+                        const text = d3.select(this.parentNode.parentNode).select("#values" + attribute).text()
+                        const dash = text.indexOf("-")
+
+                        let filterFunc = d => d[attribute] >= Number(text.substring(0, dash - 1)) && d[attribute] <= Number(text.substring(dash + 1));
+                        filters[attribute] = filterFunc;
+
+                        d3.select(this.parentNode.parentNode).select("#values" + attribute).text(start.toString().substring(0, 5) + " - " + end.toString().substring(0, 5))
+                        updateUS(counties, us_path, data)
                     }
                     else {
                         let filterFunc = d => true;
                         filters[attribute] = filterFunc;
-                        // d3.select(this.parentNode.parentNode).select("#values").text("No Filter")
-                        // console.log(filters[attribute])
+                        d3.select(this.parentNode.parentNode).select("#values" + attribute).text("No Filter")
+                        updateUS(counties, us_path, data)
+
                     }
-                    updateUS(counties, us_path, data)
                 }
                 canvas.append("g").attr("class", "brush").call(brush)
                 // .call(brush.move, defaultSelection);
@@ -641,8 +648,11 @@
                     .attr("id", "tooltip")
 
                 tooltip.append("rect")
-                    .attr("fill", "black")
+                    .attr("fill", "white")
                     .attr("opacity", 0.9)
+                    .attr("rx", "15")
+                    .attr("stroke", "grey")
+                    .attr("stroke-width", "1px")
                     .attr("x", -tooltipWidth / 2.0)
                     .attr("y", 0)
                     .attr("width", tooltipWidth)
@@ -651,10 +661,9 @@
                 //text
                 const attributes = ["name", "employment", "income", "literacy", "college", "highschool"]
                 var y = 10
-
                 attributes.forEach((d) => {
                     tooltip.append("text")
-                        .attr("fill", "white")
+                        .attr("fill", "black")
                         .attr("text-anchor", "middle")
                         .attr("alignment-baseline", "hanging")
                         .attr("x", 0)
@@ -679,9 +688,10 @@
                     viz3(Number(v2countyID), Number(v2countyID))
                 });
 
-
                 function mouseEntersPlot() {
-                    const svg = d3.select(this.parentNode.parentNode)
+                    const svg = d3.select(this.parentNode.parentNode);
+                    const width = svg.attr("width");
+                    const height = svg.attr("height");
                     tooltip = svg.select("#tooltip")
                     let county = d3.select(this).datum();
                     let countyID = county.id;
@@ -707,11 +717,21 @@
                     let xPos = (bounds[0][0] + bounds[1][0]) / 2.0;
                     let yPos = bounds[1][1];
 
+                    //if tooltip goes outside svg
+                    if (xPos + tooltipWidth / 2 > width) {
+                        xPos = (bounds[0][0] - tooltipWidth / 2)
+                    } else if (xPos - tooltipWidth / 2 < 0) {
+                        xPos = bounds[0][0] + tooltipWidth / 2
+                    }
+                    if (yPos + tooltipHeight > height) {
+                        yPos = bounds[1][1] - tooltipHeight - 30
+                    }
+
                     //highlight outline
                     var mo = topojson.mesh(us, us.objects.counties, function (a, b) { return a.id === countyID || b.id === countyID });
                     svg.select("#momesh").datum(mo).attr("d", state_path)
 
-                    //update and show tooltip
+                    //update text and show tooltip
                     tooltip.style("visibility", "visible")
                     tooltip.attr("transform", `translate(${xPos},${yPos})`);
 
@@ -721,7 +741,6 @@
                     svg.select("#literacy").text((data[Number(countyID)]["literacy"] * 100).toString() + "% at Level 3 literacy");
                     svg.select("#college").text(data[Number(countyID)]["college"] + "% have bachelor's degrees");
                     svg.select("#highschool").text(data[Number(countyID)]["high_school"] + "% graduated high school");
-
                 }
 
                 function mouseLeavesPlot() {
