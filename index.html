@@ -60,7 +60,7 @@
     <div class="viz3_title">
         <h2>Part III: Compare two counties</h2>
         <h3>Based on your exploration from Part II, compare and contrast two counties you are interested in</h3>
-        <button id="reset">Click to pick 2 other counties!</button>
+        <!-- <button id="reset">Click to pick 2 other counties!</button> -->
     </div>
 
     <div class="v3" style="display: flex;">
@@ -872,6 +872,15 @@
                 const svg_education = d3.select("svg#hs_graph");
                 const svg_employment = d3.select("svg#employment_graph");
 
+                // draw bar charts
+                bar_charts(svg_education, "Education", ["Less than High School Diploma", "High School Diploma",
+                    "Bachelor's Degree or Higher"], ["Percent of adults with less than a high school diploma, 2015-19",
+                    "Percent of adults with a high school diploma only, 2015-19",
+                    "Percent of adults with a bachelor's degree or higher, 2015-19"], 3);
+
+                bar_charts(svg_employment, "Employment", ["Management", "Service", "Sales", "Military", "Production"],
+                    ["OCC_Manage", "OCC_Service", "OCC_Sales", "OCC_Military", "OCC_Prod"], 5);
+
                 // function to create bar charts 
                 function bar_charts(svg, title, x_list, y_list, max) {
                     svg.selectAll("text").remove();
@@ -980,14 +989,6 @@
 
                 };
 
-                // draw bar charts
-                bar_charts(svg_education, "Education", ["Less than High School Diploma", "High School Diploma",
-                    "Bachelor's Degree or Higher"], ["Percent of adults with less than a high school diploma, 2015-19",
-                    "Percent of adults with a high school diploma only, 2015-19",
-                    "Percent of adults with a bachelor's degree or higher, 2015-19"], 3);
-
-                bar_charts(svg_employment, "Employment", ["Management", "Service", "Sales", "Military", "Production"],
-                    ["OCC_Manage", "OCC_Service", "OCC_Sales", "OCC_Military", "OCC_Prod"], 5);
 
 
                 // GENDER RATIO PIE CHART CHART MINI GRAPH
