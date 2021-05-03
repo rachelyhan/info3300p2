@@ -77,7 +77,7 @@
             flex-direction: row;
         }
 
-        .miniGraphs_2 {
+        .ethnicity_graphs {
             display: flex;
             justify-content: center;
             flex-direction: row;
@@ -99,6 +99,18 @@
             font-family: 'Lato', arial;
             font-size: 10px;
             font-weight: 300;
+        }
+
+        .ethnicity_title {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ethnicity_legend_div {
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .select_outline_us {

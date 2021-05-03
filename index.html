@@ -28,7 +28,6 @@
     </div>
     <br>
 
-    <!-- style="text-align: center; width:1550;" -->
     <div class="colorLegend_elm1" style="margin-left: 450px;">
         <svg id="colorLegend" height="50" width="500" style="background: #fff; font-family: 'Lato', arial;
             font-size: 16px; font-weight: 300;"></svg>
@@ -59,7 +58,7 @@
     </div>
     <div class="viz3_title">
         <h2>Part III: Compare two counties</h2>
-        <h3>Based on your exploration from Part II, compare and contrast two counties you are interested in</h3>
+        <h3>Based on your exploration from Part II, select one county to compare and contrast with your home county</h3>
         <!-- <button id="reset">Click to pick 2 other counties!</button> -->
     </div>
 
@@ -81,18 +80,15 @@
         </div>
     </div>
     <div class="miniGraphs_2">
-        <div class=ethnicity_graphs>
-            <div>
-                <svg id="ethnicity_graphs_title" height="25" width="500" style="margin-top: 50px"></svg>
-            </div>
-            <div>
-                <!-- <svg id="ethnicity_all" height="600" width="500"></svg> -->
-                <svg id="ethnicity_graph1" height="300" width="500" style="margin-top: 0px;"></svg>
-                <svg id="ethnicity_graph2" height="300" width="500" style="margin-top: 0px;"></svg>
-            </div>
-            <div>
-                <svg id="ethnicity_legend" height="100" width="500"></svg>
-            </div>
+        <div class="ethnicity_title" style="margin-top: 50px;">
+            <svg id="ethnicity_graphs_title" height="25" width="500"></svg>
+        </div>
+        <div class="ethnicity_graphs">
+            <svg id="ethnicity_graph1" height="300" width="500" style="margin-top: 0px;"></svg>
+            <svg id="ethnicity_graph2" height="300" width="500" style="margin-top: 0px;"></svg>
+        </div>
+        <div class="ethnicity_legend_div" height="75" width="1000" style="margin-left:50px">
+            <svg id="ethnicity_legend" height="75" width="1000"></svg>
         </div>
     </div>
 
@@ -244,9 +240,6 @@
                         user_input_state_id = user_input_county_id_string.substring(0, 2);
                         var full = user_input_county_id_string
                     }
-
-                    // drawLegend("#colorLegend", colorScale);
-
 
                     //VISUALIZATION 2: US MAP + FILTERS
                     const sliderWidth = 350
@@ -432,6 +425,7 @@
                             .text(d);
                     });
                 };
+
                 // add legend for selected state
                 // Source: Professor. Rz, INFO 3300: Data-Driven Web Applications, Lecture 03/22, Spring 2021 Cornell University
                 if (svg_id === "#user_state") {
@@ -1031,10 +1025,6 @@
 
                 };
 
-
-
-
-
                 // ETHNICITY OF PIE CHART CHART MINI GRAPH
                 const svg4 = d3.select("svg#ethnicity_graph1");
                 const svg4_part2 = d3.select("svg#ethnicity_graph2");
@@ -1045,12 +1035,13 @@
 
                 svg4.selectAll("text").remove();
                 svg4_part2.selectAll("text").remove();
+                d3.select("#ethnicity_graphs_title").selectAll("text").remove();
+                d3.select("#ethnicity_legend").selectAll("text").remove();
 
                 g4 = svg4.append("g").attr("transform", "translate(" + width4 / 2 + "," + height4 / 2 + ")");
                 g5 = svg4_part2.append("g").attr("transform", "translate(" + width4 / 2 + "," + height4 / 2 + ")");
 
-                // var color4 = d3.scaleOrdinal(["#80b1d3", '#ffed6f', '#fdb462', '#bebada', '#fb8072', '#fccde5', '#ccebc5']);
-                var color4 = d3.scaleOrdinal(["#4e79a7", "#f28e2c", "#e15759", "#76b7b2", "#59a14f", "#edc949", "#af7aa1", "#ff9da7", "#9c755f", "#bab0ab"]);
+                var color4 = d3.scaleOrdinal(["#4e79a7", "#f28e2c", "#e15759", "#76b7b2", "#59a14f", "#edc949", "#af7aa1"]);
 
                 //chart title
                 d3.select("#ethnicity_graphs_title").append("text")
@@ -1059,15 +1050,7 @@
                     .style("text-anchor", "middle")
                     .style("font-weight", 600)
                     .style("font-size", "16px")
-                    .text("Ethnicity Graph");
-
-                // d3.select("#ethnicity_all").append("text")
-                // .attr("x", 500/2)
-                //     .attr("y", 15)
-                //     .style("text-anchor", "middle")
-                //     .style("font-weight", 600)
-                //     .style("font-size", "16px")
-                //     .text("Ethnicity Graph");
+                    .text("Ethnicity Graphs");
 
                 // County 1 label
                 svg4.append("text")
@@ -1085,16 +1068,6 @@
                     .style("font-weight", 200)
                     .text(data[Number(compare2)]["county_name"] + ", " + data[Number(compare2)]["state_abbreviation"]);
 
-                // var ethnicity_data1 = [100 * data[compare1]["White"], 100 * data[compare1]["Black"],
-                // 100 * data[compare1]["Hispanic"], 100 * data[compare1]["Asian"],
-                // 100 * data[compare1]["AIAN"], 100 * data[compare1]["NHPI"],
-                // 100 * data[compare1]["Other_race"]];
-
-                // var ethnicity_data2 = [100 * data[compare2]["White"], 100 * data[compare2]["Black"],
-                // 100 * data[compare2]["Hispanic"], 100 * data[compare2]["Asian"],
-                // 100 * data[compare2]["AIAN"], 100 * data[compare2]["NHPI"],
-                // 100 * data[compare2]["Other_race"]];
-
                 var ethnicity_data1 = [data[compare1]["White"], data[compare1]["Black"],
                 data[compare1]["Hispanic"], data[compare1]["Asian"],
                 data[compare1]["AIAN"], data[compare1]["NHPI"],
@@ -1106,31 +1079,20 @@
                 data[compare2]["Other_race"]];
 
                 // Colored graph labels
-                const ethnicity_x_pixels = [150, 150, 150, 150, 250, 250, 250, 250];
-                const ethnicity_y_pixels = [10, 25, 40, 55, 10, 25, 40, 55];
+                const ethnicity_x_pixels = [150, 150, 250, 250, 350, 350, 500];
+                const ethnicity_y_pixels = [20, 35, 20, 35, 20, 35, 20];
                 const ethnicity_labels = ["White", "Black", "Hispanic", "Asian",
                     "Native American", "Pacific Islander",
-                    "Other or", "Combination"]
-                // const ethnicity_colors = ["#80b1d3", '#ffed6f', '#fdb462', '#bebada', '#fb8072', '#fccde5', '#ccebc5', '#ccebc5'];
-                const ethnicity_colors = ["#4e79a7", "#f28e2c", "#e15759", "#76b7b2", "#59a14f", "#edc949", "#af7aa1", "#ff9da7", "#9c755f", "#bab0ab"];
-                // const ethnicity_colors = d3.schemeTableau10;
+                    "Other Races"]
 
-                d3.select(".label").raise();
+                const ethnicity_colors = ["#4e79a7", "#f28e2c", "#e15759", "#76b7b2", "#59a14f", "#edc949", "#af7aa1"];
 
                 for (i = 0; i < 8; i++) {
-                    // svg4_part2.append("text")
-                    //     .attr("x", width4 - ethnicity_x_pixels[i])
-                    //     .attr("y", ethnicity_y_pixels[i])
-                    //     .style("font-weight", 200)
-                    //     .attr("font-size", "13px")
-                    //     .style("stroke", ethnicity_colors[i])
-                    //     .text(ethnicity_labels[i]);
-
                     d3.select("#ethnicity_legend").append("text")
                         .attr("x", ethnicity_x_pixels[i])
                         .attr("y", ethnicity_y_pixels[i])
                         .style("font-weight", 200)
-                        .attr("font-size", "13px")
+                        .attr("font-size", "14px")
                         .style("stroke", ethnicity_colors[i])
                         .text(ethnicity_labels[i]);
                 }
@@ -1155,7 +1117,7 @@
                     .append("g")
                     .attr("class", "arc4")
 
-                    console.log(arcs4);
+                console.log(arcs4);
 
                 var arcs5 = g5.selectAll("ar2")
                     .data(pie5(ethnicity_data2))
@@ -1180,12 +1142,10 @@
                         data[compare1]["Other_race"]];
 
                         var arc_index = ethnicity_data1.indexOf(i['value']);
-                        console.log(arc_index);
-                        console.log(Math.round(i['value']));
 
                         d3.select(this)
                             .attr("stroke", "black")
-                            .attr("stroke-width", "2px");
+                            .attr("stroke-width", "3px");
 
                         svg4.append("text")
                             .attr("x", width4 / 2)
@@ -1210,10 +1170,35 @@
                     })
                     .attr("d", arc5)
                     .on("mouseover", function (d, i) {
-                        // console.log(d)
+                        const ethnicity_labels = ["White", "Black", "Hispanic", "Asian",
+                            "Native American", "Pacific Islander",
+                            "Other or", "Combination"]
+
+                        var ethnicity_data2 = [data[compare2]["White"], data[compare2]["Black"],
+                        data[compare2]["Hispanic"], data[compare2]["Asian"],
+                        data[compare2]["AIAN"], data[compare2]["NHPI"],
+                        data[compare2]["Other_race"]];
+
+                        var arc_index = ethnicity_data2.indexOf(i['value']);
+
+                        d3.select(this)
+                            .attr("stroke", "black")
+                            .attr("stroke-width", "3px");
+
+                        svg4_part2.append("text")
+                            .attr("x", width4 / 2)
+                            .attr("y", 50)
+                            .attr("class", "arc_label")
+                            .style("text-anchor", "middle")
+                            .style("font-size", "14px")
+                            .text(ethnicity_labels[arc_index] + ": " + (Math.round(i['value'])).toString() + "%");
                     })
-                    .on("mouseout", function (d) {
-                        // console.log(d)
+                    .on("mouseout", function (d, i) {
+                        d3.select(this)
+                            .attr("stroke", "none")
+                            .attr("stroke-width", "none");
+
+                        svg4_part2.select(".arc_label").remove();
                     });
             };
         }
