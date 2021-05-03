@@ -50,7 +50,8 @@
     </div>
 
     <h2>Part II: Discover other counties</h2>
-    <h3>Explore other counties in the US by filtering for various metrics such as income, literacy, and more.</h3>
+    <h3>Starting with the counties most similar to yours, explore other counties in the US by filtering for
+        metrics such as income, literacy, and education.</h3>
     <div class="viz2" style="width: 100%;">
         <div id="us_div" style="width: 70%; height:800px; float: left;">
             <svg id="us_map" height="800" width="1200"></svg>
@@ -264,11 +265,14 @@
                     const sliderWidth = 350
                     const sliderHeight = 30
                     d3.select("#filters").html("")
-                    makeSlider(d3.select("#filters"), "% Employed", "employment_rate", sliderHeight, sliderWidth, counties, us_path, statesMesh, user_county_id_input, data)
-                    makeSlider(d3.select("#filters"), "Median Household Income", "income", sliderHeight, sliderWidth, counties, us_path, statesMesh, user_county_id_input, data)
-                    makeSlider(d3.select("#filters"), "% of adults at Level 3 Literacy", "literacy", sliderHeight, sliderWidth, counties, us_path, statesMesh, user_county_id_input, data)
-                    makeSlider(d3.select("#filters"), "% Graduated High School", "high_school", sliderHeight, sliderWidth, counties, us_path, statesMesh, user_county_id_input, data)
-                    makeSlider(d3.select("#filters"), "% with Bachelor's Degrees", "college", sliderHeight, sliderWidth, counties, us_path, statesMesh, user_county_id_input, data)
+                    var brushes = []
+                    brushes.push(makeSlider(d3.select("#filters"), "% Employed", "employment_rate", sliderHeight, sliderWidth, counties, us_path, statesMesh, user_county_id_input, data))
+                    brushes.push(makeSlider(d3.select("#filters"), "Median Household Income", "income", sliderHeight, sliderWidth, counties, us_path, statesMesh, user_county_id_input, data))
+                    brushes.push(makeSlider(d3.select("#filters"), "% of Adults at Level 3 Literacy", "literacy", sliderHeight, sliderWidth, counties, us_path, statesMesh, user_county_id_input, data))
+                    brushes.push(makeSlider(d3.select("#filters"), "% Graduated High School", "high_school", sliderHeight, sliderWidth, counties, us_path, statesMesh, user_county_id_input, data))
+                    brushes.push(makeSlider(d3.select("#filters"), "% with Bachelor's Degrees", "college", sliderHeight, sliderWidth, counties, us_path, statesMesh, user_county_id_input, data))
+
+                    // d3.select("#filters").append("button").text("Reset to " + selected_county_input).on("click", setDefault(data, selected_county_id.toString(), sliderWidth, brushes))
 
                     d3.select("#us_map").html("")
                     drawUS(counties, us_path, statesMesh, data, user_county_id_input, us, scale, countiesMesh)
@@ -506,7 +510,6 @@
             const colorScale2 = d3.scaleQuantize()
                 .domain([0, 1])
                 .range(colorsArray2);
-            scale = [1500, 550, 400]
 
             var filters = {};
 
@@ -587,6 +590,56 @@
                 momesh.datum(mo).attr("d", state_path)
             }
 
+            // function setDefault(data, selected_county, sliderWidth, brushes) {
+
+            //     const attributes = ["employment_rate", "income", "literacy", "high_school", "college"]
+            //     attributes.forEach((attribute, i) => {
+            //         let select_value = data[selected_county][attribute]
+
+            //         let values = []
+            //         Object.keys(data).forEach((county) => {
+            //             let value = data[county][attribute]
+
+            //             if (attribute === "college" || attribute === "high_school") {
+            //                 value /= 100
+            //             }
+            //             values.push(value);
+            //         });
+
+            //         let minMax = d3.extent(values);
+            //         let xScale = d3.scaleLinear().domain(minMax).range([10, sliderWidth - 10]);
+
+            //         if (attribute === "college" || attribute === "high_school") {
+            //             select_value /= 100
+            //         }
+
+            //         const defaultSelection = [Math.max(0, select_value - minMax[1] * 0.1), Math.min(minMax[1], select_value + minMax[1] * 0.1)]
+            //         const defaultBar = [xScale(defaultSelection[0]), xScale(defaultSelection[1])]
+
+            //         d3.select("#values" + attribute).text(defaultSelection[0].toString().substring(0, 5) + " - " + defaultSelection[1].toString().substring(0, 5))
+
+            //         const text = d3.select("#values" + attribute).text()
+            //         const dash = text.indexOf("-")
+
+            //         var start = Number(text.substring(0, dash - 1))
+            //         var end = Number(text.substring(dash + 1))
+            //         if (attribute === "college" || attribute === "high_school") {
+            //             start *= 100
+            //             end *= 100
+            //         }
+
+            //         let filterFunc = d => d[attribute] >= start && d[attribute] <= end;
+            //         filters[attribute] = filterFunc;
+
+            //         const gb = d3.select("#brush" + attribute)
+
+            //         console.log(attribute, defaultSelection)
+            //         gb.call(brushes[i].move, defaultSelection);
+            //     })
+
+            //     updateUS(counties, us_path, data)
+            // }
+
             function makeSlider(container, label, attribute, sliderHeight, sliderWidth, counties, us_path, statesMesh, selected_county, data) {
                 let values = []
                 let format = d3.format(".0%")
@@ -648,6 +701,7 @@
                     .attr("d", area);
 
                 const defaultSelection = [Math.max(0, select_value - minMax[1] * 0.1), Math.min(minMax[1], select_value + minMax[1] * 0.1)]
+                const defaultBar = [xScale(defaultSelection[0]), xScale(defaultSelection[1])]
 
                 d3.select("#values" + attribute).text(defaultSelection[0].toString().substring(0, 5) + " - " + defaultSelection[1].toString().substring(0, 5))
 
@@ -662,7 +716,6 @@
                 }
 
                 let filterFunc = d => d[attribute] >= start && d[attribute] <= end;
-                // let filterFunc = d => true;
                 filters[attribute] = filterFunc;
 
                 updateUS(counties, us_path, data)
@@ -697,8 +750,9 @@
 
                     }
                 }
-                canvas.append("g").attr("class", "brush").call(brush)
-                // .call(brush.move, defaultSelection);
+                canvas.append("g").attr("class", "brush" + attribute).call(brush)
+                    .call(brush.move, defaultBar);
+                return brush
             }
 
             function usTooltip(data, us) {
