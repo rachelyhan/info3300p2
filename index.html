@@ -75,10 +75,10 @@
 
     <div class="miniGraphs_1">
         <div>
-            <svg id="hs_graph" height="300" width="400" style="margin-top: 50px;"></svg>
+            <svg id="hs_graph" height="300" width="500" style="margin-top: 50px;"></svg>
         </div>
         <div>
-            <svg id="employment_graph" height="300" width="400" style="margin-top: 50px;"></svg>
+            <svg id="employment_graph" height="300" width="500" style="margin-top: 50px;"></svg>
         </div>
     </div>
     <div class="miniGraphs_2">
@@ -93,18 +93,6 @@
             </div>
             <div>
                 <svg id="ethnicity_legend" height="100" width="500"></svg>
-            </div>
-        </div>
-        <div class="gender_graphs">
-            <div>
-                <svg id="gender_graphs_title" height="25" width="500" style="margin-top: 50px"></svg>
-            </div>
-            <div>
-                <svg id="gender_graph1" height="300" width="250" style="margin-top: 0px;"></svg>
-                <svg id="gender_graph2" height="300" width="250" style="margin-top: 0px;"></svg>
-            </div>
-            <div>
-                <svg id="male_female_legend" height="25" width="500"></svg>
             </div>
         </div>
     </div>
@@ -792,22 +780,24 @@
                 d3.selectAll(".counties").on("mouseenter", mouseEntersPlot);
                 d3.selectAll(".counties").on("mouseout", mouseLeavesPlot);
 
-                var county1;
                 var county2;
                 var v2countyID1;
                 var v2countyID2;
                 d3.selectAll(".counties").on("click", function (d) {
-                    county1 = d3.select(this).datum();
-                    // v2countyID1 = county1.id;
                     v2countyID1 = user_county_id_input;
+                    county2 = d3.select(this).datum();
+                    v2countyID2 = county2.id;
+
 
                     // attempt to highlight selected county
                     var state_projection = d3.geoAlbersUsa().scale(1).translate([0, 0]);
                     var state_path = d3.geoPath().projection(state_projection);
 
-                    var svg = d3.select(this.parentNode.parentNode);
-                    var mo = topojson.mesh(us, us.objects.counties, function (a, b) { return a.id === v2countyID1 || b.id === v2countyID1 || user_county_id_input == a.id || user_county_id_input == b.id });
-                    svg.select("#momesh2").datum(mo).attr("d", state_path);
+                    // var svg = d3.select(this.parentNode.parentNode);
+                    // var mo = topojson.mesh(us, us.objects.counties, function (a, b) { return a.id === v2countyID1 || b.id === v2countyID1 || user_county_id_input == a.id || user_county_id_input == b.id });
+                    // svg.select("#momesh2").datum(mo).attr("d", state_path);
+
+                    viz3(Number(v2countyID1), Number(v2countyID2));
 
                     // let momesh = svg.append("path")
                     //     .attr("class", "select_outline")
@@ -821,25 +811,6 @@
                     // var mo = topojson.mesh(us, us.objects.counties, function (a, b) { return a.id === v2countyID1 || b.id === v2countyID1 });
                     // momesh.datum(mo).attr("d", state_path)
 
-                    // select 2nd county
-                    d3.selectAll(".counties").on("click", function (d) {
-                        county2 = d3.select(this).datum();
-                        v2countyID2 = county2.id;
-
-                        // const svg = d3.select(this.parentNode.parentNode);
-                        // var mo = topojson.mesh(us, us.objects.counties, function (a, b) { return a.id === v2countyID2 || b.id === v2countyID2 });
-                        // svg.select("#momesh").datum(mo).attr("d", state_path);
-
-                        // reset button
-                        // d3.select("button").on("click", function (d) {
-                        //     console.log("success");
-                        //     let svg1 = d3.select("#v3_c1");
-                        //     let svg2 = d3.select("#v3_c2");
-                        //     svg1.selectAll("*").remove();
-                        //     svg2.selectAll("*").remove();
-                        // });
-                        viz3(Number(v2countyID1), Number(v2countyID2));
-                    });
 
                 });
 
