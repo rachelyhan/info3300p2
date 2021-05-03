@@ -810,6 +810,17 @@
                     var mo = topojson.mesh(us, us.objects.counties, function (a, b) { return a.id === v2countyID1 || b.id === v2countyID1 });
                     svg.select("#momesh").datum(mo).attr("d", state_path);
 
+                    // let momesh = svg.append("path")
+                    //     .attr("class", "select_outline")
+                    //     .attr("d", "");
+
+                    // svg.append("path")
+                    //     .attr("class", "mouseover_outline")
+                    //     .attr("d", "")
+                    //     .attr("id", "momesh")
+
+                    // var mo = topojson.mesh(us, us.objects.counties, function (a, b) { return a.id === v2countyID1 || b.id === v2countyID1 });
+                    // momesh.datum(mo).attr("d", state_path)
 
                     // select 2nd county
                     d3.selectAll(".counties").on("click", function (d) {
