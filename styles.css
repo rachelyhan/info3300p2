@@ -66,6 +66,13 @@
             flex: 1;
         }
 
+        .miniGraphs {
+            display: flex;
+            justify-content: center;
+            flex-direction: row;
+            flex-wrap: wrap;
+        }
+
         .v3 {
             display: flex;
         }

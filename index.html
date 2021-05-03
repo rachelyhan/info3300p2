@@ -25,12 +25,9 @@
         <select name="pick_county_input" id="pick_county_input">
             <option value="" selected>Select your county</option>
         </select>
-
-        <!-- <button type="button" id="reset_button">Reset</button> -->
     </div>
     <br>
 
-    <!-- style="text-align: center; width:1550;" -->
     <div class="colorLegend_elm1" style="margin-left: 450px;">
         <svg id="colorLegend" height="50" width="500" style="background: #fff; font-family: 'Lato', arial;
             font-size: 16px; font-weight: 300;"></svg>
@@ -72,9 +69,25 @@
         </div>
     </div>
     <div class="miniGraphs">
-        <svg id="hs_graph" height="300" width="500" style="margin-top: 50px;"></svg>
+        <div>
+        <svg id="hs_graph" height="300" width="400" style="margin-top: 50px;"></svg>
+        </div>
+        <div>
+            <svg id="employment_graph" height="300" width="400" style="margin-top: 50px;"></svg>
+        </div>
+        <div>
+            <svg id="ethnicity_graph1" height="300" width="250" style="margin-top: 50px;"></svg>
+        <svg id="ethnicity_graph2" height="300" width="250" style="margin-top: 50px;"></svg>
+        </div>
+        <div>
+            <svg id="gender_graph1" height="300" width="250" style="margin-top: 50px;"></svg>
+            <svg id="gender_graph2" height="300" width="250" style="margin-top: 50px;"></svg>
+        </div>
+    </div>
+    <!-- <div class="miniGraphs">
+        <svg id="hs_graph" height="300" width="400" style="margin-top: 50px;"></svg>
         <svg id="empty space" height="300" width="50"></svg>
-        <svg id="employment_graph" height="300" width="500" style="margin-top: 50px;"></svg>
+        <svg id="employment_graph" height="300" width="400" style="margin-top: 50px;"></svg>
         <svg id="empty space" height="300" width="300" style="margin-top: 50px;"></svg>
 
         <svg id="ethnicity_graph1" height="300" width="250" style="margin-top: 50px;"></svg>
@@ -82,7 +95,7 @@
         <svg id="empty space" height="300" width="50"></svg>
         <svg id="gender_graph1" height="300" width="250" style="margin-top: 50px;"></svg>
         <svg id="gender_graph2" height="300" width="250" style="margin-top: 50px;"></svg>
-    </div>
+    </div> -->
 
     <script>
         const us_svg = d3.select("#us_map");
