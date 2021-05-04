@@ -49,27 +49,17 @@
 
     <h2 class="pt2">Part II: Discover other counties</h2>
     <h3 class="pt2">Starting with the counties most similar to yours, explore other counties in the US by filtering for
-        metrics such as income, literacy, and education.</h3>
+        metrics such as income, literacy, and education. Click on any county to compare it with yours!</h3>
     <div class="viz2" style="width: 100%;">
         <div id="us_div" style="width: 70%; height:800px; float: left;">
             <svg id="us_map" height="800" width="1200"></svg>
         </div>
         <div id="filters" style="height:800px; width: 20%; float:left; padding-left: 5%; padding-right: 5%;"></div>
     </div>
-    <h3 class="pt2">Click on any county to compare it with yours!</h3>
     <div class="viz3_title">
-<<<<<<< Updated upstream
         <h2 class="pt3">Part III: Compare two counties</h2>
-        <h3 class="pt3">Based on your exploration from Part II, select one county to compare and contrast with your
-            home
-            county.
+        <h3 class="pt3">Deep dive into education, employment and ethnicity metrics for your county vs. the county you picked in Part II.
         </h3>
-=======
-        <h2>Part III: Compare two counties</h2>
-        <h3>Based on your exploration from Part II, select one county to compare and contrast with your home county.
-        </h3>
-        <!-- <button id="reset">Click to pick 2 other counties!</button> -->
->>>>>>> Stashed changes
     </div>
 
     <div class="v3" style="display: flex;">
@@ -176,12 +166,6 @@
             // pull information from income dataset
             income.forEach((d, i) => {
                 const id = d['fips_txt']
-                if (id === 15001) {
-                    console.log("hi")
-                }
-                if (id === "15001") {
-                    console.log("hi string")
-                }
                 if (id in data && d["Attribute"] === "Median_Household_Income_2019") {
                     data[id]["income"] = d["Value"]
                 }
@@ -280,6 +264,7 @@
             };
 
 
+            // find county id from dataset based on selected state and county 
             function find_county_id(state, county) {
                 selected_county_id = "";
                 employment.forEach((d, i) => {
@@ -753,8 +738,6 @@
                 var v2countyID1;
                 var v2countyID2;
                 d3.selectAll(".counties").on("click", function (d) {
-                    // county1 = d3.select(this).datum();
-                    // v2countyID1 = county1.id;
                     v2countyID1 = user_county_id_input.toString();
 
                     county2 = d3.select(this).datum();
