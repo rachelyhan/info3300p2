@@ -110,7 +110,6 @@
             var countiesMesh = topojson.mesh(us, us.objects.counties);
 
             // import datasets and populate new json
-            var zip_codes = await d3.csv("fipscode_zipcode.csv", d3.autoType);
             var employment = await d3.csv("employment_data.csv", d3.autoType);
             var education = await d3.csv("education.csv", d3.autoType);
             var income = await d3.csv("unemployment_income.csv", d3.autoType);
