@@ -59,10 +59,10 @@
     <h3 class="pt2">Click on any county to compare it with yours!</h3>
     <div class="viz3_title">
         <h2 class="pt3">Part III: Compare two counties</h2>
-        <h3 class="pt3">Based on your exploration from Part II, select one county to compare and contrast with your home
+        <h3 class="pt3">Based on your exploration from Part II, select one county to compare and contrast with your
+            home
             county.
         </h3>
-        <!-- <button id="reset">Click to pick 2 other counties!</button> -->
     </div>
 
     <div class="v3" style="display: flex;">
@@ -127,6 +127,7 @@
                 data[Number(county.id)] = {};
             })
 
+            // pull information from employment dataset
             employment.forEach((d, i) => {
                 const id = d['FIPS_code'].toString()
                 data[id]["employment_rate"] = d['Employed'];
@@ -151,6 +152,7 @@
                 all_employment_values.push(d['Employed'])
             });
 
+            // pull information from education dataset
             education.forEach((d, i) => {
                 const id = d['FIPS Code'];
                 if (id in data) {
@@ -164,7 +166,7 @@
             });
 
 
-            // median income not pulling the right values
+            // pull information from income dataset
             income.forEach((d, i) => {
                 const id = d['fips_txt']
                 if (id in data && d["Attribute"] === "Median_Household_Income_2019") {
@@ -172,7 +174,7 @@
                 }
             });
 
-
+            // color scale for the employemnt value 
             const colorScale = d3.scaleQuantile()
                 .domain(all_employment_values)
                 .range(colorsArray);
@@ -202,9 +204,11 @@
                 update_county_dropdown(selected_state_input);
             });
 
+            // draw state map
             make_state_map(42053, "#state_min", "#state_min_title");
             make_state_map(46117, "#state_max", "#state_max_title");
 
+            // dropdown for visualization 1
             function update_county_dropdown(user_state_input) {
                 var user_counties = [];
                 Object.keys(data).forEach((county) => {
@@ -229,7 +233,7 @@
                     var selected_county_input = d3.select(this).property("value");
                     user_county_id_input = find_county_id(user_state_input, selected_county_input);
 
-                    //VISUALIZATION 1: STATES
+                    // visualization 1: states depending on user selected input
                     d3.select("#state_max_div").style("display", "block")
                     d3.select("#state_min_div").style("display", "block")
                     make_state_map(user_county_id_input, "#user_state", "#user_state_title");
@@ -243,7 +247,7 @@
                         var full = user_input_county_id_string
                     }
 
-                    //VISUALIZATION 2: US MAP + FILTERS
+                    // visualization 2: us map + filters
                     const sliderWidth = 350
                     const sliderHeight = 30
                     d3.select("#filters").html("")
@@ -273,6 +277,7 @@
                 return selected_county_id;
             };
 
+            // function to create state map given county code, svg, and title svg
             function make_state_map(county_id, svg_id, title_id) {
                 d3.select(svg_id).selectAll("*").remove();
                 var state_projection = d3.geoAlbersUsa().scale(1).translate([0, 0]);
@@ -323,7 +328,7 @@
                 map.selectAll("path.selected_counties")
                     .remove();
 
-                //draw state map
+                // draw state map
                 map.selectAll("path.selected_counties").data(selected_counties)
                     .join("path")
                     .attr("class", "selected_counties")
@@ -482,8 +487,7 @@
                 add_tooltip(svg_id, data, us)
             };
 
-            // DRAWS US MAP IN VISUALIZATION 2, AND CREATES HOVER TOOLTIP FOR IT
-
+            // draw us map in visualization 2 and creates hover tooltip for it 
             const colorsArray2 = ["lightgrey", "#C7A9E3"];
             const colorScale2 = d3.scaleQuantize()
                 .domain([0, 1])
@@ -491,7 +495,7 @@
 
             var filters = {};
 
-            //returns true if county fulfills all filter criteria
+            // returns true if county fulfills all filter criteria
             function matchCounties(county, data) {
                 var pass = true
                 Object.values(filters).forEach(filterFunc => {
@@ -502,7 +506,7 @@
                 return pass
             };
 
-            //updates colors for counties
+            // updates colors for counties
             function updateUS(counties, us_path, data) {
                 us_svg.selectAll("path.counties").data(counties.features)
                     .join("path")
@@ -511,11 +515,9 @@
                     .attr("fill", d => colorScale2(Number(matchCounties(d.id, data))));
             }
 
-            //draws US map
+            // draws US map
             function drawUS(counties, us_path, statesMesh, data, county_id, us, scale, countiesMesh) {
                 const margin = { top: 0, right: 0, bottom: 0, left: 0 };
-                // const mapWidth = us_svg.attr("width") - margin.left - margin.right;
-                // const mapHeight = us_svg.attr("height") - margin.top - margin.bottom;
                 const map = us_svg.append("g")
                     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -716,7 +718,7 @@
                     .attr("width", tooltipWidth)
                     .attr("height", tooltipHeight)
 
-                //text
+                // text
                 const attributes = ["name", "employment", "income", "literacy", "college", "highschool"]
                 var y = 10
                 attributes.forEach((d) => {
@@ -779,11 +781,11 @@
                     const svg = d3.select(this.parentNode.parentNode);
                     const width = svg.attr("width");
                     const height = svg.attr("height");
-                    tooltip = svg.select("#tooltip")
+                    tooltip = svg.select("#tooltip");
                     let county = d3.select(this).datum();
                     let countyID = county.id;
 
-                    //calculating translation and scale for tooltip placement
+                    // calculating translation and scale for tooltip placement
                     var states = topojson.feature(us, us.objects.states)
                     selected_state = states.features.filter(function (d) {
                         return d.id === countyID.substring(0, 2);
@@ -804,7 +806,7 @@
                     let xPos = (bounds[0][0] + bounds[1][0]) / 2.0;
                     let yPos = bounds[1][1];
 
-                    //if tooltip goes outside svg
+                    // if tooltip goes outside svg
                     if (xPos + tooltipWidth / 2 > width) {
                         xPos = (bounds[0][0] - tooltipWidth / 2)
                     } else if (xPos - tooltipWidth / 2 < 0) {
@@ -814,11 +816,11 @@
                         yPos = bounds[1][1] - tooltipHeight - 30
                     }
 
-                    //highlight outline
+                    // highlight outline
                     var mo = topojson.mesh(us, us.objects.counties, function (a, b) { return a.id === countyID || b.id === countyID });
                     svg.select("#momesh").datum(mo).attr("d", state_path)
 
-                    //update text and show tooltip
+                    // update text and show tooltip
                     tooltip.style("visibility", "visible")
                     tooltip.attr("transform", `translate(${xPos},${yPos})`);
 
@@ -830,6 +832,7 @@
                     svg.select("#highschool").text("Pop. % of High School Graduates: " + Math.round(data[Number(countyID)]["high_school"]) + "%");
                 }
 
+                // Visualization 2 - function for when mouse leaves plot
                 function mouseLeavesPlot() {
                     const svg = d3.select(this.parentNode.parentNode)
                     tooltip = svg.select("#tooltip").style("visibility", "hidden");
@@ -837,14 +840,56 @@
                 }
             }
 
+
+            // select county from us map for visualization 3 and draw the 
+            // 2 state maps with the counties
+            var county2;
+            var v2countyID1;
+            var v2countyID2;
+            d3.selectAll(".counties").on("click", function (d) {
+                v2countyID1 = user_county_id_input.toString();
+
+                county2 = d3.select(this).datum();
+                v2countyID2 = county2.id.toString();
+
+                // highlight selected county
+                var state_projection = d3.geoAlbersUsa().scale(1).translate([0, 0]);
+                var state_path = d3.geoPath().projection(state_projection);
+
+                bounds = state_path.bounds(selected_state[0]);
+                var state_scale = scale[0]
+                var state_translate = [scale[1] + (bounds[0][0]) / 2, scale[2] + (bounds[0][1]) / 2];
+
+                state_projection.scale(state_scale)
+                    .translate(state_translate);
+                state_projection.translate(state_translate);
+
+                var svg = d3.select(this.parentNode.parentNode);
+                const map = svg.selectAll("g")
+
+                if (v2countyID2.length === 4) {
+                    var full = "0" + v2countyID2
+                }
+                else {
+                    var full = v2countyID2
+                }
+
+                var mo = topojson.mesh(us, us.objects.counties, function (a, b) { return a.id === v2countyID2 || b.id === v2countyID2 });
+                svg.select("#county2").datum(mo).attr("d", state_path).style("stroke", "darkblue");
+
+                viz3(Number(v2countyID1), Number(v2countyID2));
+            });
+
+            // Visualization 3
             function viz3(compare1, compare2) {
+                // draw the 2 state maps 
                 make_state_map(compare1, "#v3_c1", "#v3_c1_title");
                 make_state_map(compare2, "#v3_c2", "#v3_c2_title");
 
                 const svg_education = d3.select("svg#hs_graph");
                 const svg_employment = d3.select("svg#employment_graph");
 
-                // draw bar charts
+                // draw the 2 bar charts
                 bar_charts(svg_education, "Education", ["Less than High School Diploma", "High School Diploma",
                     "Bachelor's Degree or Higher"], ["Percent of adults with less than a high school diploma, 2015-19",
                     "Percent of adults with a high school diploma only, 2015-19",
@@ -1004,7 +1049,7 @@
 
                 };
 
-                // ETHNICITY OF PIE CHART CHART MINI GRAPH
+                // draw ethnicity pie chart for visualization 3
                 const svg4 = d3.select("svg#ethnicity_graph1");
                 const svg4_part2 = d3.select("svg#ethnicity_graph2");
                 const width4 = svg4.attr("width");
@@ -1029,7 +1074,7 @@
                     .style("text-anchor", "middle")
                     .style("font-weight", 600)
                     .style("font-size", "16px")
-                    .text("Ethnicity Graphs");
+                    .text("Ethnicity");
 
                 // County 1 label
                 svg4.append("text")
@@ -1089,7 +1134,7 @@
                     .innerRadius(20)
                     .outerRadius(radius4);
 
-                //Generate groups
+                // Generate groups
                 var arcs4 = g4.selectAll("arc")
                     .data(pie4(ethnicity_data1))
                     .enter()
@@ -1102,7 +1147,7 @@
                     .append("g")
                     .attr("class", "arc5")
 
-                //Draw arc paths
+                // Draw arc paths
                 arcs4.append("path")
                     .attr("fill", function (d, i) {
                         return color4(i);
