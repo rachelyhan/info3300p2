@@ -58,11 +58,18 @@
     </div>
     <h3 class="pt2">Click on any county to compare it with yours!</h3>
     <div class="viz3_title">
+<<<<<<< Updated upstream
         <h2 class="pt3">Part III: Compare two counties</h2>
         <h3 class="pt3">Based on your exploration from Part II, select one county to compare and contrast with your
             home
             county.
         </h3>
+=======
+        <h2>Part III: Compare two counties</h2>
+        <h3>Based on your exploration from Part II, select one county to compare and contrast with your home county.
+        </h3>
+        <!-- <button id="reset">Click to pick 2 other counties!</button> -->
+>>>>>>> Stashed changes
     </div>
 
     <div class="v3" style="display: flex;">
@@ -169,6 +176,12 @@
             // pull information from income dataset
             income.forEach((d, i) => {
                 const id = d['fips_txt']
+                if (id === 15001) {
+                    console.log("hi")
+                }
+                if (id === "15001") {
+                    console.log("hi string")
+                }
                 if (id in data && d["Attribute"] === "Median_Household_Income_2019") {
                     data[id]["income"] = d["Value"]
                 }

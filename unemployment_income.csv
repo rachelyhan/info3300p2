@@ -7247,6 +7247,7 @@ fips_txt,Stabr,area_name,Attribute,Value
 15003,HI,"Honolulu County/city, HI",Unemployment_rate_2019,2.6
 15003,HI,"Honolulu County/city, HI",Median_Household_Income_2019,86946
 15003,HI,"Honolulu County/city, HI",Med_HH_Income_Percent_of_State_Total_2019,103.8359604
+15005,HI,"Kalawao County/city, HI",Median_Household_Income_2019,69375
 15007,HI,"Kauai County, HI",Rural_urban_continuum_code_2013,5
 15007,HI,"Kauai County, HI",Urban_influence_code_2013,8
 15007,HI,"Kauai County, HI",Metro_2013,0
