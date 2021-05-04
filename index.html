@@ -47,8 +47,8 @@
         </div>
     </div>
 
-    <h2>Part II: Discover other counties</h2>
-    <h3>Starting with the counties most similar to yours, explore other counties in the US by filtering for
+    <h2 class="pt2">Part II: Discover other counties</h2>
+    <h3 class="pt2">Starting with the counties most similar to yours, explore other counties in the US by filtering for
         metrics such as income, literacy, and education.</h3>
     <div class="viz2" style="width: 100%;">
         <div id="us_div" style="width: 70%; height:800px; float: left;">
@@ -56,9 +56,12 @@
         </div>
         <div id="filters" style="height:800px; width: 20%; float:left; padding-left: 5%; padding-right: 5%;"></div>
     </div>
+    <h3 class="pt2">Click on any county to compare it with yours!</h3>
     <div class="viz3_title">
-        <h2>Part III: Compare two counties</h2>
-        <h3>Based on your exploration from Part II, select one county to compare and contrast with your home county.</h3>
+        <h2 class="pt3">Part III: Compare two counties</h2>
+        <h3 class="pt3">Based on your exploration from Part II, select one county to compare and contrast with your home
+            county.
+        </h3>
         <!-- <button id="reset">Click to pick 2 other counties!</button> -->
     </div>
 
@@ -208,8 +211,8 @@
                     if (data[county]['state'] === user_state_input) {
                         user_counties.push(data[county]['county_name']);
                     };
-                    user_counties.sort();
                 });
+                user_counties.sort();
 
                 d3.selectAll('.county_options')
                     .remove();
@@ -254,6 +257,8 @@
                     d3.select("#us_map").html("")
                     drawUS(counties, us_path, statesMesh, data, user_county_id_input, us, scale, countiesMesh)
                     usTooltip(data, us)
+
+                    d3.selectAll(".pt2").style("display", "block")
                 });
             };
 
@@ -765,35 +770,10 @@
                     var mo = topojson.mesh(us, us.objects.counties, function (a, b) { return a.id === v2countyID2 || b.id === v2countyID2 });
                     svg.select("#county2").datum(mo).attr("d", state_path).style("stroke", "darkblue");
 
-                    console.log(mo)
-
                     viz3(Number(v2countyID1), Number(v2countyID2));
+                    d3.selectAll(".pt3").style("display", "block")
 
                 });
-
-                // var counter = 0;
-                // while (counter != 0) {
-                //     d3.selectAll(".counties").on("click", function (d) {
-                //         let county = d3.select(this).datum();
-                //         v2countyID1 = county.id;
-
-                //         // select 2nd county
-                //         d3.selectAll(".counties").on("click", function (d) {
-                //             let county2 = d3.select(this).datum();
-                //             v2countyID2 = county2.id;
-                //             viz3(Number(v2countyID1), Number(v2countyID2));
-                //             d3.select("button").on("click", function (d) {
-                //                 console.log("success");
-                //                 let svg1 = d3.select("#v3_c1");
-                //                 let svg2 = d3.select("#v3_c2");
-                //                 svg1.selectAll("*").remove();
-                //                 svg2.selectAll("*").remove();
-                //             });
-
-                //         });
-                //     });
-                // };
-
 
                 function mouseEntersPlot() {
                     const svg = d3.select(this.parentNode.parentNode);
@@ -1078,7 +1058,7 @@
                 data[compare2]["Other_race"]];
 
                 // Colored graph labels
-                const ethnicity_x_pixels = [150, 150, 250, 250, 350, 350, 500];
+                const ethnicity_x_pixels = [120, 120, 320, 320, 520, 520, 720];
                 const ethnicity_y_pixels = [20, 35, 20, 35, 20, 35, 20];
                 const ethnicity_labels = ["White", "Black", "Hispanic", "Asian",
                     "Native American", "Pacific Islander",
@@ -1115,8 +1095,6 @@
                     .enter()
                     .append("g")
                     .attr("class", "arc4")
-
-                console.log(arcs4);
 
                 var arcs5 = g5.selectAll("ar2")
                     .data(pie5(ethnicity_data2))
